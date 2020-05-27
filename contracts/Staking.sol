@@ -34,14 +34,18 @@ contract Staking {
     uint256 constant TIME_TO_STAKE = 5 days; // time it takes for deposited tokens to become staked.
     uint256 constant TIME_TO_WITHDRAW = 5 days; // time it takes from witdraw signal to tokens to be unlocked.
 
+    //TODO: Set correct value for last_release_date
+    uint256 constant LAST_RELEASE_DATE = 1760054400; // time when last ieo fund is unlocked.
+
     mapping(address => uint256) internal stakedBalance; // the amount of money currently being staked.
     mapping(address => StakeStruct) internal toBeStakedList; // stakes that are waiting to be old enough to become staked.
     mapping(address => StakeStruct) internal toWithdrawList; // money that is waiting to be withdrew.
     mapping(address => ieoStruct) internal ieoFrozenFunds; // funds that were frozen during token launch, they will count as stake.
 
     struct ieoStruct {
-        uint256 balance; // the amount of money that was locked during token creation
-        uint256 releaseDate; // when those tokens are to be released
+        uint256[] amount; // the amount of money that was locked during token creation
+        uint256[] releaseDate; // when those tokens are to be released
+        uint256 count;
     }
 
     struct StakeStruct {
@@ -82,7 +86,6 @@ contract Staking {
                 delete toBeStakedList[msg.sender].amount[i];
                 delete toBeStakedList[msg.sender].date[i];
             }
-
         }
     }
 
@@ -116,5 +119,24 @@ contract Staking {
             // value: bet total withdraw value on toWithdrawList
             ctsi.transfer(msg.sender, totalWithdraw);
         }
+    }
+
+    /// @notice Returns total amount of tokens counted as stake
+    /// @param _userAddress user to retrieve staked balance from
+    function getStakedBalance(address _userAddress) public view returns (uint256) {
+        uint256 totalAmount = stakedBalance[_userAddress];
+
+        if (now > LAST_RELEASE_DATE) {
+            return totalAmount;
+        }
+
+        ieoStruct memory IFF = ieoFrozenFunds[_userAddress];
+        for (uint256 i = 0; i < IFF.count; i++) {
+            if (IFF.releaseDate[i] > now) {
+                totalAmount = totalAmount.add(IFF.amount[i]);
+            }
+        }
+
+        return totalAmount;
     }
 }
