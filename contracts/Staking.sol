@@ -25,12 +25,14 @@
 pragma solidity ^0.5.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Staking {
     using SafeMath for uint256;
+    IERC20 private ctsi;
 
-    uint256 constant TIME_TO_STAKE = 5 days;
-    uint256 constant TIME_TO_WITHDRAW = 5 days;
+    uint256 constant TIME_TO_STAKE = 5 days; // time it takes for deposited tokens to become staked.
+    uint256 constant TIME_TO_WITHDRAW = 5 days; // time it takes from witdraw signal to tokens to be unlocked.
 
     mapping(address => uint256) internal stakedBalance; // the amount of money currently being staked.
     mapping(address => StakeStruct) internal toBeStakedList; // stakes that are waiting to be old enough to become staked.
@@ -49,9 +51,19 @@ contract Staking {
         uint256 lastSearchIndex;
     }
 
+    constructor(address _ctsiAddress) public {
+        ctsi = IERC20(_ctsiAddress);
+    }
+
     /// @notice Deposit CTSI to be staked. The money will turn into staked balance after TIME_TO_STAKE days, if the function finalizeStakes is called.
     /// @param _amount The amount of tokens that are gonna be deposited.
     function depositStake(uint256 _amount) public {
+        // transfer stake to contract
+        // from: msg.sender
+        // to: this contract
+        // value: _amount
+        ctsi.transferFrom(msg.sender, address(this), _amount);
+
         toBeStakedList[msg.sender].amount.push(_amount);
         toBeStakedList[msg.sender].date.push(now);
         toBeStakedList[msg.sender].count++;
@@ -86,16 +98,23 @@ contract Staking {
     /// @dev The number of withdraws finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
     function finalizeWithdraws() public {
         StakeStruct memory TBWL = toWithdrawList[msg.sender];
+        uint256 totalWithdraw = 0;
 
         for (uint256 i = TBWL.lastSearchIndex; (i < TBWL.count) || (i > TBWL.lastSearchIndex + 50); i++){
             if (now > TBWL.date[i] + TIME_TO_WITHDRAW) {
                 stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(TBWL.amount[i]);
-
                 toWithdrawList[msg.sender].lastSearchIndex = i;
+
+                totalWithdraw = totalWithdraw.add(TBWL.amount[i]);
+
                 delete toWithdrawList[msg.sender].amount[i];
                 delete toWithdrawList[msg.sender].date[i];
             }
+            // withdraw tokens
+            // from: this contract
+            // to: msg.sender
+            // value: bet total withdraw value on toWithdrawList
+            ctsi.transfer(msg.sender, totalWithdraw);
         }
     }
-
 }
