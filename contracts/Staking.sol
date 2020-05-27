@@ -24,7 +24,11 @@
 /// @author Felipe Argento
 pragma solidity ^0.5.0;
 
+import "@openzeppelin/contracts/math/SafeMath.sol";
+
 contract Staking {
+    using SafeMath for uint256;
+
     uint256 constant TIME_TO_STAKE = 5 days;
     uint256 constant TIME_TO_WITHDRAW = 5 days;
 
@@ -60,7 +64,7 @@ contract Staking {
 
         for (uint256 i = TBSL.lastSearchIndex; (i < TBSL.count) || (i > TBSL.lastSearchIndex + 50); i++){
             if (now > TBSL.date[i] + TIME_TO_STAKE) {
-                stakedBalance[msg.sender] += TBSL.amount[i];
+                stakedBalance[msg.sender] = stakedBalance[msg.sender].add(TBSL.amount[i]);
 
                 toBeStakedList[msg.sender].lastSearchIndex = i;
                 delete toBeStakedList[msg.sender].amount[i];
@@ -85,7 +89,7 @@ contract Staking {
 
         for (uint256 i = TBWL.lastSearchIndex; (i < TBWL.count) || (i > TBWL.lastSearchIndex + 50); i++){
             if (now > TBWL.date[i] + TIME_TO_WITHDRAW) {
-                stakedBalance[msg.sender] -= TBWL.amount[i];
+                stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(TBWL.amount[i]);
 
                 toWithdrawList[msg.sender].lastSearchIndex = i;
                 delete toWithdrawList[msg.sender].amount[i];
