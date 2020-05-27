@@ -1,0 +1,15 @@
+contracts.json
+coverage*
+node_modules
+test/*/
+.vscode
+.node*
+*.bin
+*.abi
+/out
+compute/target
+emulator/target
+build
+emulator/src/*.rs
+!emulator/src/lib.rs
+.venv
