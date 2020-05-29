@@ -50,7 +50,7 @@ contract Staking {
     struct StakeStruct {
         uint256[] amount;
         uint256[] time;
-        uint256 lastSearchIndex;
+        uint256 lastSearchIndex; // used to implement FIFO
     }
 
     constructor(address _ctsiAddress) public {
