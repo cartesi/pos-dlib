@@ -82,6 +82,8 @@ contract Staking {
                 toBeStakedList[msg.sender].lastSearchIndex = i;
                 delete toBeStakedList[msg.sender].amount[i];
                 delete toBeStakedList[msg.sender].time[i];
+            } else {
+                break; // if finds a deposit that is not ready, all deposits after that wont be ready
             }
         }
     }
@@ -108,6 +110,13 @@ contract Staking {
 
                 delete toWithdrawList[msg.sender].amount[i];
                 delete toWithdrawList[msg.sender].time[i];
+            } else {
+                // withdraw tokens
+                // from: this contract
+                // to: msg.sender
+                // value: bet total withdraw value on toWithdrawList
+                ctsi.transfer(msg.sender, totalWithdraw);
+                break; // if finds a deposit that is not ready, all deposits after that wont be ready
             }
             // withdraw tokens
             // from: this contract
