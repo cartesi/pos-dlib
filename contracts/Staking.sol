@@ -38,7 +38,7 @@ contract Staking {
     uint256 constant LAST_RELEASE_DATE = 1760054400; // time when last ieo fund is unlocked.
 
     mapping(address => uint256) internal stakedBalance; // the amount of money currently being staked.
-    mapping(address => StakeStruct) internal toBeStakedList; // stakes that are waiting to be old enough to become staked.
+    mapping(address => StakeStruct) internal toBeStakedList; // deposits that are waiting to be old enough to become staked.
     mapping(address => StakeStruct) internal toWithdrawList; // money that is waiting to be withdrew.
     mapping(address => ieoStruct) internal ieoFrozenFunds; // funds that were frozen during token launch, they will count as stake.
 
