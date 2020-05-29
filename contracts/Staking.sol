@@ -45,13 +45,11 @@ contract Staking {
     struct ieoStruct {
         uint256[] amount; // the amount of money that was locked during token creation
         uint256[] releaseDate; // when those tokens are to be released
-        uint256 count;
     }
 
     struct StakeStruct {
         uint256[] amount;
         uint256[] date;
-        uint256 count;
         uint256 lastSearchIndex;
     }
 
@@ -70,7 +68,6 @@ contract Staking {
 
         toBeStakedList[msg.sender].amount.push(_amount);
         toBeStakedList[msg.sender].date.push(now);
-        toBeStakedList[msg.sender].count++;
     }
 
     /// @notice Finalizes Stakes. Goes through the list toBeStaked and transform that into staked balance, if the requirements are met.
@@ -78,7 +75,7 @@ contract Staking {
     function finalizeStakes() public {
         StakeStruct memory TBSL = toBeStakedList[msg.sender];
 
-        for (uint256 i = TBSL.lastSearchIndex; (i < TBSL.count) || (i > TBSL.lastSearchIndex + 50); i++){
+        for (uint256 i = TBSL.lastSearchIndex; (i < TBSL.amount.length) || (i > TBSL.lastSearchIndex + 50); i++){
             if (now > TBSL.date[i] + TIME_TO_STAKE) {
                 stakedBalance[msg.sender] = stakedBalance[msg.sender].add(TBSL.amount[i]);
 
@@ -94,7 +91,6 @@ contract Staking {
     function startWithdraw(uint256 _amount) public {
         toWithdrawList[msg.sender].amount.push(_amount);
         toWithdrawList[msg.sender].date.push(now);
-        toWithdrawList[msg.sender].count++;
     }
 
     /// @notice Finalizes withdraws. Goes through the list toWithdraw and removes that from staked balance, if the requirements are met.
@@ -103,7 +99,7 @@ contract Staking {
         StakeStruct memory TBWL = toWithdrawList[msg.sender];
         uint256 totalWithdraw = 0;
 
-        for (uint256 i = TBWL.lastSearchIndex; (i < TBWL.count) || (i > TBWL.lastSearchIndex + 50); i++){
+        for (uint256 i = TBWL.lastSearchIndex; (i < TBWL.amount.length) || (i > TBWL.lastSearchIndex + 50); i++){
             if (now > TBWL.date[i] + TIME_TO_WITHDRAW) {
                 stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(TBWL.amount[i]);
                 toWithdrawList[msg.sender].lastSearchIndex = i;
@@ -131,7 +127,7 @@ contract Staking {
         }
 
         ieoStruct memory IFF = ieoFrozenFunds[_userAddress];
-        for (uint256 i = 0; i < IFF.count; i++) {
+        for (uint256 i = 0; i < IFF.amount.length; i++) {
             if (IFF.releaseDate[i] > now) {
                 totalAmount = totalAmount.add(IFF.amount[i]);
             }
