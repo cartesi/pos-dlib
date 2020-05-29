@@ -91,6 +91,8 @@ contract Staking {
     /// @notice Start CTSI withdraw from staked balance process. The money will turn into withdrawal balance after TIME_TO_WITHDRAW days, if the function finalizeWithdraw is called.
     /// @param _amount The amount of tokens that are gonna be withdrew.
     function startWithdraw(uint256 _amount) public {
+        stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(_amount);
+
         toWithdrawList[msg.sender].amount.push(_amount);
         toWithdrawList[msg.sender].time.push(now);
     }
@@ -103,9 +105,7 @@ contract Staking {
 
         for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) || (i < TBWL.nextSearchIndex + 50); i++){
             if (now > TBWL.time[i] + TIME_TO_WITHDRAW) {
-                stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(TBWL.amount[i]);
                 toWithdrawList[msg.sender].nextSearchIndex = i + 1;
-
                 totalWithdraw = totalWithdraw.add(TBWL.amount[i]);
 
                 delete toWithdrawList[msg.sender].amount[i];
