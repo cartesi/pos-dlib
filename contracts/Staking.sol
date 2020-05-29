@@ -50,7 +50,7 @@ contract Staking {
     struct StakeStruct {
         uint256[] amount;
         uint256[] time;
-        uint256 lastSearchIndex; // used to implement FIFO
+        uint256 nextSearchIndex; // used to implement FIFO
     }
 
     constructor(address _ctsiAddress) public {
@@ -75,11 +75,11 @@ contract Staking {
     function finalizeStakes() public {
         StakeStruct memory TBSL = toBeStakedList[msg.sender];
 
-        for (uint256 i = TBSL.lastSearchIndex; (i < TBSL.amount.length) || (i < TBSL.lastSearchIndex + 50); i++){
+        for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) || (i < TBSL.nextSearchIndex + 50); i++){
             if (now > TBSL.time[i] + TIME_TO_STAKE) {
                 stakedBalance[msg.sender] = stakedBalance[msg.sender].add(TBSL.amount[i]);
 
-                toBeStakedList[msg.sender].lastSearchIndex = i;
+                toBeStakedList[msg.sender].nextSearchIndex = i + 1;
                 delete toBeStakedList[msg.sender].amount[i];
                 delete toBeStakedList[msg.sender].time[i];
             } else {
@@ -101,10 +101,10 @@ contract Staking {
         StakeStruct memory TBWL = toWithdrawList[msg.sender];
         uint256 totalWithdraw = 0;
 
-        for (uint256 i = TBWL.lastSearchIndex; (i < TBWL.amount.length) || (i < TBWL.lastSearchIndex + 50); i++){
+        for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) || (i < TBWL.nextSearchIndex + 50); i++){
             if (now > TBWL.time[i] + TIME_TO_WITHDRAW) {
                 stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(TBWL.amount[i]);
-                toWithdrawList[msg.sender].lastSearchIndex = i;
+                toWithdrawList[msg.sender].nextSearchIndex = i + 1;
 
                 totalWithdraw = totalWithdraw.add(TBWL.amount[i]);
 
