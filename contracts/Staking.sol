@@ -34,7 +34,7 @@ contract Staking {
     uint256 constant TIME_TO_STAKE = 5 days; // time it takes for deposited tokens to become staked.
     uint256 constant TIME_TO_WITHDRAW = 5 days; // time it takes from witdraw signal to tokens to be unlocked.
 
-    //TODO: Set correct value for last_release_date
+    //TODO: Set correct value for last_release_time
     uint256 constant LAST_RELEASE_DATE = 1760054400; // time when last ieo fund is unlocked.
 
     mapping(address => uint256) internal stakedBalance; // the amount of money currently being staked.
@@ -49,7 +49,7 @@ contract Staking {
 
     struct StakeStruct {
         uint256[] amount;
-        uint256[] date;
+        uint256[] time;
         uint256 lastSearchIndex;
     }
 
@@ -67,7 +67,7 @@ contract Staking {
         ctsi.transferFrom(msg.sender, address(this), _amount);
 
         toBeStakedList[msg.sender].amount.push(_amount);
-        toBeStakedList[msg.sender].date.push(now);
+        toBeStakedList[msg.sender].time.push(now);
     }
 
     /// @notice Finalizes Stakes. Goes through the list toBeStaked and transform that into staked balance, if the requirements are met.
@@ -76,12 +76,12 @@ contract Staking {
         StakeStruct memory TBSL = toBeStakedList[msg.sender];
 
         for (uint256 i = TBSL.lastSearchIndex; (i < TBSL.amount.length) || (i > TBSL.lastSearchIndex + 50); i++){
-            if (now > TBSL.date[i] + TIME_TO_STAKE) {
+            if (now > TBSL.time[i] + TIME_TO_STAKE) {
                 stakedBalance[msg.sender] = stakedBalance[msg.sender].add(TBSL.amount[i]);
 
                 toBeStakedList[msg.sender].lastSearchIndex = i;
                 delete toBeStakedList[msg.sender].amount[i];
-                delete toBeStakedList[msg.sender].date[i];
+                delete toBeStakedList[msg.sender].time[i];
             }
         }
     }
@@ -90,7 +90,7 @@ contract Staking {
     /// @param _amount The amount of tokens that are gonna be withdrew.
     function startWithdraw(uint256 _amount) public {
         toWithdrawList[msg.sender].amount.push(_amount);
-        toWithdrawList[msg.sender].date.push(now);
+        toWithdrawList[msg.sender].time.push(now);
     }
 
     /// @notice Finalizes withdraws. Goes through the list toWithdraw and removes that from staked balance, if the requirements are met.
@@ -100,14 +100,14 @@ contract Staking {
         uint256 totalWithdraw = 0;
 
         for (uint256 i = TBWL.lastSearchIndex; (i < TBWL.amount.length) || (i > TBWL.lastSearchIndex + 50); i++){
-            if (now > TBWL.date[i] + TIME_TO_WITHDRAW) {
+            if (now > TBWL.time[i] + TIME_TO_WITHDRAW) {
                 stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(TBWL.amount[i]);
                 toWithdrawList[msg.sender].lastSearchIndex = i;
 
                 totalWithdraw = totalWithdraw.add(TBWL.amount[i]);
 
                 delete toWithdrawList[msg.sender].amount[i];
-                delete toWithdrawList[msg.sender].date[i];
+                delete toWithdrawList[msg.sender].time[i];
             }
             // withdraw tokens
             // from: this contract
