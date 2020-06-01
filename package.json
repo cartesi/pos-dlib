@@ -6,6 +6,7 @@
     "test": "test"
   },
   "dependencies": {
+    "@cartesi/util": "^0.2.1",
     "@openzeppelin/contracts": "^2.5.0",
     "@truffle/contract": "^4.2.0",
     "@truffle/hdwallet-provider": "^1.0.33",
