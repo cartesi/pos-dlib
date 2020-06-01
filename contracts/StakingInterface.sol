@@ -28,6 +28,17 @@ import "@cartesi/util/contracts/Instantiator.sol";
 
 contract StakingInterface is Instantiator {
 
-    function instantiate(uint256, uint256, uint256) private returns (uint256);
+    function instantiate(
+        uint256 _timeToStake,
+        uint256 _timeToWithdraw, 
+        uint256 _lastReleaseDate) private returns (uint256);
+    
+    function getStakedBalance(
+        uint256 _index,
+        address _userAddress) public view returns (uint256);
+        
+    function getState(
+        uint256 _index,
+        address _user) public view returns(uint256[4] memory _uintValues);
 }
 
