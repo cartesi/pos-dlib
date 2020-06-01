@@ -38,8 +38,8 @@ contract Staking {
     uint256 constant LAST_RELEASE_DATE = 1760054400; // time when last ieo fund is unlocked.
 
     mapping(address => uint256) internal stakedBalance; // the amount of money currently being staked.
-    mapping(address => StakeStruct) internal toBeStakedList; // deposits that are waiting to be old enough to become staked.
-    mapping(address => StakeStruct) internal toWithdrawList; // money that is waiting to be withdrew.
+    mapping(address => MaturationStruct) internal toBeStakedList; // deposits that are waiting to be old enough to become staked.
+    mapping(address => MaturationStruct) internal toWithdrawList; // money that is waiting to be withdrew.
     mapping(address => ieoStruct) internal ieoFrozenFunds; // funds that were frozen during token launch, they will count as stake.
 
     struct ieoStruct {
@@ -47,7 +47,7 @@ contract Staking {
         uint256[] releaseDate; // when those tokens are to be released
     }
 
-    struct StakeStruct {
+    struct MaturationStruct {
         uint256[] amount;
         uint256[] time;
         uint256 nextSearchIndex; // used to implement FIFO
@@ -73,7 +73,7 @@ contract Staking {
     /// @notice Finalizes Stakes. Goes through the list toBeStaked and transform that into staked balance, if the requirements are met.
     /// @dev The number of stakes finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
     function finalizeStakes() public {
-        StakeStruct memory TBSL = toBeStakedList[msg.sender];
+        MaturationStruct memory TBSL = toBeStakedList[msg.sender];
 
         for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) && (i < TBSL.nextSearchIndex.add(50)); i++){
             if (now > TBSL.time[i].add(TIME_TO_STAKE)) {
@@ -100,7 +100,7 @@ contract Staking {
     /// @notice Finalizes withdraws. Goes through the list toWithdraw and removes that from staked balance, if the requirements are met.
     /// @dev The number of withdraws finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
     function finalizeWithdraws() public {
-        StakeStruct memory TBWL = toWithdrawList[msg.sender];
+        MaturationStruct memory TBWL = toWithdrawList[msg.sender];
         uint256 totalWithdraw = 0;
 
         for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) && (i < TBWL.nextSearchIndex.add(50)); i++){
