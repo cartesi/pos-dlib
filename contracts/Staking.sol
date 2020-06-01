@@ -42,6 +42,7 @@ contract Staking {
     mapping(address => MaturationStruct) internal toWithdrawList; // money that is waiting to be withdrew.
     mapping(address => ieoStruct) internal ieoFrozenFunds; // funds that were frozen during token launch, they will count as stake.
 
+    // TODO: Add vesting contracts
     struct ieoStruct {
         uint256[] amount; // the amount of money that was locked during token creation
         uint256[] releaseDate; // when those tokens are to be released
