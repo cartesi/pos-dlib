@@ -75,7 +75,7 @@ contract Staking {
     function finalizeStakes() public {
         StakeStruct memory TBSL = toBeStakedList[msg.sender];
 
-        for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) || (i < TBSL.nextSearchIndex.add(50)); i++){
+        for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) && (i < TBSL.nextSearchIndex.add(50)); i++){
             if (now > TBSL.time[i].add(TIME_TO_STAKE)) {
                 stakedBalance[msg.sender] = stakedBalance[msg.sender].add(TBSL.amount[i]);
 
@@ -103,7 +103,7 @@ contract Staking {
         StakeStruct memory TBWL = toWithdrawList[msg.sender];
         uint256 totalWithdraw = 0;
 
-        for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) || (i < TBWL.nextSearchIndex.add(50)); i++){
+        for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) && (i < TBWL.nextSearchIndex.add(50)); i++){
             if (now > TBWL.time[i].add(TIME_TO_WITHDRAW)) {
                 toWithdrawList[msg.sender].nextSearchIndex = i + 1;
                 totalWithdraw = totalWithdraw.add(TBWL.amount[i]);
