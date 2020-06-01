@@ -178,4 +178,32 @@ contract Staking is StakingInterface {
 
         return totalAmount;
     }
+
+    function getState(uint256 _index, address _user) public view returns
+        ( uint256[4] memory _uintValues
+        ) {
+            StakingCtx memory ins = instance[_index];
+            uint256[4] memory uintValues = [
+                ins.timeToStake,
+                ins.timeToWithdraw,
+                ins.lastReleaseDate,
+                instance[_index].stakedBalance[_user]
+            ];
+
+            return uintValues;
+    }
+
+    // TODO: Add speedbump as subinstance
+    function getSubInstances(uint256, address)
+        public view returns (address[] memory _addresses,
+            uint256[] memory _indices)
+    {
+        address[] memory a;
+        uint256[] memory i;
+
+        a = new address[](0);
+        i = new uint256[](0);
+        return (a, i);
+    }
+
 }
