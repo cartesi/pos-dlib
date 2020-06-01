@@ -27,20 +27,28 @@ pragma solidity ^0.5.0;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Staking {
+import "./StakingInterface.sol";
+
+contract Staking is StakingInterface {
     using SafeMath for uint256;
     IERC20 private ctsi;
 
-    uint256 constant TIME_TO_STAKE = 5 days; // time it takes for deposited tokens to become staked.
-    uint256 constant TIME_TO_WITHDRAW = 5 days; // time it takes from witdraw signal to tokens to be unlocked.
+    struct StakingCtx {
+        uint256 timeToStake; // time it takes for deposited tokens to become staked.
+        uint256 timeToWithdraw; // time it takes from witdraw signal to tokens to be unlocked.
+
+        uint256 lastReleaseDate; // time when last ieo fund is unlocked.
+
+        mapping(address => uint256) stakedBalance; // the amount of money currently being staked.
+        mapping(address => MaturationStruct) toBeStakedList; // deposits that are waiting to be old enough to become staked.
+        mapping(address => MaturationStruct) toWithdrawList; // money that is waiting to be withdrew.
+        mapping(address => ieoStruct) ieoFrozenFunds; // funds that were frozen during token launch, they will count as stake.
+    }
+
+    mapping(uint256 => StakingCtx) internal instance;
 
     //TODO: Set correct value for last_release_time
-    uint256 constant LAST_RELEASE_DATE = 1760054400; // time when last ieo fund is unlocked.
 
-    mapping(address => uint256) internal stakedBalance; // the amount of money currently being staked.
-    mapping(address => MaturationStruct) internal toBeStakedList; // deposits that are waiting to be old enough to become staked.
-    mapping(address => MaturationStruct) internal toWithdrawList; // money that is waiting to be withdrew.
-    mapping(address => ieoStruct) internal ieoFrozenFunds; // funds that were frozen during token launch, they will count as stake.
 
     // TODO: Add vesting contracts
     struct ieoStruct {
@@ -56,61 +64,74 @@ contract Staking {
 
     constructor(address _ctsiAddress) public {
         ctsi = IERC20(_ctsiAddress);
+
+        instantiate(5 days, 5 days, 1760054400);
     }
 
-    /// @notice Deposit CTSI to be staked. The money will turn into staked balance after TIME_TO_STAKE days, if the function finalizeStakes is called.
+    function instantiate(uint256 _timeToStake, uint256 _timeToWithdraw, uint256 _lastReleaseDate) private returns (uint256) {
+        StakingCtx storage currentInstance = instance[currentIndex];
+
+        currentInstance.timeToStake = _timeToStake;
+        currentInstance.timeToWithdraw = _timeToWithdraw;
+        currentInstance.lastReleaseDate = _lastReleaseDate;
+
+        active[currentIndex];
+        return currentIndex++;
+    }
+
+    /// @notice Deposit CTSI to be staked. The money will turn into staked balance after timeToStake days, if the function finalizeStakes is called.
     /// @param _amount The amount of tokens that are gonna be deposited.
-    function depositStake(uint256 _amount) public {
+    function depositStake(uint256 _index, uint256 _amount) public {
         // transfer stake to contract
         // from: msg.sender
         // to: this contract
         // value: _amount
         ctsi.transferFrom(msg.sender, address(this), _amount);
 
-        toBeStakedList[msg.sender].amount.push(_amount);
-        toBeStakedList[msg.sender].time.push(now);
+        instance[_index].toBeStakedList[msg.sender].amount.push(_amount);
+        instance[_index].toBeStakedList[msg.sender].time.push(now);
     }
 
     /// @notice Finalizes Stakes. Goes through the list toBeStaked and transform that into staked balance, if the requirements are met.
     /// @dev The number of stakes finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
-    function finalizeStakes() public {
-        MaturationStruct memory TBSL = toBeStakedList[msg.sender];
+    function finalizeStakes(uint256 _index) public {
+        MaturationStruct memory TBSL = instance[_index].toBeStakedList[msg.sender];
 
         for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) && (i < TBSL.nextSearchIndex.add(50)); i++){
-            if (now > TBSL.time[i].add(TIME_TO_STAKE)) {
-                stakedBalance[msg.sender] = stakedBalance[msg.sender].add(TBSL.amount[i]);
+            if (now > TBSL.time[i].add(instance[_index].timeToStake)) {
+                instance[_index].stakedBalance[msg.sender] = instance[_index].stakedBalance[msg.sender].add(TBSL.amount[i]);
 
-                toBeStakedList[msg.sender].nextSearchIndex = i + 1;
-                delete toBeStakedList[msg.sender].amount[i];
-                delete toBeStakedList[msg.sender].time[i];
+                instance[_index].toBeStakedList[msg.sender].nextSearchIndex = i + 1;
+                delete instance[_index].toBeStakedList[msg.sender].amount[i];
+                delete instance[_index].toBeStakedList[msg.sender].time[i];
             } else {
                 break; // if finds a deposit that is not ready, all deposits after that wont be ready
             }
         }
     }
 
-    /// @notice Start CTSI withdraw from staked balance process. The money will turn into withdrawal balance after TIME_TO_WITHDRAW days, if the function finalizeWithdraw is called.
+    /// @notice Start CTSI withdraw from staked balance process. The money will turn into withdrawal balance after timeToWithdraw days, if the function finalizeWithdraw is called.
     /// @param _amount The amount of tokens that are gonna be withdrew.
-    function startWithdraw(uint256 _amount) public {
-        stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(_amount);
+    function startWithdraw(uint256 _index, uint256 _amount) public {
+        instance[_index].stakedBalance[msg.sender] = instance[_index].stakedBalance[msg.sender].sub(_amount);
 
-        toWithdrawList[msg.sender].amount.push(_amount);
-        toWithdrawList[msg.sender].time.push(now);
+        instance[_index].toWithdrawList[msg.sender].amount.push(_amount);
+        instance[_index].toWithdrawList[msg.sender].time.push(now);
     }
 
     /// @notice Finalizes withdraws. Goes through the list toWithdraw and removes that from staked balance, if the requirements are met.
     /// @dev The number of withdraws finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
-    function finalizeWithdraws() public {
-        MaturationStruct memory TBWL = toWithdrawList[msg.sender];
+    function finalizeWithdraws(uint256 _index) public {
+        MaturationStruct memory TBWL = instance[_index].toWithdrawList[msg.sender];
         uint256 totalWithdraw = 0;
 
         for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) && (i < TBWL.nextSearchIndex.add(50)); i++){
-            if (now > TBWL.time[i].add(TIME_TO_WITHDRAW)) {
-                toWithdrawList[msg.sender].nextSearchIndex = i + 1;
+            if (now > TBWL.time[i].add(instance[_index].timeToWithdraw)) {
+                instance[_index].toWithdrawList[msg.sender].nextSearchIndex = i + 1;
                 totalWithdraw = totalWithdraw.add(TBWL.amount[i]);
 
-                delete toWithdrawList[msg.sender].amount[i];
-                delete toWithdrawList[msg.sender].time[i];
+                delete instance[_index].toWithdrawList[msg.sender].amount[i];
+                delete instance[_index].toWithdrawList[msg.sender].time[i];
             } else {
                 break;
             }
@@ -126,14 +147,14 @@ contract Staking {
 
     /// @notice Returns total amount of tokens counted as stake
     /// @param _userAddress user to retrieve staked balance from
-    function getStakedBalance(address _userAddress) public view returns (uint256) {
-        uint256 totalAmount = stakedBalance[_userAddress];
+    function getStakedBalance(uint256 _index, address _userAddress) public view returns (uint256) {
+        uint256 totalAmount = instance[_index].stakedBalance[_userAddress];
 
-        if (now > LAST_RELEASE_DATE) {
+        if (now > instance[_index].lastReleaseDate) {
             return totalAmount;
         }
 
-        ieoStruct memory IFF = ieoFrozenFunds[_userAddress];
+        ieoStruct memory IFF = instance[_index].ieoFrozenFunds[_userAddress];
         for (uint256 i = 0; i < IFF.amount.length; i++) {
             if (IFF.releaseDate[i] > now) {
                 totalAmount = totalAmount.add(IFF.amount[i]);
