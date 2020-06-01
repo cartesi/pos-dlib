@@ -66,6 +66,11 @@ contract Staking is StakingInterface {
         instantiate(5 days, 5 days, 1760054400);
     }
 
+    /// @notice Instantiate a Staking struct.
+    /// @param _timeToStake time it takes for deposited tokens to become staked.
+    /// @param _timeToWithdraw time it takes from witdraw signal to tokens to be unlocked.
+    /// @param _lastReleaseDate time when last ieo fund is unlocked..
+    /// @return Staking index.
     function instantiate(uint256 _timeToStake, uint256 _timeToWithdraw, uint256 _lastReleaseDate) private returns (uint256) {
         StakingCtx storage currentInstance = instance[currentIndex];
 
@@ -78,6 +83,7 @@ contract Staking is StakingInterface {
     }
 
     /// @notice Deposit CTSI to be staked. The money will turn into staked balance after timeToStake days, if the function finalizeStakes is called.
+    /// @param _index index of staking that youre interacting with
     /// @param _amount The amount of tokens that are gonna be deposited.
     function depositStake(uint256 _index, uint256 _amount) public {
         // transfer stake to contract
@@ -93,6 +99,7 @@ contract Staking is StakingInterface {
     }
 
     /// @notice Finalizes Stakes. Goes through the list toBeStaked and transform that into staked balance, if the requirements are met.
+    /// @param _index index of staking that youre interacting with
     /// @dev The number of stakes finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
     function finalizeStakes(uint256 _index) public {
         StakingCtx storage ins = instance[_index];
@@ -112,6 +119,7 @@ contract Staking is StakingInterface {
     }
 
     /// @notice Start CTSI withdraw from staked balance process. The money will turn into withdrawal balance after timeToWithdraw days, if the function finalizeWithdraw is called.
+    /// @param _index index of staking that youre interacting with
     /// @param _amount The amount of tokens that are gonna be withdrew.
     function startWithdraw(uint256 _index, uint256 _amount) public {
         StakingCtx storage ins = instance[_index];
@@ -123,6 +131,7 @@ contract Staking is StakingInterface {
     }
 
     /// @notice Finalizes withdraws. Goes through the list toWithdraw and removes that from staked balance, if the requirements are met.
+    /// @param _index index of staking that youre interacting with
     /// @dev The number of withdraws finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
     function finalizeWithdraws(uint256 _index) public {
         uint256 totalWithdraw = 0;
@@ -150,6 +159,7 @@ contract Staking is StakingInterface {
     }
 
     /// @notice Returns total amount of tokens counted as stake
+    /// @param _index index of staking that youre interacting with
     /// @param _userAddress user to retrieve staked balance from
     function getStakedBalance(uint256 _index, address _userAddress) public view returns (uint256) {
         StakingCtx storage ins = instance[_index];
