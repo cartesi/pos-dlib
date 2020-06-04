@@ -120,10 +120,11 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     }
 
     function getState(uint256 _index, address _user)
-    public view returns (uint256[5] memory _uintValues) {
+    public view returns (uint256[6] memory _uintValues) {
         LotteryCtx memory i = instance[_index];
 
-        uint256[5] memory uintValues = [
+        uint256[6] memory uintValues = [
+            block.number,
             i.currentGoalBlockNumber,
             i.difficulty,
             i.token.balanceOf(_user),
@@ -131,9 +132,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
             getLogOfDistance(_index)
         ];
 
-        return (
-            uintValues,
-        );
+        return uintValues;
     }
 
     function isConcerned(uint256 _index, address _user) public view returns (bool) {
