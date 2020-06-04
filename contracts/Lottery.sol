@@ -51,7 +51,6 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @notice Calculates the log of the distance between the goal and callers address
     /// @param _index the index of the instance of speedbump you want to interact with
     function getLogOfDistance(uint256 _index) internal view returns (uint256) {
-        // intervalos sempre zero e outro número
         bytes32 currentGoal = blockhash(instance[_index].currentGoalBlockNumber);
         bytes32 hashedAddress = keccak256(abi.encodePacked(msg.sender));
         uint256 distance = uint256(keccak256(abi.encodePacked(hashedAddress, currentGoal)));
@@ -118,5 +117,26 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         }
 
         return _oldDifficulty;
+    }
+
+    function getState(uint256 _index, address _user)
+    public view returns (uint256[5] memory _uintValues) {
+        LotteryCtx memory i = instance[_index];
+
+        uint256[5] memory uintValues = [
+            i.currentGoalBlockNumber,
+            i.difficulty,
+            i.token.balanceOf(_user),
+            (now.sub(i.currentDrawStartTime)).mul(1000000), // time passed
+            getLogOfDistance(_index)
+        ];
+
+        return (
+            uintValues,
+        );
+    }
+
+    function isConcerned(uint256 _index, address _user) public view returns (bool) {
+        return instance[_index].token.balanceOf(_user) > 0;
     }
 }
