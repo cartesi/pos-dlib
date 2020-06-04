@@ -1,5 +1,6 @@
 contracts.json
 coverage*
+pos/target
 node_modules
 test/*/
 .vscode
@@ -7,9 +8,5 @@ test/*/
 *.bin
 *.abi
 /out
-compute/target
-emulator/target
 build
-emulator/src/*.rs
-!emulator/src/lib.rs
 .venv
