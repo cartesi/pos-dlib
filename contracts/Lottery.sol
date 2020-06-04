@@ -1,15 +1,16 @@
 pragma solidity ^0.5.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 import "@cartesi/util/contracts/CartesiMath.sol";
-import "./Instantiator.sol";
-import "./Decorated.sol";
+import "@cartesi/util/contracts/Instantiator.sol";
+import "@cartesi/util/contracts/Decorated.sol";
+
+
+import "./StakingInterface.sol";
 
 contract Lottery is Instantiator, Decorated, CartesiMath{
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
 
     struct LotteryCtx {
         mapping(uint256 => address) roundWinner; // each rounds winner
@@ -20,7 +21,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         uint256 desiredDrawTimeInterval; // desired draw time interval, used to tune difficulty
         uint256 currentGoalBlockNumber; // block number which will decide current draw's goal
 
-        IERC20 token; // ERC20 basic token contract being held
+        StakingInterface staking; // Staking contract interface
     }
 
     mapping(uint256 => LotteryCtx) internal instance;
@@ -29,17 +30,17 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
     /// @param _desiredDrawTimeInterval how often we want to elect a winner
-    /// @param _token which token will be used
+    /// @param _stakingAddress address of StakingInterface
     function instantiate(
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
-        IERC20 _token) public returns (uint256)
+        StakingInterface _stakingAddress) public returns (uint256)
     {
         require(_desiredDrawTimeInterval > 30, "Desired draw time interval has to be bigger than 30 seconds");
         instance[currentIndex].difficulty = 1;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
         instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
-        instance[currentIndex].token = _token;
+        instance[currentIndex].staking = StakingInterface(_stakingAddress);
 
         instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
         instance[currentIndex].currentDrawStartTime = now; // first draw starts when the instance is created
@@ -66,12 +67,12 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
             // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
             // so whoever calls this wins the round (if they have at least 1 ctsi staked)
             // new goal cannot be in the past, otherwise user could "choose it"
-            require(instance[_index].token.balanceOf(msg.sender) > 0, "Caller must have at least one token"); // this should be the staked balance, not full balance
+            require(instance[_index].staking.getStakedBalance(0, msg.sender) > 0, "Caller must have at least one staked token");
             return _roundFinished(_index);
         }
 
         uint256 timePassedMicroSeconds = (now.sub(instance[_index].currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
-        uint256 stakedBalance = instance[_index].token.balanceOf(msg.sender); // this is supposed to be staked balance not full balance
+        uint256 stakedBalance = instance[_index].staking.getStakedBalance(0, msg.sender);
         // multiplications shouldnt overflow, subtraction should
         if ((stakedBalance.mul(timePassedMicroSeconds)) > instance[_index].difficulty.mul((256000000 - getLogOfDistance(_index)))) {
             return _roundFinished(_index);
@@ -127,7 +128,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
             block.number,
             i.currentGoalBlockNumber,
             i.difficulty,
-            i.token.balanceOf(_user),
+            i.staking.getStakedBalance(0, _user),
             (now.sub(i.currentDrawStartTime)).mul(1000000), // time passed
             getLogOfDistance(_index)
         ];
@@ -136,6 +137,6 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     }
 
     function isConcerned(uint256 _index, address _user) public view returns (bool) {
-        return instance[_index].token.balanceOf(_user) > 0;
+        return instance[_index].staking.getStakedBalance(0, _user) > 0;
     }
 }
