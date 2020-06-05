@@ -41,7 +41,6 @@ pub struct LotteryCtxParsed(
     // difficulty
     // stakedBalance
     // timePassedMicroSeconds
-    // logDrivePosition
     // logOfDistance
 );
 
@@ -93,6 +92,8 @@ impl DApp<()> for Lottery {
 
         // if tournament is full and player hasnt played, idle
         let contest_expired = ctx.block_number.as_u64() - ctx.goal_block_number.as_u64() > 220;
+
+        // TODO: check if operations are using "big integer" arithmetics
         let eligible_to_win = ctx.staked_balance * ctx.time_passed_micro_seconds > ctx.difficulty * (256000000 - ctx.log_of_distance.as_u64());
 
         if contest_expired || eligible_to_win {
