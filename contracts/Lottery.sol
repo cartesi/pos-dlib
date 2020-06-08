@@ -37,7 +37,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         StakingInterface _stakingAddress) public returns (uint256)
     {
         require(_desiredDrawTimeInterval > 30, "Desired draw time interval has to be bigger than 30 seconds");
-        instance[currentIndex].difficulty = 1;
+        instance[currentIndex].difficulty = 1000000;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
         instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
         instance[currentIndex].staking = StakingInterface(_stakingAddress);
