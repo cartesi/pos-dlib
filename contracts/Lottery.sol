@@ -17,7 +17,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         uint256 roundCount; // how many draw rounds happened
         uint256 currentDrawStartTime; // timestamp of when current draw started
         uint256 difficulty; // difficulty parameter defines how big the interval will be
-        uint256 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired draw time, number * 100000
+        uint256 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired draw time, number * 1000000
         uint256 desiredDrawTimeInterval; // desired draw time interval, used to tune difficulty
         uint256 currentGoalBlockNumber; // block number which will decide current draw's goal
 
