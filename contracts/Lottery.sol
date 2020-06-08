@@ -110,7 +110,6 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @param _desiredDrawTime is how long a round is supposed to take
     /// @param _adjustmentParam is how fast the difficulty gets adjusted, should be number * 1000000
     function getNewDifficulty(uint256 _oldDifficulty, uint256 _timePassed, uint256 _desiredDrawTime, uint256 _adjustmentParam) internal pure returns (uint256) {
-        // TODO: Discuss if this should be multiplication/Division or Addition/Subtraction
         if (_timePassed < _desiredDrawTime) {
             return _oldDifficulty.mul(_adjustmentParam).div(1000000);
         } else if (_timePassed > _desiredDrawTime) {
