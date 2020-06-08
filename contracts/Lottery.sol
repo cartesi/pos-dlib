@@ -111,9 +111,9 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @param _adjustmentParam is how fast the difficulty gets adjusted, should be number * 1000000
     function getNewDifficulty(uint256 _oldDifficulty, uint256 _timePassed, uint256 _desiredDrawTime, uint256 _adjustmentParam) internal pure returns (uint256) {
         if (_timePassed < _desiredDrawTime) {
-            return _oldDifficulty.mul(_adjustmentParam).div(1000000);
+            return _oldDifficulty.mul(_adjustmentParam).div(1000000) + 1;
         } else if (_timePassed > _desiredDrawTime) {
-            return _oldDifficulty.mul(1000000).div(_adjustmentParam);
+            return _oldDifficulty.mul(1000000).div(_adjustmentParam) + 1;
         }
 
         return _oldDifficulty;
