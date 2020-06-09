@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
@@ -135,7 +135,23 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         return uintValues;
     }
 
-    function isConcerned(uint256 _index, address _user) public view returns (bool) {
+    function isConcerned(uint256 _index, address _user) public override view returns (bool) {
         return instance[_index].staking.getStakedBalance(0, _user) > 0;
     }
+
+    function getSubInstances(uint256 _index, address)
+        public override view returns (address[] memory _addresses,
+            uint256[] memory _indices)
+    {
+        address[] memory a;
+        uint256[] memory i;
+
+        a = new address[](1);
+        i = new uint256[](1);
+
+        a[0] = address(instance[_index].staking);
+        i[0] = 0; // only one instance of staking
+        return (a, i);
+    }
+
 }
