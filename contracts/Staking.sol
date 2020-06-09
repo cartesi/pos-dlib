@@ -22,7 +22,7 @@
 
 /// @title Cartesi Staking
 /// @author Felipe Argento
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -161,7 +161,7 @@ contract Staking is StakingInterface {
     /// @notice Returns total amount of tokens counted as stake
     /// @param _index index of staking that youre interacting with
     /// @param _userAddress user to retrieve staked balance from
-    function getStakedBalance(uint256 _index, address _userAddress) public view returns (uint256) {
+    function getStakedBalance(uint256 _index, address _userAddress) public view override returns (uint256) {
         StakingCtx storage ins = instance[_index];
         uint256 totalAmount = ins.stakedBalance[_userAddress];
 
@@ -179,7 +179,7 @@ contract Staking is StakingInterface {
         return totalAmount;
     }
 
-    function getState(uint256 _index, address _user) public view returns
+    function getState(uint256 _index, address _user) public override view returns
         ( uint256[4] memory _uintValues
         ) {
             StakingCtx memory ins = instance[_index];
@@ -193,9 +193,8 @@ contract Staking is StakingInterface {
             return uintValues;
     }
 
-    // TODO: Add speedbump as subinstance
     function getSubInstances(uint256, address)
-        public view returns (address[] memory _addresses,
+        public override view returns (address[] memory _addresses,
             uint256[] memory _indices)
     {
         address[] memory a;
@@ -206,4 +205,10 @@ contract Staking is StakingInterface {
         return (a, i);
     }
 
+    function isConcerned(uint256 _index, address _user) public override view returns (bool) {
+        if (instance[_index].stakedBalance[_user] > 0) {
+            return true;
+        }
+        return false;
+    }
 }
