@@ -6,11 +6,12 @@
     "test": "test"
   },
   "dependencies": {
-    "@cartesi/util": "^0.2.1",
-    "@openzeppelin/contracts": "^2.5.0",
+    "@cartesi/util": "^0.3.0",
+    "@openzeppelin/contracts": "^3.0.0",
     "@truffle/contract": "^4.2.0",
     "@truffle/hdwallet-provider": "^1.0.33",
-    "bignumber.js": "^9.0.0"
+    "bignumber.js": "^9.0.0",
+    "truffle": "^5.1.28"
   },
   "devDependencies": {},
   "scripts": {
