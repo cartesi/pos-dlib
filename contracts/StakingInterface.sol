@@ -21,24 +21,19 @@
 
 
 /// @title Interface staking contract
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 import "@cartesi/util/contracts/Instantiator.sol";
 
 
-contract StakingInterface is Instantiator {
-
-    function instantiate(
-        uint256 _timeToStake,
-        uint256 _timeToWithdraw,
-        uint256 _lastReleaseDate) private returns (uint256);
+abstract contract StakingInterface is Instantiator {
 
     function getStakedBalance(
         uint256 _index,
-        address _userAddress) public view returns (uint256);
+        address _userAddress) public view virtual  returns (uint256);
 
     function getState(
         uint256 _index,
-        address _user) public view returns(uint256[4] memory _uintValues);
+        address _user) public view virtual returns(uint256[4] memory _uintValues);
 }
 
