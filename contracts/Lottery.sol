@@ -51,7 +51,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
 
     /// @notice Calculates the log of the distance between the goal and callers address
     /// @param _index the index of the instance of speedbump you want to interact with
-    function getLogOfDistance(uint256 _index) internal view returns (uint256) {
+    function getLogOfRandom(uint256 _index) internal view returns (uint256) {
         bytes32 currentGoal = blockhash(instance[_index].currentGoalBlockNumber);
         bytes32 hashedAddress = keccak256(abi.encodePacked(msg.sender));
         uint256 distance = uint256(keccak256(abi.encodePacked(hashedAddress, currentGoal)));
@@ -74,7 +74,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         uint256 timePassedMicroSeconds = (now.sub(instance[_index].currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
         uint256 stakedBalance = instance[_index].staking.getStakedBalance(0, msg.sender);
         // multiplications shouldnt overflow, subtraction should
-        if ((stakedBalance.mul(timePassedMicroSeconds)) > instance[_index].difficulty.mul((256000000 - getLogOfDistance(_index)))) {
+        if ((stakedBalance.mul(timePassedMicroSeconds)) > instance[_index].difficulty.mul((256000000 - getLogOfRandom(_index)))) {
             return _roundFinished(_index);
         }
         return false;
@@ -129,7 +129,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
             i.difficulty,
             i.staking.getStakedBalance(0, _user),
             (now.sub(i.currentDrawStartTime)).mul(1000000), // time passed
-            getLogOfDistance(_index)
+            getLogOfRandom(_index)
         ];
 
         return uintValues;
