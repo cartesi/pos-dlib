@@ -32,6 +32,7 @@ import "@cartesi/util/contracts/Decorated.sol";
 
 
 import "./StakingInterface.sol";
+import "./PrizeManager.sol";
 
 contract Lottery is Instantiator, Decorated, CartesiMath{
     using SafeMath for uint256;
@@ -46,6 +47,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         uint256 currentGoalBlockNumber; // block number which will decide current draw's goal
 
         StakingInterface staking; // Staking contract interface
+        PrizeManager prizeManager; // Contract that distributes the prize
     }
 
     mapping(uint256 => LotteryCtx) internal instance;
@@ -65,13 +67,16 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     function instantiate(
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
-        StakingInterface _stakingAddress) public returns (uint256)
+        address _stakingAddress,
+        address _prizeManagerAddress
+    ) public returns (uint256)
     {
         require(_desiredDrawTimeInterval > 30, "Desired draw time interval has to be bigger than 30 seconds");
         instance[currentIndex].difficulty = 1000000;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
         instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
         instance[currentIndex].staking = StakingInterface(_stakingAddress);
+        instance[currentIndex].prizeManager = PrizeManager(_prizeManagerAddress);
 
         instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
         instance[currentIndex].currentDrawStartTime = now; // first draw starts when the instance is created
@@ -133,6 +138,10 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         LotteryCtx storage lot = instance[_index];
         // declare winner
         lot.roundWinner[lot.roundCount] = msg.sender;
+
+        // pay winner
+        lot.prizeManager.payWinner(msg.sender);
+
         // adjust difficulty
         lot.difficulty = getNewDifficulty(
             lot.difficulty,
