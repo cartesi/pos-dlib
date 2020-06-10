@@ -1,3 +1,27 @@
+// Copyright (C) 2020 Cartesi Pte. Ltd.
+
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+
+// This program is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+// PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+// Note: This component currently has dependencies that are licensed under the GNU
+// GPL, version 3, and so you should treat this component as a whole as being under
+// the GPL version 3. But all Cartesi-written code in this component is licensed
+// under the Apache License, version 2, or a compatible permissive license, and can
+// be used independently under the Apache v2 license. After this component is
+// rewritten, the entire component will be released under the Apache v2 license.
+
+/// @title Lottery
+/// @author Felipe Argento
+
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
@@ -25,6 +49,13 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     }
 
     mapping(uint256 => LotteryCtx) internal instance;
+
+    event RoundClaimed(
+        address _winner,
+        uint256 _roundCount,
+        uint256 _roundDuration,
+        uint256 _difficulty
+    );
 
     /// @notice Instantiates a Speed Bump structure
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
@@ -62,19 +93,36 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @notice Claim yourself as the winner of a round
     /// @param _index the index of the instance of speedbump you want to interact with
     function claimRound(uint256 _index) public returns (bool) {
+        LotteryCtx storage lot = instance[_index];
 
-        if ((block.number).sub(instance[_index].currentGoalBlockNumber) > 220) {
+        uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
+        uint256 stakedBalance = lot.staking.getStakedBalance(0, msg.sender);
+
+        if ((block.number).sub(lot.currentGoalBlockNumber) > 220) {
             // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
             // so whoever calls this wins the round (if they have at least 1 ctsi staked)
             // new goal cannot be in the past, otherwise user could "choose it"
-            require(instance[_index].staking.getStakedBalance(0, msg.sender) > 0, "Caller must have at least one staked token");
+            require(stakedBalance > 0, "Caller must have at least one staked token");
+
+            emit RoundClaimed(
+                msg.sender,
+                lot.roundCount,
+                timePassedMicroSeconds,
+                lot.difficulty
+            );
+
             return _roundFinished(_index);
         }
 
-        uint256 timePassedMicroSeconds = (now.sub(instance[_index].currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
-        uint256 stakedBalance = instance[_index].staking.getStakedBalance(0, msg.sender);
         // multiplications shouldnt overflow, subtraction should
-        if ((stakedBalance.mul(timePassedMicroSeconds)) > instance[_index].difficulty.mul((256000000 - getLogOfRandom(_index)))) {
+        if ((stakedBalance.mul(timePassedMicroSeconds)) > lot.difficulty.mul((256000000 - getLogOfRandom(_index)))) {
+            emit RoundClaimed(
+                msg.sender,
+                lot.roundCount,
+                timePassedMicroSeconds,
+                lot.difficulty
+            );
+
             return _roundFinished(_index);
         }
         return false;
@@ -82,14 +130,15 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @notice Finish Round, declare winner and ajust difficulty
     /// @param _index the index of the instance of speedbump you want to interact with
     function _roundFinished(uint256 _index) private returns (bool) {
+        LotteryCtx storage lot = instance[_index];
         // declare winner
-        instance[_index].roundWinner[instance[_index].roundCount] = msg.sender;
+        lot.roundWinner[lot.roundCount] = msg.sender;
         // adjust difficulty
-        instance[_index].difficulty = getNewDifficulty(
-            instance[_index].difficulty,
-            now.sub(instance[_index].currentDrawStartTime),
-            instance[_index].desiredDrawTimeInterval,
-            instance[_index].difficultyAdjustmentParameter
+        lot.difficulty = getNewDifficulty(
+            lot.difficulty,
+            now.sub(lot.currentDrawStartTime),
+            lot.desiredDrawTimeInterval,
+            lot.difficultyAdjustmentParameter
         );
 
         _reset(_index);
@@ -99,9 +148,11 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @notice Reset instance, advancing round and choosing new goal
     /// @param _index the index of the instance of speedbump you want to interact with
     function _reset(uint256 _index) private {
-        instance[_index].roundCount++;
-        instance[_index].currentGoalBlockNumber = block.number + 1;
-        instance[_index].currentDrawStartTime = now;
+        LotteryCtx storage lot = instance[_index];
+
+        lot.roundCount++;
+        lot.currentGoalBlockNumber = block.number + 1;
+        lot.currentDrawStartTime = now;
     }
 
     /// @notice Calculates new difficulty parameter
@@ -153,5 +204,4 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         i[0] = 0; // only one instance of staking
         return (a, i);
     }
-
 }
