@@ -38,11 +38,17 @@ contract PrizeManager {
 
     event WinnerPaid(address _winner, uint256 _prize);
 
+    /// @notice Creates contract
+    /// @param _lotteryAddress address of Lottery contract
+    /// @param _ctsiAddress address of token instance being used
+    /// @param _distNumerator multiplier factor to define prize amount
+    /// @param _distDenominator dividing factor to define prize amount
     constructor(
         address _lotteryAddress,
         address _ctsiAddress,
         uint256 _distNumerator,
-        uint256 _distDenominator) public {
+        uint256 _distDenominator
+    ) public {
 
         lotteryAddress = _lotteryAddress;
         ctsi = IERC20(_ctsiAddress);
@@ -51,6 +57,9 @@ contract PrizeManager {
         distDenominator = _distDenominator;
     }
 
+    /// @notice Transfers token to winner of Lottery
+    /// @param _winner address of round winner
+    /// @dev only the lottery contract can call this
     function payWinner(address _winner) public {
         uint256 amount = (getBalance().mul(distNumerator)).div(distDenominator);
 
@@ -62,10 +71,12 @@ contract PrizeManager {
         emit WinnerPaid(_winner, amount);
     }
 
+    /// @notice Get PrizeManager's balance
     function getBalance() public view returns (uint256) {
         return ctsi.balanceOf(address(this));
     }
 
+    /// @notice Get prize of next Lottery round
     function getCurrentPrize() public view returns (uint256) {
         return (getBalance().mul(distNumerator)).div(distDenominator);
     }
