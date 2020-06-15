@@ -46,6 +46,8 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         uint256 desiredDrawTimeInterval; // desired draw time interval, used to tune difficulty
         uint256 currentGoalBlockNumber; // block number which will decide current draw's goal
 
+        address posManagerAddress;
+
         PrizeManager prizeManager; // Contract that distributes the prize
     }
 
@@ -65,7 +67,8 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     function instantiate(
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
-        address _prizeManagerAddress
+        address _prizeManagerAddress,
+        address _posManagerAddress
     ) public returns (uint256)
     {
         require(_desiredDrawTimeInterval > 30, "Desired draw time interval has to be bigger than 30 seconds");
@@ -73,6 +76,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
         instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
         instance[currentIndex].prizeManager = PrizeManager(_prizeManagerAddress);
+        instance[currentIndex].posManagerAddress = _posManagerAddress;
 
         instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
         instance[currentIndex].currentDrawStartTime = now; // first draw starts when the instance is created
@@ -95,12 +99,12 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @param _index the index of the instance of speedbump you want to interact with
     /// @param _user address that will win the lottery
     function claimRound(uint256 _index, address _user, uint256 _weigth) public returns (bool) {
-        require(msg.sender == address(0), "Funciton can only be called by pos prototype address");
         LotteryCtx storage lot = instance[_index];
 
-        uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
-
         require(_weigth > 0, "Caller must have at least one staked token");
+        require(msg.sender == lot.posManagerAddress, "Funciton can only be called by pos prototype address");
+
+        uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
 
         if (canWin(_index, _user, _weigth)) {
             emit RoundClaimed(
