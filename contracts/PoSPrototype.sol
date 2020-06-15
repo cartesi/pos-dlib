@@ -120,23 +120,23 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
     }
 
     function getState(uint256 _index, address _user)
-    public view returns (bool) {
+    public view returns (bool, address) {
         PoSPrototypeCtx storage pos = instance[_index];
 
         // if address is proxy, check if represented staker can win
         if (pos.stakerMap[_user] != address(0)) {
-            return pos.lottery.canWin(
+            return (pos.lottery.canWin(
                 pos.lotteryIndex,
                 pos.stakerMap[_user],
                 pos.staking.getStakedBalance(0, pos.stakerMap[_user])
-            );
+            ), pos.stakerMap[_user]);
         }
         // else address is staker
-        return pos.lottery.canWin(
+        return (pos.lottery.canWin(
             pos.lotteryIndex,
             _user,
             pos.staking.getStakedBalance(0, _user)
-        );
+        ), _user);
     }
 
     function isConcerned(uint256 _index, address _user) public override view returns (bool) {
