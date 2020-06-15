@@ -33,7 +33,6 @@ import "@cartesi/util/contracts/Decorated.sol";
 
 import "./StakingInterface.sol";
 import "./Lottery.sol";
-import "./Staking.sol";
 import "./PrizeManager.sol";
 
 contract PoSPrototype is Instantiator, Decorated, CartesiMath{
@@ -45,7 +44,7 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
 
         uint256 lotteryIndex;
         Lottery lottery;
-        Staking staking;
+        StakingInterface staking;
     }
 
     mapping(uint256 => PoSPrototypeCtx) internal instance;
@@ -57,9 +56,24 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
     );
 
     /// @notice Instantiates a Proof of Stake prototype
+    /// @param _stakingAddress address of StakingInterface
     function instantiate(
+        address _stakingAddress,
+        address _lotteryAddress,
+        uint256 _difficultyAdjustmentParameter,
+        uint256 _desiredDrawTimeInterval,
+        address _prizeManagerAddress
     ) public returns (uint256)
     {
+
+        instance[currentIndex].staking = StakingInterface(_stakingAddress);
+        instance[currentIndex].lottery = Lottery(_lotteryAddress);
+
+        instance[currentIndex].lotteryIndex = instance[currentIndex].lottery.instantiate(
+            _difficultyAdjustmentParameter,
+            _desiredDrawTimeInterval,
+            _prizeManagerAddress
+        );
 
         active[currentIndex] = true;
         return currentIndex++;
@@ -68,7 +82,7 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
     function claimWin(uint256 _index, address _user) public returns (bool) {
         PoSPrototypeCtx storage pos = instance[_index];
 
-        return pos.lottery.claimRound(pos.lotteryIndex, _user);
+        return pos.lottery.claimRound(pos.lotteryIndex, _user, pos.staking.getStakedBalance(0, _user));
     }
 
     function addProxy(uint256 _index, address _proxyAddress) public {
@@ -96,10 +110,18 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
 
         // if address is proxy, check if represented staker can win
         if (pos.stakerMap[_user] != address(0)) {
-            return pos.lottery.canWin(pos.lotteryIndex, pos.stakerMap[_user]);
+            return pos.lottery.canWin(
+                pos.lotteryIndex,
+                pos.stakerMap[_user],
+                pos.staking.getStakedBalance(0, pos.stakerMap[_user])
+            );
         }
         // else address is staker
-        return pos.lottery.canWin(pos.lotteryIndex, _user);
+        return pos.lottery.canWin(
+            pos.lotteryIndex,
+            _user,
+            pos.staking.getStakedBalance(0, _user)
+        );
     }
 
     function isConcerned(uint256 _index, address _user) public override view returns (bool) {
