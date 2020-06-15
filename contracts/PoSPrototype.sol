@@ -72,7 +72,8 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
         instance[currentIndex].lotteryIndex = instance[currentIndex].lottery.instantiate(
             _difficultyAdjustmentParameter,
             _desiredDrawTimeInterval,
-            _prizeManagerAddress
+            _prizeManagerAddress,
+            address(this)
         );
 
         active[currentIndex] = true;
