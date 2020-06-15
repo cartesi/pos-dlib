@@ -87,9 +87,9 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
 
     /// @notice Calculates the log of the distance between the goal and callers address
     /// @param _index the index of the instance of speedbump you want to interact with
-    function getLogOfRandom(uint256 _index) internal view returns (uint256) {
+    function getLogOfRandom(uint256 _index, address _user) internal view returns (uint256) {
         bytes32 currentGoal = blockhash(instance[_index].currentGoalBlockNumber);
-        bytes32 hashedAddress = keccak256(abi.encodePacked(msg.sender));
+        bytes32 hashedAddress = keccak256(abi.encodePacked(_user));
         uint256 distance = uint256(keccak256(abi.encodePacked(hashedAddress, currentGoal)));
 
         return CartesiMath.log2ApproxTimes1M(distance);
@@ -97,50 +97,54 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
 
     /// @notice Claim yourself as the winner of a round
     /// @param _index the index of the instance of speedbump you want to interact with
-    function claimRound(uint256 _index) public returns (bool) {
+    /// @param _user address that will win the lottery
+    function claimRound(uint256 _index, address _user) public returns (bool) {
+        require(msg.sender == address(0), "Funciton can only be called by pos prototype address");
         LotteryCtx storage lot = instance[_index];
 
         uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
-        uint256 stakedBalance = lot.staking.getStakedBalance(0, msg.sender);
+        uint256 stakedBalance = lot.staking.getStakedBalance(0, _user);
 
-        if ((block.number).sub(lot.currentGoalBlockNumber) > 220) {
-            // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
-            // so whoever calls this wins the round (if they have at least 1 ctsi staked)
-            // new goal cannot be in the past, otherwise user could "choose it"
-            require(stakedBalance > 0, "Caller must have at least one staked token");
+        require(stakedBalance > 0, "Caller must have at least one staked token");
 
+        if (canWin(_index, _user)) {
             emit RoundClaimed(
-                msg.sender,
+                _user,
                 lot.roundCount,
                 timePassedMicroSeconds,
                 lot.difficulty
             );
 
-            return _roundFinished(_index);
+            return _roundFinished(_index, _user);
         }
 
-        // multiplications shouldnt overflow, subtraction should
-        if ((stakedBalance.mul(timePassedMicroSeconds)) > lot.difficulty.mul((256000000 - getLogOfRandom(_index)))) {
-            emit RoundClaimed(
-                msg.sender,
-                lot.roundCount,
-                timePassedMicroSeconds,
-                lot.difficulty
-            );
-
-            return _roundFinished(_index);
-        }
         return false;
     }
+
+    /// @notice Check if address can win current round
+    /// @param _index the index of the instance of speedbump you want to interact with
+    /// @param _user the address that is gonna get checked
+    function canWin(uint256 _index, address _user) public view returns (bool) {
+        LotteryCtx storage lot = instance[_index];
+
+        uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
+        uint256 stakedBalance = lot.staking.getStakedBalance(0, _user);
+
+        // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
+        // so whoever calls this wins the round (if they have at least 1 ctsi staked)
+        // new goal cannot be in the past, otherwise user could "choose it"
+        return (block.number).sub(lot.currentGoalBlockNumber) > 220 || (stakedBalance.mul(timePassedMicroSeconds)) > lot.difficulty.mul((256000000 - getLogOfRandom(_index, _user)));
+    }
+
     /// @notice Finish Round, declare winner and ajust difficulty
     /// @param _index the index of the instance of speedbump you want to interact with
-    function _roundFinished(uint256 _index) private returns (bool) {
+    function _roundFinished(uint256 _index, address _user) private returns (bool) {
         LotteryCtx storage lot = instance[_index];
         // declare winner
-        lot.roundWinner[lot.roundCount] = msg.sender;
+        lot.roundWinner[lot.roundCount] = _user;
 
         // pay winner
-        lot.prizeManager.payWinner(msg.sender);
+        lot.prizeManager.payWinner(_user);
 
         // adjust difficulty
         lot.difficulty = getNewDifficulty(
@@ -189,7 +193,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
             i.difficulty,
             i.staking.getStakedBalance(0, _user),
             (now.sub(i.currentDrawStartTime)).mul(1000000), // time passed
-            getLogOfRandom(_index)
+            getLogOfRandom(_index, _user)
         ];
 
         return uintValues;
