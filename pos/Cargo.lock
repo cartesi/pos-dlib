@@ -1464,28 +1464,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lottery"
-version = "0.1.0"
-dependencies = [
- "configuration 0.1.0",
- "dispatcher 0.1.0",
- "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "error 0.1.0",
- "ethabi 6.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "ethereum-types 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "hex 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "protobuf 2.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "rust-crypto 0.2.36 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 1.0.103 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 1.0.103 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 1.0.43 (registry+https://github.com/rust-lang/crates.io-index)",
- "state 0.1.0",
- "transaction 0.1.0",
- "utils 0.1.0",
-]
-
-[[package]]
 name = "lru-cache"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1935,6 +1913,28 @@ version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "crunchy 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "pos_prototype"
+version = "0.1.0"
+dependencies = [
+ "configuration 0.1.0",
+ "dispatcher 0.1.0",
+ "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "error 0.1.0",
+ "ethabi 6.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ethereum-types 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "hex 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "protobuf 2.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rust-crypto 0.2.36 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.103 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.103 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.43 (registry+https://github.com/rust-lang/crates.io-index)",
+ "state 0.1.0",
+ "transaction 0.1.0",
+ "utils 0.1.0",
 ]
 
 [[package]]
