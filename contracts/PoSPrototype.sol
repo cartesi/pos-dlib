@@ -57,6 +57,11 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
 
     /// @notice Instantiates a Proof of Stake prototype
     /// @param _stakingAddress address of StakingInterface
+    /// @param _lotteryAddress address of lottery contract
+    /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
+    /// according to the difference between time passed and desired draw time interval.
+    /// @param _desiredDrawTimeInterval how often we want to elect a winner
+    /// @param _prizeManagerAddress address containing the tokens that will be distributed
     function instantiate(
         address _stakingAddress,
         address _lotteryAddress,
@@ -80,12 +85,18 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
         return currentIndex++;
     }
 
+    /// @notice Claim that _user won the round
+    /// @param _index the index of the instance of posPrototype you want to interact with
+    /// @param _user address that will win the lottery
     function claimWin(uint256 _index, address _user) public returns (bool) {
         PoSPrototypeCtx storage pos = instance[_index];
 
         return pos.lottery.claimRound(pos.lotteryIndex, _user, pos.staking.getStakedBalance(0, _user));
     }
 
+    /// @notice Add address that can represent msg.sender at the Lottery
+    /// @param _index the index of the instance of posPrototype you want to interact with
+    /// @param _proxyAddress the address of the proxy that can represent msg.sender
     function addProxy(uint256 _index, address _proxyAddress) public {
         PoSPrototypeCtx storage pos = instance[_index];
 
@@ -98,6 +109,9 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
         );
     }
 
+    /// @notice Accepts a address as a staker
+    /// @param _index the index of the instance of posPrototype you want to interact with
+    /// @param _stakerAddress the address of the staker that is being accepted
     function acceptStaker(uint256 _index, address _stakerAddress) public {
         PoSPrototypeCtx storage pos = instance[_index];
 
