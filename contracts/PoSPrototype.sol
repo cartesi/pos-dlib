@@ -138,12 +138,16 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
         public override view returns (address[] memory _addresses,
             uint256[] memory _indices)
     {
+        PoSPrototypeCtx storage pos = instance[_index];
+
         address[] memory a;
         uint256[] memory i;
 
         a = new address[](1);
         i = new uint256[](1);
 
+        a[0] = address(pos.lottery);
+        i[0] = pos.lotteryIndex;
         return (a, i);
     }
 }
