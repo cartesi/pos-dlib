@@ -46,7 +46,6 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         uint256 desiredDrawTimeInterval; // desired draw time interval, used to tune difficulty
         uint256 currentGoalBlockNumber; // block number which will decide current draw's goal
 
-        StakingInterface staking; // Staking contract interface
         PrizeManager prizeManager; // Contract that distributes the prize
     }
 
@@ -63,11 +62,9 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
     /// @param _desiredDrawTimeInterval how often we want to elect a winner
-    /// @param _stakingAddress address of StakingInterface
     function instantiate(
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
-        address _stakingAddress,
         address _prizeManagerAddress
     ) public returns (uint256)
     {
@@ -75,7 +72,6 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         instance[currentIndex].difficulty = 1000000;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
         instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
-        instance[currentIndex].staking = StakingInterface(_stakingAddress);
         instance[currentIndex].prizeManager = PrizeManager(_prizeManagerAddress);
 
         instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
@@ -98,16 +94,15 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @notice Claim yourself as the winner of a round
     /// @param _index the index of the instance of speedbump you want to interact with
     /// @param _user address that will win the lottery
-    function claimRound(uint256 _index, address _user) public returns (bool) {
+    function claimRound(uint256 _index, address _user, uint256 _weigth) public returns (bool) {
         require(msg.sender == address(0), "Funciton can only be called by pos prototype address");
         LotteryCtx storage lot = instance[_index];
 
         uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
-        uint256 stakedBalance = lot.staking.getStakedBalance(0, _user);
 
-        require(stakedBalance > 0, "Caller must have at least one staked token");
+        require(_weigth > 0, "Caller must have at least one staked token");
 
-        if (canWin(_index, _user)) {
+        if (canWin(_index, _user, _weigth)) {
             emit RoundClaimed(
                 _user,
                 lot.roundCount,
@@ -124,16 +119,14 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @notice Check if address can win current round
     /// @param _index the index of the instance of speedbump you want to interact with
     /// @param _user the address that is gonna get checked
-    function canWin(uint256 _index, address _user) public view returns (bool) {
+    function canWin(uint256 _index, address _user, uint256 _weigth) public view returns (bool) {
         LotteryCtx storage lot = instance[_index];
 
         uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
-        uint256 stakedBalance = lot.staking.getStakedBalance(0, _user);
 
         // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
-        // so whoever calls this wins the round (if they have at least 1 ctsi staked)
         // new goal cannot be in the past, otherwise user could "choose it"
-        return (block.number).sub(lot.currentGoalBlockNumber) > 220 || (stakedBalance.mul(timePassedMicroSeconds)) > lot.difficulty.mul((256000000 - getLogOfRandom(_index, _user)));
+        return (block.number).sub(lot.currentGoalBlockNumber) > 220 || (_weigth.mul(timePassedMicroSeconds)) > lot.difficulty.mul((256000000 - getLogOfRandom(_index, _user)));
     }
 
     /// @notice Finish Round, declare winner and ajust difficulty
@@ -184,14 +177,13 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     }
 
     function getState(uint256 _index, address _user)
-    public view returns (uint256[6] memory _uintValues) {
+    public view returns (uint256[5] memory _uintValues) {
         LotteryCtx memory i = instance[_index];
 
-        uint256[6] memory uintValues = [
+        uint256[5] memory uintValues = [
             block.number,
             i.currentGoalBlockNumber,
             i.difficulty,
-            i.staking.getStakedBalance(0, _user),
             (now.sub(i.currentDrawStartTime)).mul(1000000), // time passed
             getLogOfRandom(_index, _user)
         ];
@@ -199,22 +191,20 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         return uintValues;
     }
 
-    function isConcerned(uint256 _index, address _user) public override view returns (bool) {
-        return instance[_index].staking.getStakedBalance(0, _user) > 0;
+    function isConcerned(uint256, address) public override view returns (bool) {
+        return false; // isConcerned is only for the main concern (PoS prototype)
     }
 
-    function getSubInstances(uint256 _index, address)
+    function getSubInstances(uint256, address)
         public override view returns (address[] memory _addresses,
             uint256[] memory _indices)
     {
         address[] memory a;
         uint256[] memory i;
 
-        a = new address[](1);
-        i = new uint256[](1);
+        a = new address[](0);
+        i = new uint256[](0);
 
-        a[0] = address(instance[_index].staking);
-        i[0] = 0; // only one instance of staking
         return (a, i);
     }
 }
