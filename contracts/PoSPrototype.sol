@@ -121,6 +121,18 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath{
         pos.getStaker[msg.sender] = _stakerAddress;
     }
 
+    /// @notice Removes proxy from msg.sender
+    /// @param _index the index of the instance of posPrototype you want to interact with
+    /// @param _proxyAddress the address of the proxy that can represent msg.sender
+    function removeProxy(uint256 _index, address _proxyAddress) public {
+        PoSPrototypeCtx storage pos = instance[_index];
+
+        require(pos.getProxy[msg.sender] == _proxyAddress, "Proxy address has to be msg.sender's proxy");
+
+        delete pos.getProxy[msg.sender];
+        delete pos.getStaker[_proxyAddress];
+    }
+
     function getState(uint256 _index, address _user)
     public view returns (bool, address) {
         PoSPrototypeCtx storage pos = instance[_index];
