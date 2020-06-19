@@ -25,6 +25,8 @@
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 
 import "@cartesi/util/contracts/CartesiMath.sol";
 import "@cartesi/util/contracts/Instantiator.sol";
@@ -35,7 +37,7 @@ import "./StakingInterface.sol";
 import "./Lottery.sol";
 import "./PrizeManager.sol";
 
-contract PoSPrototype is Instantiator, Decorated, CartesiMath{
+contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath{
     using SafeMath for uint256;
 
     struct PoSPrototypeCtx {
@@ -68,7 +70,7 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
         address _prizeManagerAddress
-    ) public returns (uint256)
+    ) public onlyOwner() returns (uint256)
     {
 
         instance[currentIndex].staking = StakingInterface(_stakingAddress);
