@@ -39,8 +39,8 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
     using SafeMath for uint256;
 
     struct PoSPrototypeCtx {
-        mapping(address => address) proxyMap; // staker => proxy
-        mapping(address => address) stakerMap; // proxy => staker
+        mapping(address => address) getProxy; // staker => proxy
+        mapping(address => address) getStaker; // proxy => staker
 
         uint256 lotteryIndex;
         Lottery lottery;
@@ -100,7 +100,7 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
     function addProxy(uint256 _index, address _proxyAddress) public {
         PoSPrototypeCtx storage pos = instance[_index];
 
-        pos.proxyMap[msg.sender] = _proxyAddress;
+        pos.getProxy[msg.sender] = _proxyAddress;
 
         emit ProxyAdded(
             msg.sender,
@@ -115,8 +115,8 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
     function acceptStaker(uint256 _index, address _stakerAddress) public {
         PoSPrototypeCtx storage pos = instance[_index];
 
-        require(pos.proxyMap[_stakerAddress] == msg.sender, "Proxy was not previously added");
-        pos.stakerMap[msg.sender] = _stakerAddress;
+        require(pos.getProxy[_stakerAddress] == msg.sender, "Proxy was not previously added");
+        pos.getStaker[msg.sender] = _stakerAddress;
     }
 
     function getState(uint256 _index, address _user)
@@ -124,12 +124,12 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
         PoSPrototypeCtx storage pos = instance[_index];
 
         // if address is proxy, check if represented staker can win
-        if (pos.stakerMap[_user] != address(0)) {
+        if (pos.getStaker[_user] != address(0)) {
             return (pos.lottery.canWin(
                 pos.lotteryIndex,
-                pos.stakerMap[_user],
-                pos.staking.getStakedBalance(0, pos.stakerMap[_user])
-            ), pos.stakerMap[_user]);
+                pos.getStaker[_user],
+                pos.staking.getStakedBalance(0, pos.getStaker[_user])
+            ), pos.getStaker[_user]);
         }
         // else address is staker
         return (pos.lottery.canWin(
@@ -145,7 +145,7 @@ contract PoSPrototype is Instantiator, Decorated, CartesiMath{
         // user is concerned if he has staked tokens
         // or
         // if he is the proxy of someone with tokens
-        return pos.staking.getStakedBalance(0, _user) > 0 || pos.staking.getStakedBalance(0, pos.stakerMap[_user]) > 0;
+        return pos.staking.getStakedBalance(0, _user) > 0 || pos.staking.getStakedBalance(0, pos.getStaker[_user]) > 0;
     }
 
     function getSubInstances(uint256 _index, address)
