@@ -25,6 +25,8 @@ module.exports = async (callback) => {
 
     var index = await lottery.instantiate(10000, 50, prizeManager.address, prizeManager.address, {from: accounts[0]});
 
+    advanceBlock();
+
 
     var allTrue = false;
     while (!allTrue) {
