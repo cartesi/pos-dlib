@@ -93,8 +93,9 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     /// @param _user address that will win the lottery
     function claimWin(uint256 _index, address _user) public returns (bool) {
         PoSPrototypeCtx storage pos = instance[_index];
+        address user = pos.proxy.msgSender(_user, address(this), true);
 
-        return pos.lottery.claimRound(pos.lotteryIndex, _user, pos.staking.getStakedBalance(0, _user));
+        return pos.lottery.claimRound(pos.lotteryIndex, user, pos.staking.getStakedBalance(0, user));
     }
 
     function getState(uint256 _index, address _user)
