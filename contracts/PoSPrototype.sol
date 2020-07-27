@@ -31,22 +31,21 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@cartesi/util/contracts/CartesiMath.sol";
 import "@cartesi/util/contracts/Instantiator.sol";
 import "@cartesi/util/contracts/Decorated.sol";
+import "@cartesi/util/contracts/ProxyManager.sol";
 
 
 import "./StakingInterface.sol";
 import "./Lottery.sol";
 import "./PrizeManager.sol";
 
-contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath{
+contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     using SafeMath for uint256;
 
     struct PoSPrototypeCtx {
-        mapping(address => address) getProxy; // staker => proxy
-        mapping(address => address) getStaker; // proxy => staker
-
         uint256 lotteryIndex;
         Lottery lottery;
         StakingInterface staking;
+        ProxyManager proxy;
     }
 
     mapping(uint256 => PoSPrototypeCtx) internal instance;
@@ -67,6 +66,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath{
     function instantiate(
         address _stakingAddress,
         address _lotteryAddress,
+        address _proxyAddress,
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
         address _prizeManagerAddress
@@ -75,6 +75,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath{
 
         instance[currentIndex].staking = StakingInterface(_stakingAddress);
         instance[currentIndex].lottery = Lottery(_lotteryAddress);
+        instance[currentIndex].proxy = ProxyManager(_proxyAddress);
 
         instance[currentIndex].lotteryIndex = instance[currentIndex].lottery.instantiate(
             _difficultyAdjustmentParameter,
@@ -96,70 +97,27 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath{
         return pos.lottery.claimRound(pos.lotteryIndex, _user, pos.staking.getStakedBalance(0, _user));
     }
 
-    /// @notice Add address that can represent msg.sender at the Lottery
-    /// @param _index the index of the instance of posPrototype you want to interact with
-    /// @param _proxyAddress the address of the proxy that can represent msg.sender
-    function addProxy(uint256 _index, address _proxyAddress) public {
-        PoSPrototypeCtx storage pos = instance[_index];
-
-        pos.getProxy[msg.sender] = _proxyAddress;
-
-        emit ProxyAdded(
-            msg.sender,
-            _proxyAddress,
-            pos.staking.getStakedBalance(0, msg.sender)
-        );
-    }
-
-    /// @notice Accepts a address as a staker
-    /// @param _index the index of the instance of posPrototype you want to interact with
-    /// @param _stakerAddress the address of the staker that is being accepted
-    function acceptStaker(uint256 _index, address _stakerAddress) public {
-        PoSPrototypeCtx storage pos = instance[_index];
-
-        require(pos.getProxy[_stakerAddress] == msg.sender, "Proxy was not previously added");
-        pos.getStaker[msg.sender] = _stakerAddress;
-    }
-
-    /// @notice Removes proxy from msg.sender
-    /// @param _index the index of the instance of posPrototype you want to interact with
-    /// @param _proxyAddress the address of the proxy that can represent msg.sender
-    function removeProxy(uint256 _index, address _proxyAddress) public {
-        PoSPrototypeCtx storage pos = instance[_index];
-
-        require(pos.getProxy[msg.sender] == _proxyAddress, "Proxy address has to be msg.sender's proxy");
-
-        delete pos.getProxy[msg.sender];
-        delete pos.getStaker[_proxyAddress];
-    }
-
     function getState(uint256 _index, address _user)
     public view returns (bool, address) {
         PoSPrototypeCtx storage pos = instance[_index];
 
-        // if address is proxy, check if represented staker can win
-        if (pos.getStaker[_user] != address(0)) {
-            return (pos.lottery.canWin(
-                pos.lotteryIndex,
-                pos.getStaker[_user],
-                pos.staking.getStakedBalance(0, pos.getStaker[_user])
-            ), pos.getStaker[_user]);
-        }
-        // else address is staker
+        // translate proxy/user address
+        address user = pos.proxy.msgSender(_user, address(this), true);
+
         return (pos.lottery.canWin(
             pos.lotteryIndex,
-            _user,
-            pos.staking.getStakedBalance(0, _user)
-        ), _user);
+            user,
+            pos.staking.getStakedBalance(0, user)
+        ), user);
     }
 
     function isConcerned(uint256 _index, address _user) public override view returns (bool) {
         PoSPrototypeCtx storage pos = instance[_index];
 
-        // user is concerned if he has staked tokens
-        // or
-        // if he is the proxy of someone with tokens
-        return pos.staking.getStakedBalance(0, _user) > 0 || pos.staking.getStakedBalance(0, pos.getStaker[_user]) > 0;
+        // translate proxy/user address
+        address user = pos.proxy.msgSender(_user, address(this), true);
+
+        return pos.staking.getStakedBalance(0, user) > 0;
     }
 
     function getSubInstances(uint256 _index, address)
