@@ -8,15 +8,21 @@
   "dependencies": {
     "@cartesi/token": "^1.0.0",
     "@cartesi/util": "^0.3.0",
-    "@openzeppelin/contracts": "^3.0.0",
     "@truffle/contract": "^4.2.0",
     "@truffle/hdwallet-provider": "^1.0.33",
     "bignumber.js": "^9.0.0",
+    "ganache-cli": "^6.10.0-beta.2",
     "truffle": "^5.1.28"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@openzeppelin/contracts": "^3.1.0",
+    "chai": "^4.2.0",
+    "ethereum-waffle": "^3.0.0",
+    "mocha": "^8.0.1"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "waffle",
+    "test": "waffle && mocha --timeout 15000"
   },
   "repository": {
     "type": "git",
