@@ -37,21 +37,12 @@ contract Staking is StakingInterface {
         uint256 timeToStake; // time it takes for deposited tokens to become staked.
         uint256 timeToWithdraw; // time it takes from witdraw signal to tokens to be unlocked.
 
-        uint256 lastReleaseDate; // time when last ieo fund is unlocked.
-
         mapping(address => uint256) stakedBalance; // the amount of money currently being staked.
         mapping(address => MaturationStruct) toBeStakedList; // deposits that are waiting to be old enough to become staked.
         mapping(address => MaturationStruct) toWithdrawList; // money that is waiting to be withdrew.
-        mapping(address => ieoStruct) ieoFrozenFunds; // funds that were frozen during token launch, they will count as stake.
     }
 
     mapping(uint256 => StakingCtx) internal instance;
-
-    // TODO: Add vesting contracts
-    struct ieoStruct {
-        uint256[] amount; // the amount of money that was locked during token creation
-        uint256[] releaseDate; // when those tokens are to be released
-    }
 
     struct MaturationStruct {
         uint256[] amount;
@@ -62,21 +53,18 @@ contract Staking is StakingInterface {
     constructor(address _ctsiAddress) public {
         ctsi = IERC20(_ctsiAddress);
 
-        //TODO: Review values
-        instantiate(5 days, 5 days, 1760054400);
+        instantiate(5 days, 5 days);
     }
 
     /// @notice Instantiate a Staking struct.
     /// @param _timeToStake time it takes for deposited tokens to become staked.
     /// @param _timeToWithdraw time it takes from witdraw signal to tokens to be unlocked.
-    /// @param _lastReleaseDate time when last ieo fund is unlocked..
     /// @return Staking index.
-    function instantiate(uint256 _timeToStake, uint256 _timeToWithdraw, uint256 _lastReleaseDate) private returns (uint256) {
+    function instantiate(uint256 _timeToStake, uint256 _timeToWithdraw) private returns (uint256) {
         StakingCtx storage currentInstance = instance[currentIndex];
 
         currentInstance.timeToStake = _timeToStake;
         currentInstance.timeToWithdraw = _timeToWithdraw;
-        currentInstance.lastReleaseDate = _lastReleaseDate;
 
         active[currentIndex];
         return currentIndex++;
@@ -162,31 +150,16 @@ contract Staking is StakingInterface {
     /// @param _index index of staking that youre interacting with
     /// @param _userAddress user to retrieve staked balance from
     function getStakedBalance(uint256 _index, address _userAddress) public view override returns (uint256) {
-        StakingCtx storage ins = instance[_index];
-        uint256 totalAmount = ins.stakedBalance[_userAddress];
-
-        if (now > ins.lastReleaseDate) {
-            return totalAmount;
-        }
-
-        ieoStruct memory IFF = ins.ieoFrozenFunds[_userAddress];
-        for (uint256 i = 0; i < IFF.amount.length; i++) {
-            if (IFF.releaseDate[i] > now) {
-                totalAmount = totalAmount.add(IFF.amount[i]);
-            }
-        }
-
-        return totalAmount;
+        return instance[_index].stakedBalance[_userAddress];
     }
 
     function getState(uint256 _index, address _user) public override view returns
-        ( uint256[4] memory _uintValues
+        ( uint256[3] memory _uintValues
         ) {
             StakingCtx memory ins = instance[_index];
-            uint256[4] memory uintValues = [
+            uint256[3] memory uintValues = [
                 ins.timeToStake,
                 ins.timeToWithdraw,
-                ins.lastReleaseDate,
                 instance[_index].stakedBalance[_user]
             ];
 
@@ -206,9 +179,6 @@ contract Staking is StakingInterface {
     }
 
     function isConcerned(uint256 _index, address _user) public override view returns (bool) {
-        if (instance[_index].stakedBalance[_user] > 0) {
-            return true;
-        }
-        return false;
+        return instance[_index].stakedBalance[_user] > 0;
     }
 }
