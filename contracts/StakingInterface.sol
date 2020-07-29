@@ -34,6 +34,6 @@ abstract contract StakingInterface is Instantiator {
 
     function getState(
         uint256 _index,
-        address _user) public view virtual returns(uint256[4] memory _uintValues);
+        address _user) public view virtual returns(uint256[3] memory _uintValues);
 }
 
