@@ -61,7 +61,7 @@ contract PrizeManager {
     /// @param _winner address of round winner
     /// @dev only the lottery contract can call this
     function payWinner(address _winner) public {
-        uint256 amount = (getBalance().mul(distNumerator)).div(distDenominator);
+        uint256 amount = getCurrentPrize();
 
         require(msg.sender == lotteryAddress, "Only the lottery contract can call this function");
         require(amount > 0, "Not enough money in this contract");
