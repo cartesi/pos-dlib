@@ -83,7 +83,7 @@ contract Staking is StakingInterface {
         StakingCtx storage ins = instance[_index];
 
         ins.toBeStakedList[msg.sender].amount.push(_amount);
-        ins.toBeStakedList[msg.sender].time.push(now);
+        ins.toBeStakedList[msg.sender].time.push(block.timestamp);
     }
 
     /// @notice Finalizes Stakes. Goes through the list toBeStaked and transform that into staked balance, if the requirements are met.
@@ -94,7 +94,7 @@ contract Staking is StakingInterface {
         MaturationStruct memory TBSL = ins.toBeStakedList[msg.sender];
 
         for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) && (i < TBSL.nextSearchIndex.add(50)); i++){
-            if (now > TBSL.time[i].add(ins.timeToStake)) {
+            if (block.timestamp > TBSL.time[i].add(ins.timeToStake)) {
                 ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].add(TBSL.amount[i]);
 
                 ins.toBeStakedList[msg.sender].nextSearchIndex = i + 1;
@@ -115,7 +115,7 @@ contract Staking is StakingInterface {
         ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].sub(_amount);
 
         ins.toWithdrawList[msg.sender].amount.push(_amount);
-        ins.toWithdrawList[msg.sender].time.push(now);
+        ins.toWithdrawList[msg.sender].time.push(block.timestamp);
     }
 
     /// @notice Finalizes withdraws. Goes through the list toWithdraw and removes that from staked balance, if the requirements are met.
@@ -127,7 +127,7 @@ contract Staking is StakingInterface {
         MaturationStruct memory TBWL = ins.toWithdrawList[msg.sender];
 
         for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) && (i < TBWL.nextSearchIndex.add(50)); i++){
-            if (now > TBWL.time[i].add(ins.timeToWithdraw)) {
+            if (block.timestamp > TBWL.time[i].add(ins.timeToWithdraw)) {
                 ins.toWithdrawList[msg.sender].nextSearchIndex = i + 1;
                 totalWithdraw = totalWithdraw.add(TBWL.amount[i]);
 
