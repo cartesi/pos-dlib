@@ -81,7 +81,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         instance[currentIndex].posManagerAddress = _posManagerAddress;
 
         instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
-        instance[currentIndex].currentDrawStartTime = now; // first draw starts when the instance is created
+        instance[currentIndex].currentDrawStartTime = block.timestamp; // first draw starts when the instance is created
 
         active[currentIndex] = true;
         return currentIndex++;
@@ -109,7 +109,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         require(_weight > 0, "Caller must have at least one staked token");
         require(msg.sender == lot.posManagerAddress, "Funciton can only be called by pos prototype address");
 
-        uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
+        uint256 timePassedMicroSeconds = ((block.timestamp).sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
 
         if (canWin(_index, _user, _weight)) {
             emit RoundClaimed(
@@ -132,7 +132,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     function canWin(uint256 _index, address _user, uint256 _weight) public view returns (bool) {
         LotteryCtx storage lot = instance[_index];
 
-        uint256 timePassedMicroSeconds = (now.sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
+        uint256 timePassedMicroSeconds = ((block.timestamp).sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
 
         // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
         // new goal cannot be in the past, otherwise user could "choose it"
@@ -153,7 +153,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         // adjust difficulty
         lot.difficulty = getNewDifficulty(
             lot.difficulty,
-            now.sub(lot.currentDrawStartTime),
+            (block.timestamp).sub(lot.currentDrawStartTime),
             lot.desiredDrawTimeInterval,
             lot.difficultyAdjustmentParameter
         );
@@ -169,7 +169,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
 
         lot.roundCount++;
         lot.currentGoalBlockNumber = block.number + 1;
-        lot.currentDrawStartTime = now;
+        lot.currentDrawStartTime = block.timestamp;
     }
 
     /// @notice Calculates new difficulty parameter
@@ -195,7 +195,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
             block.number,
             i.currentGoalBlockNumber,
             i.difficulty,
-            (now.sub(i.currentDrawStartTime)).mul(1000000), // time passed
+            ((block.timestamp).sub(i.currentDrawStartTime)).mul(1000000), // time passed
             getLogOfRandom(_index, _user)
         ];
 
