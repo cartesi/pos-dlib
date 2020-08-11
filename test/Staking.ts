@@ -5,15 +5,18 @@ import {
     getNamedAccounts,
     getChainId,
 } from "@nomiclabs/buidler";
+import {
+    deployMockContract,
+    MockContract,
+} from "@ethereum-waffle/mock-contract";
 import { solidity, MockProvider } from "ethereum-waffle";
 
 import { Staking } from "../src/types/Staking";
-import { Ierc20 } from "../src/types/Ierc20";
-import { Signer, ContractFactory } from "ethers";
+import { Signer } from "ethers";
 
 const { advanceTime } = require("./utils");
 
-const CTSI = require("@cartesi/token/build/contracts/CartesiToken.json");
+const ctsiJSON = require("@cartesi/token/build/contracts/CartesiToken.json");
 
 use(solidity);
 
@@ -22,202 +25,236 @@ describe("Staking", async () => {
     const DAY = 86401; // day + 1 second
 
     let signer: Signer;
+    let alice: Signer;
+    let bob: Signer;
 
-    let stakingAddress: string;
-    let factory: ContractFactory;
-    let ctsiFactory: ContractFactory;
+    let aliceAddress: string;
 
-    let instance: Staking;
-    let ctsi: Ierc20;
+    let staking: Staking;
+    let mockToken: MockContract;
+
+    const deployStaking = async ({
+        ctsi,
+    }: {
+        ctsi?: string;
+    } = {}): Promise<Staking> => {
+        const network_id = await getChainId();
+        const ctsiAddress = ctsi || ctsiJSON.networks[network_id].address;
+        const stakingFactory = await ethers.getContractFactory("Staking");
+        const staking = await stakingFactory.deploy(ctsiAddress);
+        await staking.deployed();
+        return staking as Staking;
+    };
 
     beforeEach(async () => {
         await deployments.fixture();
-        const network_id = await getChainId();
 
-        const CTSIAddress = CTSI.networks[network_id].address;
+        [signer, alice, bob] = await ethers.getSigners();
+        aliceAddress = await alice.getAddress();
+        mockToken = await deployMockContract(signer, ctsiJSON.abi);
 
-        [signer] = await ethers.getSigners();
-
-        stakingAddress = (await deployments.get("Staking")).address;
-
-        factory = await ethers.getContractFactory("Staking");
-        ctsiFactory = await ethers.getContractFactory("Ierc20");
-        instance = factory.connect(signer).attach(stakingAddress) as Staking;
-        ctsi = ctsiFactory.connect(signer).attach(CTSIAddress) as Ierc20;
+        staking = await deployStaking({ ctsi: mockToken.address });
     });
 
-    it("function depositStake()", async () => {
-        const { alice } = await getNamedAccounts();
-        let balance = await ctsi.balanceOf(alice);
-        console.log(balance);
-
-        ctsi.transfer(alice, 500000000);
-
-        let currentBalance = await ctsi.balanceOf(alice);
+    it("deposit stake should emit event", async () => {
         let toBeDeposited = 5;
+        let now = new Date();
+        let unixTime = (now.getTime() / 1000).toFixed(0);
+
+        let maturationDate = Number(unixTime) + DAY * 5;
+
+        // mock transfer from as true
+        await mockToken.mock.transferFrom.returns(true);
+
+        // TODO: fix the event parameter for maturation date
+        //       the date is a bit unreliable, because the block.timestamp varies
+        await expect(
+            staking.depositStake(INDEX, toBeDeposited),
+            "Deposting stake should emit event"
+        ).to.emit(staking, "StakeDeposited");
+        //.withArgs(
+        //    toBeDeposited,
+        //    signer.getAddress,
+        //    maturationDate
+        //);
+    });
+
+    it("deposit stake shouldnt change staked balance", async () => {
+        let toBeDeposited = 5;
+        // mock transfer from as true
+        await mockToken.mock.transferFrom.returns(true);
+
+        // await deposit
+        await staking.depositStake(INDEX, toBeDeposited);
 
         expect(
-            await ctsi.balanceOf(stakingAddress),
-            "staking contract should be instantiated with zero CTSI"
-        ).to.equal(0);
-
-        // Alice has to allow contract to act send tokens on her behalf
-        await ctsi.increaseAllowance(stakingAddress, toBeDeposited);
-
-        // TODO: this should check for events,
-        // but contract is not emitting them yet
-        await instance.depositStake(INDEX, toBeDeposited);
-
-        expect(
-            await ctsi.balanceOf(stakingAddress),
-            "toBeDeposited should be transferred to staking contract"
-        ).to.equal(toBeDeposited);
-
-        expect(
-            await instance.getStakedBalance(INDEX, alice),
+            await staking.getStakedBalance(INDEX, aliceAddress),
             "staked Balance should still be zero, deposit not finalized"
         ).to.equal(0);
     });
 
-    it("function finalizeStake()", async () => {
-        const { alice } = await getNamedAccounts();
-        let toBeDeposited = 5;
-
-        // Alice has to allow contract to act send tokens on her behalf
-        await ctsi.increaseAllowance(stakingAddress, 4 * toBeDeposited);
-
-        await instance.finalizeStakes(INDEX);
+    it("finalize stake doesnt change staked balance, when there are no pending deposits", async () => {
+        await staking.finalizeStakes(INDEX);
         expect(
-            await instance.getStakedBalance(INDEX, alice),
+            await staking.getStakedBalance(INDEX, await signer.getAddress()),
             "staked balance should still be zero, no deposits to be finalized"
         ).to.equal(0);
-        await instance.depositStake(0, toBeDeposited);
-
-        expect(
-            await instance.getStakedBalance(INDEX, alice),
-            "staked balance should still be zero, deposit not finalized"
-        ).to.equal(0);
-
-        await instance.finalizeStakes(INDEX);
-
-        expect(
-            await instance.getStakedBalance(INDEX, alice),
-            "staked balance should still be zero, deposit hasnt matured"
-        ).to.equal(0);
-
-        // TODO: advance time here
-        await instance.finalizeStakes(INDEX);
-
-        expect(
-            await instance.getStakedBalance(INDEX, alice),
-            "staked balance should match finalized deposit"
-        ).to.equal(toBeDeposited);
-
-        // test with multiple deposits
-
-        await instance.depositStake(INDEX, toBeDeposited);
-        await instance.depositStake(INDEX, toBeDeposited);
-        await instance.depositStake(INDEX, toBeDeposited);
-
-        await instance.finalizeStakes(INDEX);
-
-        expect(
-            await instance.getStakedBalance(INDEX, alice),
-            "staked balance should not include deposits that havent matured"
-        ).to.equal(toBeDeposited);
-
-        // TODO: advance time here
-        await instance.finalizeStakes(INDEX);
-        expect(
-            await instance.getStakedBalance(INDEX, alice),
-            "staked balance should include all 4 deposits"
-        ).to.equal(4 * toBeDeposited);
     });
 
-    it("function startWithdraw()", async () => {
-        const { alice } = await getNamedAccounts();
+    it("finalizeStake has no effect if deposit is not mature", async () => {
         let toBeDeposited = 5;
-        // Alice has to allow contract to act send tokens on her behalf
-        await ctsi.increaseAllowance(stakingAddress, 5 * toBeDeposited);
+        // mock transfer from as true
+        await mockToken.mock.transferFrom.returns(true);
 
-        await expect(
-            instance.startWithdraw(INDEX, toBeDeposited),
-            "withdraw start should revert if there is no staked balance"
-        ).to.be.revertedWith("SafeMath: subtraction overflow");
-
-        await instance.depositStake(INDEX, toBeDeposited);
-
-        let balanceAfterDeposit = await ctsi.balanceOf(alice);
-
-        await expect(
-            instance.startWithdraw(INDEX, toBeDeposited),
-            "withdraw start should revert if there is no staked balance"
-        ).to.be.revertedWith("SafeMath: subtraction overflow");
-
-        // TODO: advance time here
-        await instance.finalizeStakes(INDEX);
+        await staking.depositStake(INDEX, toBeDeposited);
+        await staking.finalizeStakes(INDEX);
 
         expect(
-            await instance.getStakedBalance(INDEX, alice),
+            await staking.getStakedBalance(INDEX, await signer.getAddress()),
+            "staked balance should still be zero, deposit hasnt matured"
+        ).to.equal(0);
+    });
+
+    it("single deposit finalized should change balance", async () => {
+        let toBeDeposited = 5;
+        // mock transfer from as true
+        await mockToken.mock.transferFrom.returns(true);
+
+        await staking.depositStake(INDEX, toBeDeposited);
+
+        // TODO: advance time here
+        // await advanceTime(signer.provider, DAY * 5);
+
+        await staking.finalizeStakes(INDEX);
+
+        expect(
+            await staking.getStakedBalance(INDEX, await signer.getAddress()),
             "staked balance should match finalized deposit"
         ).to.equal(toBeDeposited);
+    });
+    it("multiple deposit can be finalized at once", async () => {
+        let toBeDeposited = 5;
+        // mock transfer from as true
+        await mockToken.mock.transferFrom.returns(true);
+        // test with multiple deposits
 
-        await instance.startWithdraw(INDEX, toBeDeposited);
+        await staking.depositStake(INDEX, toBeDeposited);
+        await staking.depositStake(INDEX, toBeDeposited);
+        await staking.depositStake(INDEX, toBeDeposited);
+
+        await staking.finalizeStakes(INDEX);
+
+        // TODO: advance time here
+        // await advanceTime(signer.provider, DAY * 5);
+
+        await staking.finalizeStakes(INDEX);
+        expect(
+            await staking.getStakedBalance(INDEX, await signer.getAddress()),
+            "staked balance should include all 3 deposits"
+        ).to.equal(3 * toBeDeposited);
+    });
+
+    it("withdraw should revert if there is not staked balance", async () => {
+        let toBeWithdrew = 5;
+        await expect(
+            staking.startWithdraw(INDEX, toBeWithdrew),
+            "withdraw start should revert if there is no staked balance"
+        ).to.be.revertedWith("SafeMath: subtraction overflow");
+    });
+
+    it("withdraw should revert if deposits are not finalized", async () => {
+        let toBeDeposited = 5;
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.depositStake(INDEX, toBeDeposited);
+
+        await expect(
+            staking.startWithdraw(INDEX, toBeDeposited),
+            "withdraw start should revert if there is no staked balance"
+        ).to.be.revertedWith("SafeMath: subtraction overflow");
+    });
+
+    it("staked balance should diminish instantly", async () => {
+        let toBeDeposited = 5;
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.depositStake(INDEX, toBeDeposited);
+
+        // TODO: advance time here
+        // await advanceTime(signer.provider, DAY * 5);
+
+        await staking.finalizeStakes(INDEX);
+        await staking.startWithdraw(INDEX, toBeDeposited);
 
         expect(
-            await instance.getStakedBalance(INDEX, alice),
+            await staking.getStakedBalance(INDEX, await signer.getAddress()),
             "staked balance should diminish right after withdraw starts"
         ).to.equal(0);
+    });
 
-        expect(
-            await ctsi.balanceOf(alice),
-            "tokens should only return to alice after withdraw was finalized"
-        ).to.equal(balanceAfterDeposit);
-
-        await instance.finalizeWithdraws(INDEX);
-
-        expect(
-            await ctsi.balanceOf(alice),
-            "withdraw finalization should only work after it matures"
-        ).to.equal(balanceAfterDeposit);
+    it("finalize withdraws that are not mature, has no effect", async () => {
+        let toBeDeposited = 5;
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.depositStake(INDEX, toBeDeposited);
 
         // TODO: advance time here
-        await instance.finalizeWithdraws(INDEX);
+        // await advanceTime(signer.provider, DAY * 5);
 
-        expect(
-            await ctsi.balanceOf(alice),
-            "tokens should return after a successful finalizeWithdraws()"
-        ).to.greaterThan(balanceAfterDeposit);
+        await staking.finalizeStakes(INDEX);
+        await staking.startWithdraw(INDEX, toBeDeposited);
 
-        // test multiple withdraws
+        await staking.finalizeWithdraws(INDEX);
 
-        await instance.depositStake(INDEX, toBeDeposited);
-        await instance.depositStake(INDEX, toBeDeposited);
-        await instance.depositStake(INDEX, toBeDeposited);
-        await instance.depositStake(INDEX, toBeDeposited);
+        expect("transfer").to.not.be.calledOnContract(mockToken);
+    });
+
+    it("finalize withdraws should trigger a transfer of tokens", async () => {
+        let toBeDeposited = 5;
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.depositStake(INDEX, toBeDeposited);
+
         // TODO: advance time here
-        await instance.finalizeStakes(INDEX);
+        // await advanceTime(signer.provider, DAY * 5);
+
+        await staking.finalizeStakes(INDEX);
+        await staking.startWithdraw(INDEX, toBeDeposited);
+
+        // TODO: advance time here
+        // await advanceTime(signer.provider, DAY * 5);
+
+        await staking.finalizeWithdraws(INDEX);
+
+        expect("transfer").to.be.calledOnContract(mockToken);
+    });
+
+    it("finalize multiple withdraws should work", async () => {
+        let toBeDeposited = 5;
+        await mockToken.mock.transferFrom.returns(true);
+
+        await staking.depositStake(INDEX, toBeDeposited);
+        await staking.depositStake(INDEX, toBeDeposited);
+        await staking.depositStake(INDEX, toBeDeposited);
+        await staking.depositStake(INDEX, toBeDeposited);
+        // TODO: advance time here
+        // await advanceTime(signer.provider, DAY * 5);
+        await staking.finalizeStakes(INDEX);
 
         expect(
-            await instance.getStakedBalance(INDEX, alice),
+            await staking.getStakedBalance(INDEX, await signer.getAddress()),
             "staked balance should equivalent to deposits"
         ).to.equal(toBeDeposited * 4);
 
-        await instance.startWithdraw(INDEX, toBeDeposited);
-        await instance.startWithdraw(INDEX, 2 * toBeDeposited);
-        await instance.startWithdraw(INDEX, toBeDeposited);
-
+        await staking.startWithdraw(INDEX, toBeDeposited);
+        await staking.startWithdraw(INDEX, 2 * toBeDeposited);
+        await staking.startWithdraw(INDEX, toBeDeposited);
         // TODO: advance time here
-        await instance.finalizeWithdraws(INDEX);
+        // await advanceTime(signer.provider, DAY * 5);
+
+        await staking.finalizeWithdraws(INDEX);
 
         expect(
-            await instance.getStakedBalance(INDEX, alice),
+            await staking.getStakedBalance(INDEX, await signer.getAddress()),
             "staked balance should be 0 after all withdraws are finalized"
         ).to.equal(0);
 
-        expect(
-            await ctsi.balanceOf(stakingAddress),
-            "there should be no money left on staking contract"
-        ).to.equal(0);
+        expect("transfer").to.be.calledOnContract(mockToken);
     });
 });
