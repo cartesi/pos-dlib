@@ -15,3 +15,6 @@ const advanceTime = async (provider, seconds) => {
   };
   await axios.post(provider._buidlerProvider._url, payload);
 };
+module.exports = {
+  advanceTime,
+};
