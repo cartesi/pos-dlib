@@ -84,6 +84,8 @@ contract Staking is StakingInterface {
 
         ins.toBeStakedList[msg.sender].amount.push(_amount);
         ins.toBeStakedList[msg.sender].time.push(block.timestamp);
+
+        emit StakeDeposited(_amount, msg.sender, block.timestamp + ins.timeToStake);
     }
 
     /// @notice Finalizes Stakes. Goes through the list toBeStaked and transform that into staked balance, if the requirements are met.
@@ -95,6 +97,7 @@ contract Staking is StakingInterface {
 
         for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) && (i < TBSL.nextSearchIndex.add(50)); i++){
             if (block.timestamp > TBSL.time[i].add(ins.timeToStake)) {
+                // TODO: improve this, add everything and then write to storage
                 ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].add(TBSL.amount[i]);
 
                 ins.toBeStakedList[msg.sender].nextSearchIndex = i + 1;
@@ -104,6 +107,7 @@ contract Staking is StakingInterface {
                 break; // if finds a deposit that is not ready, all deposits after that wont be ready
             }
         }
+        emit StakeFinalized(ins.stakedBalance[msg.sender], msg.sender);
     }
 
     /// @notice Start CTSI withdraw from staked balance process. The money will turn into withdrawal balance after timeToWithdraw days, if the function finalizeWithdraw is called.
@@ -116,6 +120,8 @@ contract Staking is StakingInterface {
 
         ins.toWithdrawList[msg.sender].amount.push(_amount);
         ins.toWithdrawList[msg.sender].time.push(block.timestamp);
+
+        emit WithdrawStarted(_amount, msg.sender, block.timestamp + ins.timeToStake);
     }
 
     /// @notice Finalizes withdraws. Goes through the list toWithdraw and removes that from staked balance, if the requirements are met.
@@ -143,6 +149,7 @@ contract Staking is StakingInterface {
             // to: msg.sender
             // value: bet total withdraw value on toWithdrawList
             ctsi.transfer(msg.sender, totalWithdraw);
+            emit WithdrawFinalized(totalWithdraw, msg.sender);
         }
     }
 

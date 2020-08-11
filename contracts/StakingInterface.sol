@@ -35,5 +35,42 @@ abstract contract StakingInterface is Instantiator {
     function getState(
         uint256 _index,
         address _user) public view virtual returns(uint256[3] memory _uintValues);
+
+    // events
+    /// @notice CTSI tokens were deposited as a Stake, can be finalized after _maturationDate
+    /// @param _amount amount deposited for staking
+    /// @param _address address of msg.sender
+    /// @param _maturationDate date when the stake can be finalized
+    event StakeDeposited(
+        uint256 indexed _amount,
+        address indexed _address,
+        uint256 indexed _maturationDate
+    );
+
+    /// @notice Stake was finalized, effectively counting for the PoS now
+    /// @param _amount total amount staked for that msg.sender
+    /// @param _address address of msg.sender
+    event StakeFinalized(
+        uint256 indexed _amount,
+        address indexed _address
+    );
+
+    /// @notice Withdraw process has started, tokens will be freed after _maturationDate
+    /// @param _amount amount of tokens for that withdraw request
+    /// @param _address address of msg.sender
+    /// @param _maturationDate date when the withdraw can be finalized
+    event WithdrawStarted(
+        uint256 indexed _amount,
+        address indexed _address,
+        uint256 indexed _maturationDate
+    );
+
+    /// @notice Withdraw process was finalized
+    /// @param _amount amount of tokens withdrawn
+    /// @param _address address of msg.sender
+    event WithdrawFinalized(
+        uint256 indexed _amount,
+        address indexed _address
+    );
 }
 
