@@ -204,7 +204,7 @@ describe("Staking", async () => {
             .to.not.emit(staking, "WithdrawFinalized")
     });
 
-    it("finalize withdraws should trigger a transfer of tokens", async () => {
+    it("finalize withdraws should emit an event", async () => {
         let toBeDeposited = 5;
         await mockToken.mock.transferFrom.returns(true);
         await staking.depositStake(INDEX, toBeDeposited);
