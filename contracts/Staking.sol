@@ -93,7 +93,7 @@ contract Staking is StakingInterface {
     /// @dev The number of stakes finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
     function finalizeStakes(uint256 _index) public {
         StakingCtx storage ins = instance[_index];
-        MaturationStruct memory TBSL = ins.toBeStakedList[msg.sender];
+        MaturationStruct storage TBSL = ins.toBeStakedList[msg.sender];
 
         uint256 totalFinalized = 0;
 
@@ -132,7 +132,7 @@ contract Staking is StakingInterface {
     function finalizeWithdraws(uint256 _index) public {
         uint256 totalWithdraw = 0;
         StakingCtx storage ins = instance[_index];
-        MaturationStruct memory TBWL = ins.toWithdrawList[msg.sender];
+        MaturationStruct storage TBWL = ins.toWithdrawList[msg.sender];
 
         for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) && (i < TBWL.nextSearchIndex.add(50)); i++){
             if (block.timestamp > TBWL.time[i].add(ins.timeToWithdraw)) {
