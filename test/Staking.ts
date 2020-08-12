@@ -9,7 +9,7 @@ import {
     deployMockContract,
     MockContract,
 } from "@ethereum-waffle/mock-contract";
-import { solidity, MockProvider } from "ethereum-waffle";
+import { solidity } from "ethereum-waffle";
 
 import { Staking } from "../src/types/Staking";
 import { Signer } from "ethers";
@@ -122,8 +122,7 @@ describe("Staking", async () => {
 
         await staking.depositStake(INDEX, toBeDeposited);
 
-        // TODO: advance time here
-        // await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, DAY * 5);
 
         await staking.finalizeStakes(INDEX);
 
@@ -144,8 +143,7 @@ describe("Staking", async () => {
 
         await staking.finalizeStakes(INDEX);
 
-        // TODO: advance time here
-        // await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, DAY * 5);
 
         await staking.finalizeStakes(INDEX);
         expect(
@@ -178,8 +176,7 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.depositStake(INDEX, toBeDeposited);
 
-        // TODO: advance time here
-        // await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, DAY * 5);
 
         await staking.finalizeStakes(INDEX);
         await staking.startWithdraw(INDEX, toBeDeposited);
@@ -195,15 +192,16 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.depositStake(INDEX, toBeDeposited);
 
-        // TODO: advance time here
-        // await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, DAY * 5);
 
         await staking.finalizeStakes(INDEX);
         await staking.startWithdraw(INDEX, toBeDeposited);
 
-        await staking.finalizeWithdraws(INDEX);
-
-        expect("transfer").to.not.be.calledOnContract(mockToken);
+        await expect(
+            staking.finalizeWithdraws(INDEX),
+            "Finalazing withdraw should emit event"
+        )
+            .to.not.emit(staking, "WithdrawFinalized")
     });
 
     it("finalize withdraws should trigger a transfer of tokens", async () => {
@@ -211,18 +209,23 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.depositStake(INDEX, toBeDeposited);
 
-        // TODO: advance time here
-        // await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, DAY * 5);
 
         await staking.finalizeStakes(INDEX);
+
+        await mockToken.mock.transfer.returns(true);
+
         await staking.startWithdraw(INDEX, toBeDeposited);
 
-        // TODO: advance time here
-        // await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, DAY * 5);
 
-        await staking.finalizeWithdraws(INDEX);
+        await expect(
+            staking.finalizeWithdraws(INDEX),
+            "Finalazing withdraw should emit event"
+        )
+            .to.emit(staking, "WithdrawFinalized")
+            .withArgs(toBeDeposited, signer.getAddress);
 
-        expect("transfer").to.be.calledOnContract(mockToken);
     });
 
     it("finalize multiple withdraws should work", async () => {
@@ -233,8 +236,9 @@ describe("Staking", async () => {
         await staking.depositStake(INDEX, toBeDeposited);
         await staking.depositStake(INDEX, toBeDeposited);
         await staking.depositStake(INDEX, toBeDeposited);
-        // TODO: advance time here
-        // await advanceTime(signer.provider, DAY * 5);
+
+        await advanceTime(signer.provider, DAY * 5);
+
         await staking.finalizeStakes(INDEX);
 
         expect(
@@ -242,19 +246,23 @@ describe("Staking", async () => {
             "staked balance should equivalent to deposits"
         ).to.equal(toBeDeposited * 4);
 
+        await mockToken.mock.transfer.returns(true);
         await staking.startWithdraw(INDEX, toBeDeposited);
         await staking.startWithdraw(INDEX, 2 * toBeDeposited);
         await staking.startWithdraw(INDEX, toBeDeposited);
-        // TODO: advance time here
-        // await advanceTime(signer.provider, DAY * 5);
 
-        await staking.finalizeWithdraws(INDEX);
+        await advanceTime(signer.provider, DAY * 5);
+
+        await expect(
+            staking.finalizeWithdraws(INDEX),
+            "Finalazing withdraw should emit event"
+        )
+            .to.emit(staking, "WithdrawFinalized")
+            .withArgs(toBeDeposited * 4, signer.getAddress);
 
         expect(
             await staking.getStakedBalance(INDEX, await signer.getAddress()),
             "staked balance should be 0 after all withdraws are finalized"
         ).to.equal(0);
-
-        expect("transfer").to.be.calledOnContract(mockToken);
     });
 });
