@@ -95,10 +95,11 @@ contract Staking is StakingInterface {
         StakingCtx storage ins = instance[_index];
         MaturationStruct memory TBSL = ins.toBeStakedList[msg.sender];
 
+        uint256 totalFinalized = 0;
+
         for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) && (i < TBSL.nextSearchIndex.add(50)); i++){
             if (block.timestamp > TBSL.time[i].add(ins.timeToStake)) {
-                // TODO: improve this, add everything and then write to storage
-                ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].add(TBSL.amount[i]);
+                totalFinalized = totalFinalized.add(TBSL.amount[i]);
 
                 ins.toBeStakedList[msg.sender].nextSearchIndex = i + 1;
                 delete ins.toBeStakedList[msg.sender].amount[i];
@@ -107,6 +108,7 @@ contract Staking is StakingInterface {
                 break; // if finds a deposit that is not ready, all deposits after that wont be ready
             }
         }
+        ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].add(totalFinalized);
         emit StakeFinalized(ins.stakedBalance[msg.sender], msg.sender);
     }
 
