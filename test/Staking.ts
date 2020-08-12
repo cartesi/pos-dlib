@@ -13,6 +13,7 @@ import { solidity } from "ethereum-waffle";
 
 import { Staking } from "../src/types/Staking";
 import { Signer } from "ethers";
+import { splitSignature } from "ethers/lib/utils";
 
 const { advanceTime } = require("./utils");
 
@@ -22,7 +23,8 @@ use(solidity);
 
 describe("Staking", async () => {
     const INDEX = 0;
-    const DAY = 86401; // day + 1 second
+    const DAY = 86400; // seconds in a day
+    const MATURATION = 5 * DAY + 1;
 
     let signer: Signer;
     let alice: Signer;
@@ -47,7 +49,7 @@ describe("Staking", async () => {
     };
 
     beforeEach(async () => {
-        await deployments.fixture();
+        //await deployments.fixture();
 
         [signer, alice, bob] = await ethers.getSigners();
         aliceAddress = await alice.getAddress();
@@ -122,7 +124,7 @@ describe("Staking", async () => {
 
         await staking.depositStake(INDEX, toBeDeposited);
 
-        await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, MATURATION);
 
         await staking.finalizeStakes(INDEX);
 
@@ -143,7 +145,7 @@ describe("Staking", async () => {
 
         await staking.finalizeStakes(INDEX);
 
-        await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, MATURATION);
 
         await staking.finalizeStakes(INDEX);
         expect(
@@ -176,7 +178,7 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.depositStake(INDEX, toBeDeposited);
 
-        await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, MATURATION);
 
         await staking.finalizeStakes(INDEX);
         await staking.startWithdraw(INDEX, toBeDeposited);
@@ -192,7 +194,7 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.depositStake(INDEX, toBeDeposited);
 
-        await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, MATURATION);
 
         await staking.finalizeStakes(INDEX);
         await staking.startWithdraw(INDEX, toBeDeposited);
@@ -209,7 +211,7 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.depositStake(INDEX, toBeDeposited);
 
-        await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, MATURATION);
 
         await staking.finalizeStakes(INDEX);
 
@@ -217,7 +219,7 @@ describe("Staking", async () => {
 
         await staking.startWithdraw(INDEX, toBeDeposited);
 
-        await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, MATURATION);
 
         await expect(
             staking.finalizeWithdraws(INDEX),
@@ -237,7 +239,7 @@ describe("Staking", async () => {
         await staking.depositStake(INDEX, toBeDeposited);
         await staking.depositStake(INDEX, toBeDeposited);
 
-        await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, MATURATION);
 
         await staking.finalizeStakes(INDEX);
 
@@ -251,7 +253,7 @@ describe("Staking", async () => {
         await staking.startWithdraw(INDEX, 2 * toBeDeposited);
         await staking.startWithdraw(INDEX, toBeDeposited);
 
-        await advanceTime(signer.provider, DAY * 5);
+        await advanceTime(signer.provider, MATURATION);
 
         await expect(
             staking.finalizeWithdraws(INDEX),
@@ -264,5 +266,55 @@ describe("Staking", async () => {
             await staking.getStakedBalance(INDEX, await signer.getAddress()),
             "staked balance should be 0 after all withdraws are finalized"
         ).to.equal(0);
+    });
+
+    it("getState should return correct values", async () => {
+        let toBeDeposited = 5;
+        let returnArray = await staking.getState(INDEX, await signer.getAddress());
+
+        expect(returnArray[0]).to.equal(5 * DAY, "time to stake should be 5 days");
+        expect(returnArray[1]).to.equal(5 * DAY, "time to withdraw should be 5 days");
+        expect(returnArray[2]).to.equal(0, "stake balance should be 0");
+
+        await mockToken.mock.transferFrom.returns(true);
+
+        await staking.depositStake(INDEX, toBeDeposited);
+        await advanceTime(signer.provider, MATURATION);
+
+        await staking.finalizeStakes(INDEX);
+
+        returnArray = await staking.getState(INDEX, await signer.getAddress());
+
+        expect(returnArray[0]).to.equal(5 * DAY, "time to stake should be 5 days");
+        expect(returnArray[1]).to.equal(5 * DAY, "time to withdraw should be 5 days");
+        expect(returnArray[2]).to.equal(5, "stake balance should be 0");
+    });
+
+    it("getSubinstance should be empty", async () => {
+        let returnArray = await staking.getSubInstances(INDEX, await signer.getAddress());
+
+        expect(returnArray[0].length).to.equal(0, "address array should be empty")
+        expect(returnArray[1].length).to.equal(0, "instance array should be empty")
+    });
+
+    it("isConcerned should return true if user has staked tokens", async () => {
+        let toBeDeposited = 5;
+        await mockToken.mock.transferFrom.returns(true);
+
+        await staking.depositStake(INDEX, toBeDeposited);
+        await advanceTime(signer.provider, MATURATION);
+
+        expect(
+            await staking.isConcerned(INDEX, await signer.getAddress()),
+            "User without staked tokens shouldnt be concerned"
+        ).to.false;
+
+        await staking.finalizeStakes(INDEX);
+
+        expect(
+            await staking.isConcerned(INDEX, await signer.getAddress()),
+            "User with staked tokens shoul be concerned"
+        ).to.true;
+
     });
 });
