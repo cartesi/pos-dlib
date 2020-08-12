@@ -108,8 +108,10 @@ contract Staking is StakingInterface {
                 break; // if finds a deposit that is not ready, all deposits after that wont be ready
             }
         }
-        ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].add(totalFinalized);
-        emit StakeFinalized(ins.stakedBalance[msg.sender], msg.sender);
+        if (totalFinalized != 0) {
+            ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].add(totalFinalized);
+            emit StakeFinalized(ins.stakedBalance[msg.sender], msg.sender);
+        }
     }
 
     /// @notice Start CTSI withdraw from staked balance process. The money will turn into withdrawal balance after timeToWithdraw days, if the function finalizeWithdraw is called.
