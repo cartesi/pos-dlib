@@ -7,6 +7,7 @@ usePlugin("@nomiclabs/buidler-ethers");
 usePlugin("@nomiclabs/buidler-waffle");
 usePlugin("@nodefactory/buidler-typechain");
 usePlugin("buidler-deploy");
+usePlugin("solidity-coverage");
 
 // This is a sample Buidler task. To learn how to create your own go to
 // https://buidler.dev/guides/create-task.html
@@ -69,6 +70,9 @@ const config: BuidlerConfig = {
             url: "https://testnetv3.matic.network",
             chainId: 15001,
             accounts: mnemonic ? { mnemonic } : undefined
+        },
+        coverage: {
+            url: 'http://localhost:8555'
         }
     },
     solc: {
