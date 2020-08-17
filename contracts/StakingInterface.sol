@@ -23,18 +23,10 @@
 /// @title Interface staking contract
 pragma solidity ^0.6.0;
 
-import "@cartesi/util/contracts/Instantiator.sol";
-
-
-abstract contract StakingInterface is Instantiator {
+abstract contract StakingInterface {
 
     function getStakedBalance(
-        uint256 _index,
         address _userAddress) public view virtual  returns (uint256);
-
-    function getState(
-        uint256 _index,
-        address _user) public view virtual returns(uint256[3] memory _uintValues);
 
     // events
     /// @notice CTSI tokens were deposited as a Stake, can be finalized after _maturationDate
