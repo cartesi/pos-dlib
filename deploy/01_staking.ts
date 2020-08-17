@@ -6,6 +6,8 @@ import {
 
 const CTSI = require("@cartesi/token/build/contracts/CartesiToken.json");
 
+const DAY = 86400; // seconds in a day
+
 const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
     const { deployments, getNamedAccounts, getChainId } = bre;
     const { deploy } = deployments;
@@ -14,7 +16,7 @@ const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
 
     const CTSIAddress = CTSI.networks[network_id].address;
 
-    await deploy("Staking", {args: [CTSIAddress], from: deployer, log: true });
+    await deploy("Staking", {args: [CTSIAddress, 5 * DAY, 5 * DAY], from: deployer, log: true });
 };
 
 export default func;
