@@ -33,16 +33,12 @@ contract Staking is StakingInterface {
     using SafeMath for uint256;
     IERC20 private ctsi;
 
-    struct StakingCtx {
-        uint256 timeToStake; // time it takes for deposited tokens to become staked.
-        uint256 timeToWithdraw; // time it takes from witdraw signal to tokens to be unlocked.
+    uint256 timeToStake; // time it takes for deposited tokens to become staked.
+    uint256 timeToWithdraw; // time it takes from witdraw signal to tokens to be unlocked.
 
-        mapping(address => uint256) stakedBalance; // the amount of money currently being staked.
-        mapping(address => MaturationStruct) toBeStakedList; // deposits that are waiting to be old enough to become staked.
-        mapping(address => MaturationStruct) toWithdrawList; // money that is waiting to be withdrew.
-    }
-
-    mapping(uint256 => StakingCtx) internal instance;
+    mapping(address => uint256) stakedBalance; // the amount of money currently being staked.
+    mapping(address => MaturationStruct) toBeStakedList; // deposits that are waiting to be old enough to become staked.
+    mapping(address => MaturationStruct) toWithdrawList; // money that is waiting to be withdrew.
 
     struct MaturationStruct {
         uint256[] amount;
@@ -50,99 +46,79 @@ contract Staking is StakingInterface {
         uint256 nextSearchIndex; // used to implement FIFO
     }
 
-    constructor(address _ctsiAddress) public {
-        ctsi = IERC20(_ctsiAddress);
-
-        instantiate(5 days, 5 days);
-    }
-
-    /// @notice Instantiate a Staking struct.
+    /// @notice constructor
+    /// @param _ctsiAddress address of compatible ERC20
     /// @param _timeToStake time it takes for deposited tokens to become staked.
     /// @param _timeToWithdraw time it takes from witdraw signal to tokens to be unlocked.
-    /// @return Staking index.
-    function instantiate(uint256 _timeToStake, uint256 _timeToWithdraw) private returns (uint256) {
-        StakingCtx storage currentInstance = instance[currentIndex];
-
-        currentInstance.timeToStake = _timeToStake;
-        currentInstance.timeToWithdraw = _timeToWithdraw;
-
-        active[currentIndex];
-        return currentIndex++;
+    constructor(address _ctsiAddress, uint256 _timeToStake, uint256 _timeToWithdraw) public {
+        ctsi = IERC20(_ctsiAddress);
+        timeToStake = _timeToStake;
+        timeToWithdraw = _timeToWithdraw;
     }
 
     /// @notice Deposit CTSI to be staked. The money will turn into staked balance after timeToStake days, if the function finalizeStakes is called.
-    /// @param _index index of staking that youre interacting with
     /// @param _amount The amount of tokens that are gonna be deposited.
-    function depositStake(uint256 _index, uint256 _amount) public {
+    function depositStake(uint256 _amount) public {
         // transfer stake to contract
         // from: msg.sender
         // to: this contract
         // value: _amount
         ctsi.transferFrom(msg.sender, address(this), _amount);
 
-        StakingCtx storage ins = instance[_index];
+        toBeStakedList[msg.sender].amount.push(_amount);
+        toBeStakedList[msg.sender].time.push(block.timestamp);
 
-        ins.toBeStakedList[msg.sender].amount.push(_amount);
-        ins.toBeStakedList[msg.sender].time.push(block.timestamp);
-
-        emit StakeDeposited(_amount, msg.sender, block.timestamp + ins.timeToStake);
+        emit StakeDeposited(_amount, msg.sender, block.timestamp + timeToStake);
     }
 
     /// @notice Finalizes Stakes. Goes through the list toBeStaked and transform that into staked balance, if the requirements are met.
-    /// @param _index index of staking that youre interacting with
     /// @dev The number of stakes finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
-    function finalizeStakes(uint256 _index) public {
-        StakingCtx storage ins = instance[_index];
-        MaturationStruct storage TBSL = ins.toBeStakedList[msg.sender];
+    function finalizeStakes() public {
+        MaturationStruct storage TBSL = toBeStakedList[msg.sender];
 
         uint256 totalFinalized = 0;
 
         for (uint256 i = TBSL.nextSearchIndex; (i < TBSL.amount.length) && (i < TBSL.nextSearchIndex.add(50)); i++){
-            if (block.timestamp > TBSL.time[i].add(ins.timeToStake)) {
+            if (block.timestamp > TBSL.time[i].add(timeToStake)) {
                 totalFinalized = totalFinalized.add(TBSL.amount[i]);
 
-                ins.toBeStakedList[msg.sender].nextSearchIndex = i + 1;
-                delete ins.toBeStakedList[msg.sender].amount[i];
-                delete ins.toBeStakedList[msg.sender].time[i];
+                toBeStakedList[msg.sender].nextSearchIndex = i + 1;
+                delete toBeStakedList[msg.sender].amount[i];
+                delete toBeStakedList[msg.sender].time[i];
             } else {
                 break; // if finds a deposit that is not ready, all deposits after that wont be ready
             }
         }
         if (totalFinalized != 0) {
-            ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].add(totalFinalized);
-            emit StakeFinalized(ins.stakedBalance[msg.sender], msg.sender);
+            stakedBalance[msg.sender] = stakedBalance[msg.sender].add(totalFinalized);
+            emit StakeFinalized(stakedBalance[msg.sender], msg.sender);
         }
     }
 
     /// @notice Start CTSI withdraw from staked balance process. The money will turn into withdrawal balance after timeToWithdraw days, if the function finalizeWithdraw is called.
-    /// @param _index index of staking that youre interacting with
     /// @param _amount The amount of tokens that are gonna be withdrew.
-    function startWithdraw(uint256 _index, uint256 _amount) public {
-        StakingCtx storage ins = instance[_index];
+    function startWithdraw(uint256 _amount) public {
+        stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(_amount);
 
-        ins.stakedBalance[msg.sender] = ins.stakedBalance[msg.sender].sub(_amount);
+        toWithdrawList[msg.sender].amount.push(_amount);
+        toWithdrawList[msg.sender].time.push(block.timestamp);
 
-        ins.toWithdrawList[msg.sender].amount.push(_amount);
-        ins.toWithdrawList[msg.sender].time.push(block.timestamp);
-
-        emit WithdrawStarted(_amount, msg.sender, block.timestamp + ins.timeToStake);
+        emit WithdrawStarted(_amount, msg.sender, block.timestamp + timeToStake);
     }
 
     /// @notice Finalizes withdraws. Goes through the list toWithdraw and removes that from staked balance, if the requirements are met.
-    /// @param _index index of staking that youre interacting with
     /// @dev The number of withdraws finalized is limited to 50 in order to avoid a deadlock in the contract - when the list is big enough so that the iteration doesnt fit the gas limit.
-    function finalizeWithdraws(uint256 _index) public {
+    function finalizeWithdraws() public {
         uint256 totalWithdraw = 0;
-        StakingCtx storage ins = instance[_index];
-        MaturationStruct storage TBWL = ins.toWithdrawList[msg.sender];
+        MaturationStruct storage TBWL = toWithdrawList[msg.sender];
 
         for (uint256 i = TBWL.nextSearchIndex; (i < TBWL.amount.length) && (i < TBWL.nextSearchIndex.add(50)); i++){
-            if (block.timestamp > TBWL.time[i].add(ins.timeToWithdraw)) {
-                ins.toWithdrawList[msg.sender].nextSearchIndex = i + 1;
+            if (block.timestamp > TBWL.time[i].add(timeToWithdraw)) {
+                toWithdrawList[msg.sender].nextSearchIndex = i + 1;
                 totalWithdraw = totalWithdraw.add(TBWL.amount[i]);
 
-                delete ins.toWithdrawList[msg.sender].amount[i];
-                delete ins.toWithdrawList[msg.sender].time[i];
+                delete toWithdrawList[msg.sender].amount[i];
+                delete toWithdrawList[msg.sender].time[i];
             } else {
                 break;
             }
@@ -158,38 +134,8 @@ contract Staking is StakingInterface {
     }
 
     /// @notice Returns total amount of tokens counted as stake
-    /// @param _index index of staking that youre interacting with
     /// @param _userAddress user to retrieve staked balance from
-    function getStakedBalance(uint256 _index, address _userAddress) public view override returns (uint256) {
-        return instance[_index].stakedBalance[_userAddress];
-    }
-
-    function getState(uint256 _index, address _user) public override view returns
-        ( uint256[3] memory _uintValues
-        ) {
-            StakingCtx memory ins = instance[_index];
-            uint256[3] memory uintValues = [
-                ins.timeToStake,
-                ins.timeToWithdraw,
-                instance[_index].stakedBalance[_user]
-            ];
-
-            return uintValues;
-    }
-
-    function getSubInstances(uint256, address)
-        public override view returns (address[] memory _addresses,
-            uint256[] memory _indices)
-    {
-        address[] memory a;
-        uint256[] memory i;
-
-        a = new address[](0);
-        i = new uint256[](0);
-        return (a, i);
-    }
-
-    function isConcerned(uint256 _index, address _user) public override view returns (bool) {
-        return instance[_index].stakedBalance[_user] > 0;
+    function getStakedBalance(address _userAddress) public view override returns (uint256) {
+        return stakedBalance[_userAddress];
     }
 }
