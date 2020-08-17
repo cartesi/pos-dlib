@@ -95,7 +95,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         PoSPrototypeCtx storage pos = instance[_index];
         address user = pos.proxy.msgSender(_user, address(this), true);
 
-        return pos.lottery.claimRound(pos.lotteryIndex, user, pos.staking.getStakedBalance(0, user));
+        return pos.lottery.claimRound(pos.lotteryIndex, user, pos.staking.getStakedBalance(user));
     }
 
     function getState(uint256 _index, address _user)
@@ -108,7 +108,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         return (pos.lottery.canWin(
             pos.lotteryIndex,
             user,
-            pos.staking.getStakedBalance(0, user)
+            pos.staking.getStakedBalance(user)
         ), user);
     }
 
@@ -118,7 +118,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         // translate proxy/user address
         address user = pos.proxy.msgSender(_user, address(this), true);
 
-        return pos.staking.getStakedBalance(0, user) > 0;
+        return pos.staking.getStakedBalance(user) > 0;
     }
 
     function getSubInstances(uint256 _index, address)
