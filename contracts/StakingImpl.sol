@@ -27,9 +27,9 @@ pragma solidity ^0.6.0;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./StakingInterface.sol";
+import "./Staking.sol";
 
-contract StakingImpl is StakingInterface {
+contract StakingImpl is Staking {
     using SafeMath for uint256;
     IERC20 private ctsi;
 

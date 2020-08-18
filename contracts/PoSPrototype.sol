@@ -34,7 +34,7 @@ import "@cartesi/util/contracts/Decorated.sol";
 import "@cartesi/util/contracts/ProxyManager.sol";
 
 
-import "./StakingInterface.sol";
+import "./Staking.sol";
 import "./Lottery.sol";
 import "./PrizeManager.sol";
 
@@ -44,7 +44,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     struct PoSPrototypeCtx {
         uint256 lotteryIndex;
         Lottery lottery;
-        StakingInterface staking;
+        Staking staking;
         ProxyManager proxy;
     }
 
@@ -73,7 +73,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     ) public onlyOwner() returns (uint256)
     {
 
-        instance[currentIndex].staking = StakingInterface(_stakingAddress);
+        instance[currentIndex].staking = Staking(_stakingAddress);
         instance[currentIndex].lottery = Lottery(_lotteryAddress);
         instance[currentIndex].proxy = ProxyManager(_proxyAddress);
 

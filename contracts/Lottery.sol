@@ -30,8 +30,6 @@ import "@cartesi/util/contracts/CartesiMath.sol";
 import "@cartesi/util/contracts/Instantiator.sol";
 import "@cartesi/util/contracts/Decorated.sol";
 
-
-import "./StakingInterface.sol";
 import "./PrizeManager.sol";
 
 contract Lottery is Instantiator, Decorated, CartesiMath{
