@@ -16,8 +16,8 @@ const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
 
     const CTSIAddress = CTSI.networks[network_id].address;
 
-    await deploy("Staking", {args: [CTSIAddress, 5 * DAY, 5 * DAY], from: deployer, log: true });
+    await deploy("StakingImpl", {args: [CTSIAddress, 5 * DAY, 5 * DAY], from: deployer, log: true });
 };
 
 export default func;
-export const tags = ['Staking'];
+export const tags = ['StakingImpl'];
