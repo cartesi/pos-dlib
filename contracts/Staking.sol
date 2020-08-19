@@ -23,10 +23,10 @@
 /// @title Interface staking contract
 pragma solidity ^0.6.0;
 
-abstract contract Staking {
+interface Staking {
 
     function getStakedBalance(
-        address _userAddress) public view virtual  returns (uint256);
+        address _userAddress) external view returns (uint256);
 
     // events
     /// @notice CTSI tokens were deposited as a Stake, can be finalized after _maturationDate
