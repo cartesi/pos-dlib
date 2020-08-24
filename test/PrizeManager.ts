@@ -34,6 +34,7 @@ describe("PrizeManager", async () => {
     let mockToken: MockContract;
     let mockLottery: MockContract;
 
+    let minimumPrize = 10;
     let numerator = 5000;
     let denominator = 100000; // pays  5%
 
@@ -45,6 +46,7 @@ describe("PrizeManager", async () => {
     }: {
         lottery?: string;
         ctsi?: string;
+        minimumPrize?: number;
         numerator?: number;
         denominator?: number;
     } = {}): Promise<PrizeManager> => {
@@ -52,7 +54,7 @@ describe("PrizeManager", async () => {
         const lotteryAddress = lottery || lotteryJSON.networks[network_id].address;
         const ctsiAddress = ctsi || ctsiJSON.networks[network_id].address;
         const prizeFactory = await ethers.getContractFactory("PrizeManager");
-        const prizeManager = await prizeFactory.deploy(lotteryAddress, ctsiAddress, numerator, denominator);
+        const prizeManager = await prizeFactory.deploy(lotteryAddress, ctsiAddress, minimumPrize, numerator, denominator);
         await prizeManager.deployed();
         return prizeManager as PrizeManager;
     };
@@ -75,21 +77,6 @@ describe("PrizeManager", async () => {
             prizeManager.payWinner(aliceAddress),
             "function can only be called by lottery address"
         ).to.be.revertedWith("Only the lottery contract can call this function");
-    });
-
-    it("current prize has to be bigger than zero", async () => {
-        // deploy contract with signer as lottery address
-        prizeManager = await deployPrizeManager({ lottery: await signer.getAddress(), ctsi: mockToken.address, numerator, denominator});
-
-        // balanceOf = 0, so the contract cant pay prize
-        await mockToken.mock.balanceOf.returns(0);
-        await mockToken.mock.transfer.returns(true);
-        await mockToken.mock.transferFrom.returns(true);
-
-        await expect(
-            prizeManager.payWinner(aliceAddress),
-            "contract doesnt have enough money to pay prizes"
-        ).to.be.revertedWith("Not enough money in this contract");
     });
 
     it("payWinner should emit event", async () => {
@@ -122,12 +109,19 @@ describe("PrizeManager", async () => {
         await mockToken.mock.transfer.returns(true);
         await mockToken.mock.transferFrom.returns(true);
 
-        // loops until last prize is zero
+        // loops until balance is zero
         while (true) {
             balance = balance - lastPrize;
+
+            if (balance == 0) break;
+
             lastPrize = Math.floor((balance * numerator) / denominator);
-            if (lastPrize == 0) break;
+            lastPrize = lastPrize > minimumPrize? lastPrize : minimumPrize;
+            lastPrize = lastPrize > balance? balance : lastPrize;
             await mockToken.mock.balanceOf.returns(balance);
+
+            console.log("Prize: " + lastPrize);
+            console.log("Balance: " + balance);
             await expect(
                 prizeManager.payWinner(aliceAddress),
                 "paywinner should emit event"
