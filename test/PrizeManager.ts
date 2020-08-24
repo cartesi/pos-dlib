@@ -79,6 +79,16 @@ describe("PrizeManager", async () => {
         ).to.be.revertedWith("Only the lottery contract can call this function");
     });
 
+    it("current prize has to be bigger than zero", async () => {
+        // deploy contract with signer as lottery address
+        prizeManager = await deployPrizeManager({ lottery: await signer.getAddress(), ctsi: mockToken.address, numerator, denominator});
+
+        await mockToken.mock.balanceOf.returns(0);
+        await mockToken.mock.transfer.reverts();
+
+        await expect(prizeManager.payWinner(aliceAddress)).to.be.revertedWith('Mock revert');
+    });
+
     it("payWinner should emit event", async () => {
         let balance = 50000;
         let prize = (balance * numerator) / denominator;
@@ -118,10 +128,9 @@ describe("PrizeManager", async () => {
             lastPrize = Math.floor((balance * numerator) / denominator);
             lastPrize = lastPrize > minimumPrize? lastPrize : minimumPrize;
             lastPrize = lastPrize > balance? balance : lastPrize;
+
             await mockToken.mock.balanceOf.returns(balance);
 
-            console.log("Prize: " + lastPrize);
-            console.log("Balance: " + balance);
             await expect(
                 prizeManager.payWinner(aliceAddress),
                 "paywinner should emit event"
