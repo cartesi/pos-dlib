@@ -42,7 +42,7 @@ describe("PrizeManager", async () => {
         lottery,
         ctsi,
         numerator,
-        denominator
+        denominator,
     }: {
         lottery?: string;
         ctsi?: string;
@@ -51,10 +51,17 @@ describe("PrizeManager", async () => {
         denominator?: number;
     } = {}): Promise<PrizeManager> => {
         const network_id = await getChainId();
-        const lotteryAddress = lottery || lotteryJSON.networks[network_id].address;
+        const lotteryAddress =
+            lottery || lotteryJSON.networks[network_id].address;
         const ctsiAddress = ctsi || ctsiJSON.networks[network_id].address;
         const prizeFactory = await ethers.getContractFactory("PrizeManager");
-        const prizeManager = await prizeFactory.deploy(lotteryAddress, ctsiAddress, minimumPrize, numerator, denominator);
+        const prizeManager = await prizeFactory.deploy(
+            lotteryAddress,
+            ctsiAddress,
+            minimumPrize,
+            numerator,
+            denominator
+        );
         await prizeManager.deployed();
         return prizeManager as PrizeManager;
     };
@@ -69,24 +76,38 @@ describe("PrizeManager", async () => {
     });
 
     it("payWinner can only be called by lottery", async () => {
-        prizeManager = await deployPrizeManager({ lottery: mockLottery.address, ctsi: mockToken.address, numerator, denominator});
+        prizeManager = await deployPrizeManager({
+            lottery: mockLottery.address,
+            ctsi: mockToken.address,
+            numerator,
+            denominator,
+        });
         await mockToken.mock.balanceOf.returns(50000);
         await mockToken.mock.transfer.returns(true);
         await mockToken.mock.transferFrom.returns(true);
         await expect(
             prizeManager.payWinner(aliceAddress),
             "function can only be called by lottery address"
-        ).to.be.revertedWith("Only the lottery contract can call this function");
+        ).to.be.revertedWith(
+            "Only the lottery contract can call this function"
+        );
     });
 
     it("current prize has to be bigger than zero", async () => {
         // deploy contract with signer as lottery address
-        prizeManager = await deployPrizeManager({ lottery: await signer.getAddress(), ctsi: mockToken.address, numerator, denominator});
+        prizeManager = await deployPrizeManager({
+            lottery: await signer.getAddress(),
+            ctsi: mockToken.address,
+            numerator,
+            denominator,
+        });
 
         await mockToken.mock.balanceOf.returns(0);
         await mockToken.mock.transfer.reverts();
 
-        await expect(prizeManager.payWinner(aliceAddress)).to.be.revertedWith('Mock revert');
+        await expect(prizeManager.payWinner(aliceAddress)).to.be.revertedWith(
+            "Mock revert"
+        );
     });
 
     it("payWinner should emit event", async () => {
@@ -94,7 +115,12 @@ describe("PrizeManager", async () => {
         let prize = (balance * numerator) / denominator;
 
         // deploy contract with signer as lottery address
-        prizeManager = await deployPrizeManager({ lottery: await signer.getAddress(), ctsi: mockToken.address, numerator, denominator});
+        prizeManager = await deployPrizeManager({
+            lottery: await signer.getAddress(),
+            ctsi: mockToken.address,
+            numerator,
+            denominator,
+        });
 
         await mockToken.mock.balanceOf.returns(balance);
         await mockToken.mock.transfer.returns(true);
@@ -103,11 +129,9 @@ describe("PrizeManager", async () => {
         await expect(
             prizeManager.payWinner(aliceAddress),
             "paywinner should emit event"
-        ).to.emit(prizeManager, "WinnerPaid")
-        .withArgs(
-            aliceAddress,
-            prize
-        );
+        )
+            .to.emit(prizeManager, "WinnerPaid")
+            .withArgs(aliceAddress, prize);
     });
 
     it("current prize should generate prizes correctly", async () => {
@@ -115,7 +139,12 @@ describe("PrizeManager", async () => {
         let lastPrize = 0;
 
         // deploy contract with signer as lottery address
-        prizeManager = await deployPrizeManager({ lottery: await signer.getAddress(), ctsi: mockToken.address, numerator, denominator});
+        prizeManager = await deployPrizeManager({
+            lottery: await signer.getAddress(),
+            ctsi: mockToken.address,
+            numerator,
+            denominator,
+        });
         await mockToken.mock.transfer.returns(true);
         await mockToken.mock.transferFrom.returns(true);
 
@@ -126,19 +155,17 @@ describe("PrizeManager", async () => {
             if (balance == 0) break;
 
             lastPrize = Math.floor((balance * numerator) / denominator);
-            lastPrize = lastPrize > minimumPrize? lastPrize : minimumPrize;
-            lastPrize = lastPrize > balance? balance : lastPrize;
+            lastPrize = lastPrize > minimumPrize ? lastPrize : minimumPrize;
+            lastPrize = lastPrize > balance ? balance : lastPrize;
 
             await mockToken.mock.balanceOf.returns(balance);
 
             await expect(
                 prizeManager.payWinner(aliceAddress),
                 "paywinner should emit event"
-            ).to.emit(prizeManager, "WinnerPaid")
-            .withArgs(
-                aliceAddress,
-                lastPrize
-            );
+            )
+                .to.emit(prizeManager, "WinnerPaid")
+                .withArgs(aliceAddress, lastPrize);
         }
     });
 });
