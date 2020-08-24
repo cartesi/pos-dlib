@@ -31,6 +31,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract PrizeManager {
     using SafeMath for uint256;
 
+    uint256 minimumPrize;
     uint256 distNumerator;
     uint256 distDenominator;
     address lotteryAddress;
@@ -41,11 +42,13 @@ contract PrizeManager {
     /// @notice Creates contract
     /// @param _lotteryAddress address of Lottery contract
     /// @param _ctsiAddress address of token instance being used
+    /// @param _minimumPrize minimum prize that this contract pays
     /// @param _distNumerator multiplier factor to define prize amount
     /// @param _distDenominator dividing factor to define prize amount
     constructor(
         address _lotteryAddress,
         address _ctsiAddress,
+        uint256 _minimumPrize,
         uint256 _distNumerator,
         uint256 _distDenominator
     ) public {
@@ -53,6 +56,7 @@ contract PrizeManager {
         lotteryAddress = _lotteryAddress;
         ctsi = IERC20(_ctsiAddress);
 
+        minimumPrize = _minimumPrize;
         distNumerator = _distNumerator;
         distDenominator = _distDenominator;
     }
@@ -61,10 +65,9 @@ contract PrizeManager {
     /// @param _winner address of round winner
     /// @dev only the lottery contract can call this
     function payWinner(address _winner) public {
-        uint256 amount = getCurrentPrize();
-
         require(msg.sender == lotteryAddress, "Only the lottery contract can call this function");
-        require(amount > 0, "Not enough money in this contract");
+
+        uint256 amount = getCurrentPrize();
 
         ctsi.transfer(_winner, amount);
 
@@ -78,6 +81,9 @@ contract PrizeManager {
 
     /// @notice Get prize of next Lottery round
     function getCurrentPrize() public view returns (uint256) {
-        return (getBalance().mul(distNumerator)).div(distDenominator);
+        uint256 prize = (getBalance().mul(distNumerator)).div(distDenominator);
+        prize = prize > minimumPrize? prize : minimumPrize;
+
+        return prize > getBalance()? getBalance() : prize;
     }
 }
