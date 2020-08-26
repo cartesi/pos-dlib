@@ -95,6 +95,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
 
     /// @notice Claim that _user won the round
     /// @param _index the index of the instance of posPrototype you want to interact with
+    /// @dev this function can only be called by worker, user is never calling it directly
     function claimWin(uint256 _index) public returns (bool) {
 
         PoSPrototypeCtx storage pos = instance[_index];
