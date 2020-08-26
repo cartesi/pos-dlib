@@ -31,7 +31,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@cartesi/util/contracts/CartesiMath.sol";
 import "@cartesi/util/contracts/Instantiator.sol";
 import "@cartesi/util/contracts/Decorated.sol";
-import "@cartesi/util/contracts/ProxyManager.sol";
+import "@cartesi/util/contracts/WorkerAuthManager.sol";
 
 
 import "./Staking.sol";
@@ -42,23 +42,24 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     using SafeMath for uint256;
 
     struct PoSPrototypeCtx {
+        mapping (address => address) beneficiary;
         uint256 lotteryIndex;
         Lottery lottery;
         Staking staking;
-        ProxyManager proxy;
+        WorkerAuthManager workerAuth;
     }
 
     mapping(uint256 => PoSPrototypeCtx) internal instance;
 
-    event ProxyAdded(
-        address _from,
-        address _to,
-        uint256 _amountOfTokens
+    event BeneficiaryUpdated(
+        address _user,
+        address _beneficiary
     );
 
     /// @notice Instantiates a Proof of Stake prototype
     /// @param _stakingAddress address of StakingInterface
     /// @param _lotteryAddress address of lottery contract
+    /// @param _workerAuthAddress address of worker manager contract
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
     /// @param _desiredDrawTimeInterval how often we want to elect a winner
@@ -66,7 +67,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     function instantiate(
         address _stakingAddress,
         address _lotteryAddress,
-        address _proxyAddress,
+        address _workerAuthAddress,
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
         address _prizeManagerAddress
@@ -75,7 +76,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
 
         instance[currentIndex].staking = Staking(_stakingAddress);
         instance[currentIndex].lottery = Lottery(_lotteryAddress);
-        instance[currentIndex].proxy = ProxyManager(_proxyAddress);
+        instance[currentIndex].workerAuth = WorkerAuthManager(_workerAuthAddress);
 
         instance[currentIndex].lotteryIndex = instance[currentIndex].lottery.instantiate(
             _difficultyAdjustmentParameter,
@@ -90,10 +91,16 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
 
     /// @notice Claim that _user won the round
     /// @param _index the index of the instance of posPrototype you want to interact with
-    /// @param _user address that will win the lottery
-    function claimWin(uint256 _index, address _user) public returns (bool) {
+    function claimWin(uint256 _index) public returns (bool) {
+
         PoSPrototypeCtx storage pos = instance[_index];
-        address user = pos.proxy.msgSender(_user, address(this), true);
+
+        require(
+            pos.workerAuth.isAuthorized(msg.sender, address(this)),
+            "msg.sender is not authorized to make this call"
+        );
+
+        address user = pos.workerAuth.getOwner(msg.sender);
 
         return pos.lottery.claimRound(pos.lotteryIndex, user, pos.staking.getStakedBalance(user));
     }
@@ -102,8 +109,8 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     public view returns (bool, address) {
         PoSPrototypeCtx storage pos = instance[_index];
 
-        // translate proxy/user address
-        address user = pos.proxy.msgSender(_user, address(this), true);
+        // translate worker/user address
+        address user = pos.workerAuth.getOwner(msg.sender);
 
         return (pos.lottery.canWin(
             pos.lotteryIndex,
@@ -112,11 +119,11 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         ), user);
     }
 
-    function isConcerned(uint256 _index, address _user) public override view returns (bool) {
+    function isConcerned(uint256 _index, address) public override view returns (bool) {
         PoSPrototypeCtx storage pos = instance[_index];
 
-        // translate proxy/user address
-        address user = pos.proxy.msgSender(_user, address(this), true);
+        // translate worker/user address
+        address user = pos.workerAuth.getOwner(msg.sender);
 
         return pos.staking.getStakedBalance(user) > 0;
     }
