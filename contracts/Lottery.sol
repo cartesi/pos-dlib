@@ -46,7 +46,6 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
 
         address posManagerAddress;
 
-        PrizeManager prizeManager; // Contract that distributes the prize
     }
 
     mapping(uint256 => LotteryCtx) internal instance;
@@ -62,12 +61,10 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
     /// @param _desiredDrawTimeInterval how often we want to elect a winner
-    /// @param _prizeManagerAddress address containing the tokens that will be distributed
     /// @param _posManagerAddress address of ProofOfStake that will use this instance
     function instantiate(
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
-        address _prizeManagerAddress,
         address _posManagerAddress
     ) public returns (uint256)
     {
@@ -75,7 +72,6 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         instance[currentIndex].difficulty = 1000000;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
         instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
-        instance[currentIndex].prizeManager = PrizeManager(_prizeManagerAddress);
         instance[currentIndex].posManagerAddress = _posManagerAddress;
 
         instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
@@ -144,9 +140,6 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         LotteryCtx storage lot = instance[_index];
         // declare winner
         lot.roundWinner[lot.roundCount] = _user;
-
-        // pay winner
-        lot.prizeManager.payWinner(_user);
 
         // adjust difficulty
         lot.difficulty = getNewDifficulty(
