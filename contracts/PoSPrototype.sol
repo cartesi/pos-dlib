@@ -121,7 +121,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
 
     /// @notice Claim that _user won the round
     /// @param _index the index of the instance of posPrototype you want to interact with
-    /// @dev this function can only be called by worker, user is never calling it directly
+    /// @dev this function can only be called by a worker, user never calls it directly
     function claimWin(uint256 _index) public returns (bool) {
 
         PoSPrototypeCtx storage pos = instance[_index];
@@ -156,18 +156,37 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         return true;
     }
 
+    /// @notice Get state of a particular instance
+    /// @param _index index of instance
+    /// @return bool if user is eligible to produce next block
+    /// @return address of user that was chosen to build the block
+    /// @return current prize paid by the network for that block
+    /// @return percentage of prize that goes to the user
     function getState(uint256 _index, address)
-    public view returns (bool, address) {
+    public
+    view
+    returns (
+        bool,
+        address,
+        uint256,
+        uint256
+    )
+    {
         PoSPrototypeCtx storage pos = instance[_index];
 
         // translate worker/user address
         address user = pos.workerAuth.getOwner(msg.sender);
 
-        return (pos.lottery.canWin(
-            pos.lotteryIndex,
+        return (
+            pos.lottery.canWin(
+                pos.lotteryIndex,
+                user,
+                pos.staking.getStakedBalance(user)
+            ),
             user,
-            pos.staking.getStakedBalance(user)
-        ), user);
+            pos.prizeManager.getCurrentPrize(),
+            pos.splitMap[user]
+        );
     }
 
     function isConcerned(uint256 _index, address) public override view returns (bool) {
