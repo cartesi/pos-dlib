@@ -41,11 +41,15 @@ import "./PrizeManager.sol";
 contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     using SafeMath for uint256;
 
+    uint256 constant SPLIT_BASE = 10000;
+
     struct PoSPrototypeCtx {
-        mapping (address => address) beneficiary;
+        mapping (address => address) beneficiaryMap;
+        mapping (address => uint256) splitMap;
         uint256 lotteryIndex;
         Lottery lottery;
         Staking staking;
+        PrizeManager prizeManager;
         WorkerAuthManager workerAuth;
     }
 
@@ -76,12 +80,12 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
 
         instance[currentIndex].staking = Staking(_stakingAddress);
         instance[currentIndex].lottery = Lottery(_lotteryAddress);
+        instance[currentIndex].prizeManager = PrizeManager(_prizeManagerAddress);
         instance[currentIndex].workerAuth = WorkerAuthManager(_workerAuthAddress);
 
         instance[currentIndex].lotteryIndex = instance[currentIndex].lottery.instantiate(
             _difficultyAdjustmentParameter,
             _desiredDrawTimeInterval,
-            _prizeManagerAddress,
             address(this)
         );
 
@@ -101,11 +105,31 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         );
 
         address user = pos.workerAuth.getOwner(msg.sender);
+        address beneficiary = pos.beneficiaryMap[user];
 
-        return pos.lottery.claimRound(pos.lotteryIndex, user, pos.staking.getStakedBalance(user));
+        uint256 userSplit = pos.splitMap[user];
+        uint256 beneficiarySplit = pos.splitMap[beneficiary];
+
+        require(
+            userSplit.add(beneficiarySplit) == SPLIT_BASE,
+            "Prize splits dont add up to a 100%"
+        );
+
+        require(
+            pos.lottery.claimRound(pos.lotteryIndex, user, pos.staking.getStakedBalance(user)),
+            "User couldnt claim round successfully"
+        );
+
+        uint256 currentPrize = pos.prizeManager.getCurrentPrize();
+
+        // pay winners
+        pos.prizeManager.payWinner(beneficiary, currentPrize.mul(beneficiarySplit).div(SPLIT_BASE));
+        pos.prizeManager.payWinner(user, currentPrize.mul(userSplit).div(SPLIT_BASE));
+
+        return true;
     }
 
-    function getState(uint256 _index, address _user)
+    function getState(uint256 _index, address)
     public view returns (bool, address) {
         PoSPrototypeCtx storage pos = instance[_index];
 
