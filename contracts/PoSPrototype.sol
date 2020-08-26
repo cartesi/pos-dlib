@@ -135,12 +135,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         address beneficiary = pos.beneficiaryMap[user];
 
         uint256 userSplit = pos.splitMap[user];
-        uint256 beneficiarySplit = pos.splitMap[beneficiary];
-
-        require(
-            userSplit.add(beneficiarySplit) == SPLIT_BASE,
-            "Prize splits dont add up to a 100%"
-        );
+        uint256 beneficiarySplit = SPLIT_BASE.sub(userSplit);
 
         require(
             pos.lottery.claimRound(pos.lotteryIndex, user, pos.staking.getStakedBalance(user)),
