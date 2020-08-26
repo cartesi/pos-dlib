@@ -55,10 +55,36 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
 
     mapping(uint256 => PoSPrototypeCtx) internal instance;
 
-    event BeneficiaryUpdated(
-        address _user,
-        address _beneficiary
+    event BeneficiaryAdded(
+        uint256 indexed _index,
+        address indexed _user,
+        address indexed _beneficiary,
+        uint256 _split
     );
+
+    function addBeneficiary(
+        uint256 _index,
+        address _beneficiary,
+        uint256 _split
+    ) public
+    {
+        PoSPrototypeCtx storage pos = instance[_index];
+
+        require(
+            _split <= SPLIT_BASE,
+            "split has to be less than 100%"
+        );
+
+        pos.beneficiaryMap[msg.sender] = _beneficiary;
+        pos.splitMap[msg.sender] = SPLIT_BASE.sub(_split);
+
+        emit BeneficiaryAdded(
+            _index,
+            msg.sender,
+            _beneficiary,
+            _split
+        );
+    }
 
     /// @notice Instantiates a Proof of Stake prototype
     /// @param _stakingAddress address of StakingInterface
