@@ -20,7 +20,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 use super::dispatcher::{Archive, DApp, Reaction};
-use super::dispatcher::{AddressField, BoolField};
+use super::dispatcher::{AddressField, BoolField, U256Field};
 use super::error::Result;
 use super::error::*;
 use super::ethabi::Token;
@@ -38,12 +38,16 @@ pub struct PoSPrototype();
 pub struct PoSPrototypeCtxParsed(
     pub BoolField, //canWin
     pub AddressField, //winnerAddress
+    pub U256Field, //currentPrize
+    pub U256Field, //user split
 );
 
 #[derive(Serialize, Debug)]
 pub struct PoSPrototypeCtx {
     pub can_win: bool,
     pub winner_address: Address,
+    pub current_prize: U256,
+    pub user_split: U256,
 }
 
 impl From<PoSPrototypeCtxParsed> for PoSPrototypeCtx {
@@ -51,6 +55,8 @@ impl From<PoSPrototypeCtxParsed> for PoSPrototypeCtx {
         PoSPrototypeCtx {
             can_win: parsed.0.value,
             winner_address: parsed.1.value,
+            current_prize: parsed.2.value,
+            user_split: parsed.3.value,
         }
     }
 }
@@ -78,7 +84,14 @@ impl DApp<()> for PoSPrototype {
             ctx
         );
 
-        if ctx.can_win {
+        // TODO: Move this to a parameter, it varies according to user/worker
+        // behavior and base layer tx cost
+        let required_prize = 10;
+        let base_split = 10000;
+
+        // TODO: check if cast to u_64() is problematic
+        let current_reward = ctx.current_prize.as_u64() * ctx.user_split.as_u64() / base_split;
+        if ctx.can_win && current_reward >= required_prize {
             info!("Claiming victory for PoSPrototype (index: {})", instance.index);
             let request = TransactionRequest {
                 concern: instance.concern.clone(),
