@@ -11,7 +11,7 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { Lottery } from "../src/types/Lottery";
+import { PoSPrototype } from "../src/types/PoSPrototype";
 import { PrizeManager } from "../src/types/PrizeManager";
 import { Signer } from "ethers";
 import { splitSignature } from "ethers/lib/utils";
@@ -19,7 +19,7 @@ import { splitSignature } from "ethers/lib/utils";
 const { advanceTime } = require("./utils");
 
 const ctsiJSON = require("@cartesi/token/build/contracts/CartesiToken.json");
-const lotteryJSON = require("../build/contracts/Lottery.json");
+const posJSON = require("../build/contracts/PoSPrototype.json");
 
 use(solidity);
 
@@ -32,31 +32,31 @@ describe("PrizeManager", async () => {
 
     let prizeManager: PrizeManager;
     let mockToken: MockContract;
-    let mockLottery: MockContract;
+    let mockPoS: MockContract;
 
     let minimumPrize = 10;
     let numerator = 5000;
     let denominator = 100000; // pays  5%
 
     const deployPrizeManager = async ({
-        lottery,
+        pos,
         ctsi,
         numerator,
         denominator,
     }: {
-        lottery?: string;
+        pos?: string;
         ctsi?: string;
         minimumPrize?: number;
         numerator?: number;
         denominator?: number;
     } = {}): Promise<PrizeManager> => {
         const network_id = await getChainId();
-        const lotteryAddress =
-            lottery || lotteryJSON.networks[network_id].address;
+        const posAddress =
+            pos || posJSON.networks[network_id].address;
         const ctsiAddress = ctsi || ctsiJSON.networks[network_id].address;
         const prizeFactory = await ethers.getContractFactory("PrizeManager");
         const prizeManager = await prizeFactory.deploy(
-            lotteryAddress,
+            posAddress,
             ctsiAddress,
             minimumPrize,
             numerator,
@@ -72,12 +72,12 @@ describe("PrizeManager", async () => {
         [signer, alice, bob] = await ethers.getSigners();
         aliceAddress = await alice.getAddress();
         mockToken = await deployMockContract(signer, ctsiJSON.abi);
-        mockLottery = await deployMockContract(signer, lotteryJSON.abi);
+        mockPoS = await deployMockContract(signer, posJSON.abi);
     });
 
-    it("payWinner can only be called by lottery", async () => {
+    it("payWinner can only be called by PoS prototype", async () => {
         prizeManager = await deployPrizeManager({
-            lottery: mockLottery.address,
+            pos: mockPoS.address,
             ctsi: mockToken.address,
             numerator,
             denominator,
@@ -86,17 +86,17 @@ describe("PrizeManager", async () => {
         await mockToken.mock.transfer.returns(true);
         await mockToken.mock.transferFrom.returns(true);
         await expect(
-            prizeManager.payWinner(aliceAddress),
-            "function can only be called by lottery address"
+            prizeManager.payWinner(aliceAddress, 0),
+            "function can only be called by pos address"
         ).to.be.revertedWith(
-            "Only the lottery contract can call this function"
+            "Only the pos contract can call this function"
         );
     });
 
     it("current prize has to be bigger than zero", async () => {
-        // deploy contract with signer as lottery address
+        // deploy contract with signer as pos address
         prizeManager = await deployPrizeManager({
-            lottery: await signer.getAddress(),
+            pos: await signer.getAddress(),
             ctsi: mockToken.address,
             numerator,
             denominator,
@@ -105,7 +105,7 @@ describe("PrizeManager", async () => {
         await mockToken.mock.balanceOf.returns(0);
         await mockToken.mock.transfer.reverts();
 
-        await expect(prizeManager.payWinner(aliceAddress)).to.be.revertedWith(
+        await expect(prizeManager.payWinner(aliceAddress, 0)).to.be.revertedWith(
             "Mock revert"
         );
     });
@@ -114,9 +114,9 @@ describe("PrizeManager", async () => {
         let balance = 50000;
         let prize = (balance * numerator) / denominator;
 
-        // deploy contract with signer as lottery address
+        // deploy contract with signer as pos address
         prizeManager = await deployPrizeManager({
-            lottery: await signer.getAddress(),
+            pos: await signer.getAddress(),
             ctsi: mockToken.address,
             numerator,
             denominator,
@@ -127,7 +127,7 @@ describe("PrizeManager", async () => {
         await mockToken.mock.transferFrom.returns(true);
 
         await expect(
-            prizeManager.payWinner(aliceAddress),
+            prizeManager.payWinner(aliceAddress, prize),
             "paywinner should emit event"
         )
             .to.emit(prizeManager, "WinnerPaid")
@@ -138,9 +138,9 @@ describe("PrizeManager", async () => {
         let balance = 500000;
         let lastPrize = 0;
 
-        // deploy contract with signer as lottery address
+        // deploy contract with signer as pos address
         prizeManager = await deployPrizeManager({
-            lottery: await signer.getAddress(),
+            pos: await signer.getAddress(),
             ctsi: mockToken.address,
             numerator,
             denominator,
@@ -161,7 +161,7 @@ describe("PrizeManager", async () => {
             await mockToken.mock.balanceOf.returns(balance);
 
             await expect(
-                prizeManager.payWinner(aliceAddress),
+                prizeManager.payWinner(aliceAddress, lastPrize),
                 "paywinner should emit event"
             )
                 .to.emit(prizeManager, "WinnerPaid")
