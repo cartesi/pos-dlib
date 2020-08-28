@@ -149,8 +149,11 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         } else if (beneficiarySplit == SPLIT_BASE) {
             pos.prizeManager.payWinner(beneficiary, currentPrize);
         } else {
-            pos.prizeManager.payWinner(beneficiary, currentPrize.mul(beneficiarySplit).div(SPLIT_BASE));
-            pos.prizeManager.payWinner(user, currentPrize.mul(userSplit).div(SPLIT_BASE));
+            uint256 bSplit = currentPrize.mul(beneficiarySplit).div(SPLIT_BASE);
+            uint256 uSplit = SPLIT_BASE.sub(bSplit);
+
+            pos.prizeManager.payWinner(beneficiary, bSplit);
+            pos.prizeManager.payWinner(user, uSplit);
         }
 
         return true;
