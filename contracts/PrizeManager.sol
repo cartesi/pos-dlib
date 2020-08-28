@@ -34,26 +34,26 @@ contract PrizeManager {
     uint256 minimumPrize;
     uint256 distNumerator;
     uint256 distDenominator;
-    address posAddress;
+    address operator;
     IERC20 ctsi;
 
     event WinnerPaid(address _winner, uint256 _prize);
 
     /// @notice Creates contract
-    /// @param _posAddress address of Lottery contract
+    /// @param _operator address of the operator
     /// @param _ctsiAddress address of token instance being used
     /// @param _minimumPrize minimum prize that this contract pays
     /// @param _distNumerator multiplier factor to define prize amount
     /// @param _distDenominator dividing factor to define prize amount
     constructor(
-        address _posAddress,
+        address _operator,
         address _ctsiAddress,
         uint256 _minimumPrize,
         uint256 _distNumerator,
         uint256 _distDenominator
     ) public {
 
-        posAddress = _posAddress;
+        operator = _operator;
         ctsi = IERC20(_ctsiAddress);
 
         minimumPrize = _minimumPrize;
@@ -65,7 +65,7 @@ contract PrizeManager {
     /// @param _winner address of round winner
     /// @dev only the pos contract can call this
     function payWinner(address _winner, uint256 _amount) public {
-        require(msg.sender == posAddress, "Only the pos contract can call this function");
+        require(msg.sender == operator, "Only the operator contract can call this function");
 
         ctsi.transfer(_winner, _amount);
 

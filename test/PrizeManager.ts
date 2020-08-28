@@ -87,9 +87,9 @@ describe("PrizeManager", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await expect(
             prizeManager.payWinner(aliceAddress, 0),
-            "function can only be called by pos address"
+            "function can only be called by operator contract"
         ).to.be.revertedWith(
-            "Only the pos contract can call this function"
+            "Only the operator contract can call this function"
         );
     });
 
