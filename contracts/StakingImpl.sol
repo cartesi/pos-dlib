@@ -103,6 +103,7 @@ contract StakingImpl is Staking {
     //          function finalizeWithdraw is called.
     /// @param _amount The amount of tokens that are gonna be withdrew.
     function startWithdraw(uint256 _amount) public {
+        // SafeMath.sub() will revert if _amount > stakedBalance[msg.sender]
         stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(_amount);
 
         toWithdraw[msg.sender].amount = toWithdraw[msg.sender].amount.add(_amount);
