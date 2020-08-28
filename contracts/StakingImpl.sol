@@ -59,11 +59,7 @@ contract StakingImpl is Staking {
         timeToWithdraw = _timeToWithdraw;
     }
 
-    /// @notice Deposit CTSI to be staked. The money will turn into staked
-    //          balance after timeToStake days, if the function finalizeStakes
-    //          is called.
-    /// @param _amount The amount of tokens that are gonna be deposited.
-    function depositStake(uint256 _amount) public {
+    function depositStake(uint256 _amount) public override {
         // transfer stake to contract
         // from: msg.sender
         // to: this contract
@@ -80,8 +76,7 @@ contract StakingImpl is Staking {
         );
     }
 
-    /// @notice Transforms msg.sender mature deposits into staked tokens.
-    function finalizeStakes() public {
+    function finalizeStakes() public override {
         require(
             toBeStaked[msg.sender].amount != 0,
             "No deposits to be staked"
@@ -98,11 +93,7 @@ contract StakingImpl is Staking {
         emit StakeFinalized(toBeStaked[msg.sender].amount, msg.sender);
     }
 
-    /// @notice Start CTSI withdraw from staked balance process. The money will
-    //          turn into withdrawal balance after timeToWithdraw days, if the
-    //          function finalizeWithdraw is called.
-    /// @param _amount The amount of tokens that are gonna be withdrew.
-    function startWithdraw(uint256 _amount) public {
+    function startWithdraw(uint256 _amount) public override {
         // SafeMath.sub() will revert if _amount > stakedBalance[msg.sender]
         stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(_amount);
 
@@ -116,8 +107,7 @@ contract StakingImpl is Staking {
         );
     }
 
-    /// @notice Finalizes msg.sender mature withdraws.
-    function finalizeWithdraws() public {
+    function finalizeWithdraws() public override {
         uint256 withdrawAmount = toWithdraw[msg.sender].amount;
         require(
             withdrawAmount != 0,
@@ -139,8 +129,6 @@ contract StakingImpl is Staking {
         emit WithdrawFinalized(withdrawAmount, msg.sender);
     }
 
-    /// @notice Returns total amount of tokens counted as stake
-    /// @param _userAddress user to retrieve staked balance from
     function getStakedBalance(address _userAddress)
     public
     view override
