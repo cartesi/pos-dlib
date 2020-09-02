@@ -1,0 +1,13 @@
+concerns:
+main_concern:
+  abi: "/opt/cartesi/share/blockchain/deployments/${CHAIN_NAME}/PoS.json"
+  user_address: "${ACCOUNT_ADDRESS}"
+confirmations: 12
+max_delay: 500
+query_port: ${QUERY_PORT}
+services:
+testing: true
+url: ${WEB3_PROVIDER_URI}
+warn_delay: 30
+polling_interval: 15
+web3_timeout: 10
