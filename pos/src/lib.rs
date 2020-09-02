@@ -20,7 +20,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 #![warn(unused_extern_crates)]
-pub mod pos_prototype;
+pub mod pos;
 
 extern crate error;
 
@@ -33,4 +33,4 @@ extern crate ethabi;
 extern crate ethereum_types;
 extern crate transaction;
 
-pub use pos_prototype::PoSPrototype;
+pub use pos::PoS;

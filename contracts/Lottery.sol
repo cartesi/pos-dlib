@@ -101,7 +101,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         LotteryCtx storage lot = instance[_index];
 
         require(_weight > 0, "Caller must have at least one staked token");
-        require(msg.sender == lot.posManagerAddress, "Funciton can only be called by pos prototype address");
+        require(msg.sender == lot.posManagerAddress, "Function can only be called by pos address");
 
         uint256 timePassedMicroSeconds = ((block.timestamp).sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
 
@@ -194,7 +194,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
     }
 
     function isConcerned(uint256, address) public override view returns (bool) {
-        return false; // isConcerned is only for the main concern (PoS prototype)
+        return false; // isConcerned is only for the main concern (PoS)
     }
 
     function getSubInstances(uint256, address)

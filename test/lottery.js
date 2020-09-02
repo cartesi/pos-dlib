@@ -3,7 +3,7 @@
 //
 //const Lottery = artifacts.require("Lottery");
 //const PrizeManager = artifacts.require("PrizeManager");
-//const PoS = artifacts.require("PoSPrototype");
+//const PoS = artifacts.require("PoS");
 //const CartesiToken = contract(require("@cartesi/token/build/contracts/CartesiToken.json"));
 //
 //module.exports = async (callback) => {

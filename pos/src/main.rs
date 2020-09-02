@@ -26,11 +26,11 @@
 extern crate dispatcher;
 extern crate env_logger;
 extern crate utils;
-extern crate pos_prototype;
+extern crate pos;
 
 use dispatcher::Dispatcher;
 use utils::print_error;
-use pos_prototype::PoSPrototype;
+use pos::PoS;
 
 fn main() {
     env_logger::init();
@@ -43,5 +43,5 @@ fn main() {
         }
     };
 
-    dispatcher.run::<PoSPrototype>();
+    dispatcher.run::<PoS>();
 }

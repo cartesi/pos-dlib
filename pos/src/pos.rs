@@ -28,14 +28,14 @@ use super::ethereum_types::{U256, Address};
 use super::transaction;
 use super::transaction::TransactionRequest;
 
-pub struct PoSPrototype();
+pub struct PoS();
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // these two structs and the From trait below should be
 // obtained from a simple derive
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
-pub struct PoSPrototypeCtxParsed(
+pub struct PoSCtxParsed(
     pub BoolField, //canWin
     pub AddressField, //winnerAddress
     pub U256Field, //currentPrize
@@ -43,16 +43,16 @@ pub struct PoSPrototypeCtxParsed(
 );
 
 #[derive(Serialize, Debug)]
-pub struct PoSPrototypeCtx {
+pub struct PoSCtx {
     pub can_win: bool,
     pub winner_address: Address,
     pub current_prize: U256,
     pub user_split: U256,
 }
 
-impl From<PoSPrototypeCtxParsed> for PoSPrototypeCtx {
-    fn from(parsed: PoSPrototypeCtxParsed) -> PoSPrototypeCtx {
-        PoSPrototypeCtx {
+impl From<PoSCtxParsed> for PoSCtx {
+    fn from(parsed: PoSCtxParsed) -> PoSCtx {
+        PoSCtx {
             can_win: parsed.0.value,
             winner_address: parsed.1.value,
             current_prize: parsed.2.value,
@@ -61,8 +61,8 @@ impl From<PoSPrototypeCtxParsed> for PoSPrototypeCtx {
     }
 }
 
-impl DApp<()> for PoSPrototype {
-    /// React to the PosPrototype contract
+impl DApp<()> for PoS {
+    /// React to the PoS contract
     fn react(
         instance: &state::Instance,
         _archive: &Archive,
@@ -70,16 +70,16 @@ impl DApp<()> for PoSPrototype {
         _param: &(),
     ) -> Result<Reaction> {
         // get context (state) of the lottery instance
-        let parsed: PoSPrototypeCtxParsed =
+        let parsed: PoSCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
                 format!(
-                    "Could not parse PoSPrototype instance json_data: {}",
+                    "Could not parse PoS instance json_data: {}",
                     &instance.json_data
                 )
             })?;
-        let ctx: PoSPrototypeCtx = parsed.into();
+        let ctx: PoSCtx = parsed.into();
         trace!(
-            "Context for PoSPrototype (index {}) {:?}",
+            "Context for PoS (index {}) {:?}",
             instance.index,
             ctx
         );
@@ -92,7 +92,7 @@ impl DApp<()> for PoSPrototype {
         // TODO: check if cast to u_64() is problematic
         let current_reward = ctx.current_prize.as_u64() * ctx.user_split.as_u64() / base_split;
         if ctx.can_win && current_reward >= required_prize {
-            info!("Claiming victory for PoSPrototype (index: {})", instance.index);
+            info!("Claiming victory for PoS (index: {})", instance.index);
             let request = TransactionRequest {
                 concern: instance.concern.clone(),
                 value: U256::from(0),
@@ -118,23 +118,23 @@ impl DApp<()> for PoSPrototype {
         _param: &(),
     ) -> Result<state::Instance> {
         // get context (state) of the pos instance
-        let parsed: PoSPrototypeCtxParsed =
+        let parsed: PoSCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
                 format!(
                     "Could not parse lottery instance json_data: {}",
                     &instance.json_data
                 )
             })?;
-        let ctx: PoSPrototypeCtx = parsed.into();
+        let ctx: PoSCtx = parsed.into();
         let json_data = serde_json::to_string(&ctx).unwrap();
 
         let pretty_sub_instances: Vec<Box<state::Instance>> = vec![];
 
         let pretty_instance = state::Instance {
-            name: "PoSPrototype".to_string(),
+            name: "PoS".to_string(),
             concern: instance.concern.clone(),
             index: instance.index,
-            service_status: archive.get_service("PoSPrototype".into()),
+            service_status: archive.get_service("PoS".into()),
             json_data: json_data,
             sub_instances: pretty_sub_instances,
         };

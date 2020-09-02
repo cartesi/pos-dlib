@@ -19,7 +19,7 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-/// @title Proof of Stake Prototype
+/// @title Proof of Stake
 /// @author Felipe Argento
 
 pragma solidity ^0.6.0;
@@ -38,12 +38,12 @@ import "./Staking.sol";
 import "./Lottery.sol";
 import "./PrizeManager.sol";
 
-contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
+contract PoS is Ownable, Instantiator, Decorated, CartesiMath {
     using SafeMath for uint256;
 
     uint256 constant SPLIT_BASE = 10000;
 
-    struct PoSPrototypeCtx {
+    struct PoSCtx {
         mapping (address => address) beneficiaryMap;
         mapping (address => uint256) splitMap;
         uint256 lotteryIndex;
@@ -53,7 +53,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         WorkerAuthManager workerAuth;
     }
 
-    mapping(uint256 => PoSPrototypeCtx) internal instance;
+    mapping(uint256 => PoSCtx) internal instance;
 
     event BeneficiaryAdded(
         uint256 indexed _index,
@@ -68,7 +68,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         uint256 _split
     ) public
     {
-        PoSPrototypeCtx storage pos = instance[_index];
+        PoSCtx storage pos = instance[_index];
 
         require(
             _split <= SPLIT_BASE,
@@ -86,7 +86,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         );
     }
 
-    /// @notice Instantiates a Proof of Stake prototype
+    /// @notice Instantiates a Proof of Stake
     /// @param _stakingAddress address of StakingInterface
     /// @param _lotteryAddress address of lottery contract
     /// @param _workerAuthAddress address of worker manager contract
@@ -120,11 +120,11 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     }
 
     /// @notice Claim that _user won the round
-    /// @param _index the index of the instance of posPrototype you want to interact with
+    /// @param _index the index of the instance of pos you want to interact with
     /// @dev this function can only be called by a worker, user never calls it directly
     function claimWin(uint256 _index) public returns (bool) {
 
-        PoSPrototypeCtx storage pos = instance[_index];
+        PoSCtx storage pos = instance[_index];
 
         require(
             pos.workerAuth.isAuthorized(msg.sender, address(this)),
@@ -175,7 +175,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         uint256
     )
     {
-        PoSPrototypeCtx storage pos = instance[_index];
+        PoSCtx storage pos = instance[_index];
 
         // translate worker/user address
         address user = pos.workerAuth.getOwner(msg.sender);
@@ -193,7 +193,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
     }
 
     function isConcerned(uint256 _index, address) public override view returns (bool) {
-        PoSPrototypeCtx storage pos = instance[_index];
+        PoSCtx storage pos = instance[_index];
 
         // translate worker/user address
         address user = pos.workerAuth.getOwner(msg.sender);
@@ -205,7 +205,7 @@ contract PoSPrototype is Ownable, Instantiator, Decorated, CartesiMath {
         public override view returns (address[] memory _addresses,
             uint256[] memory _indices)
     {
-        PoSPrototypeCtx storage pos = instance[_index];
+        PoSCtx storage pos = instance[_index];
 
         address[] memory a;
         uint256[] memory i;

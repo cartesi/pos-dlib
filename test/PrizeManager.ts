@@ -11,7 +11,7 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { PoSPrototype } from "../src/types/PoSPrototype";
+import { PoS } from "../src/types/PoS";
 import { PrizeManager } from "../src/types/PrizeManager";
 import { Signer } from "ethers";
 import { splitSignature } from "ethers/lib/utils";
@@ -19,7 +19,7 @@ import { splitSignature } from "ethers/lib/utils";
 const { advanceTime } = require("./utils");
 
 const ctsiJSON = require("@cartesi/token/build/contracts/CartesiToken.json");
-const posJSON = require("../build/contracts/PoSPrototype.json");
+const posJSON = require("../build/contracts/PoS.json");
 
 use(solidity);
 
@@ -75,7 +75,7 @@ describe("PrizeManager", async () => {
         mockPoS = await deployMockContract(signer, posJSON.abi);
     });
 
-    it("payWinner can only be called by PoS prototype", async () => {
+    it("payWinner can only be called by PoS", async () => {
         prizeManager = await deployPrizeManager({
             pos: mockPoS.address,
             ctsi: mockToken.address,
