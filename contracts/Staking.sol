@@ -32,6 +32,24 @@ interface Staking {
     function getStakedBalance(
         address _userAddress) external view returns (uint256);
 
+    /// @notice Returns the timestamp when next deposit can be finalized
+    /// @return timestamp of when finalizeStakes() is callable
+    function getFinalizeDepositTimestamp(address _userAddress) external view returns (uint256);
+
+    /// @notice Returns the timestamp when next withdraw can be finalized
+    /// @return timestamp of when finalizeWithdraw() is callable
+    function getFinalizeWithdrawTimestamp(address _userAddress) external view returns (uint256);
+
+
+    /// @notice Returns the amount of money to be deposited after finalization
+    /// @return amount that will get staked after finalization
+    function getUnfinalizedDepositAmount(address _userAddress) external view  returns (uint256);
+
+    /// @notice Returns the amount of money to be withdrew after finalization
+    /// @return amount that will get withdrew after finalization
+    function getUnfinalizedWithdrawAmount(address _userAddress) external view  returns (uint256);
+
+
     /// @notice Deposit CTSI to be staked. The money will turn into staked
     ///         balance after timeToStake days, if the function finalizeStakes
     ///         is called.

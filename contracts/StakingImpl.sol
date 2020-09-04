@@ -130,10 +130,52 @@ contract StakingImpl is Staking {
         emit WithdrawFinalized(withdrawAmount, msg.sender);
     }
 
+    // getters
+    function getFinalizeDepositTimestamp(
+        address _userAddress
+    )
+    public
+    view override
+    returns (uint256)
+    {
+        return toBeStaked[_userAddress].timestamp.add(timeToStake);
+    }
+
+    function getUnfinalizedDepositAmount(
+        address _userAddress
+    )
+    public
+    view override
+    returns (uint256)
+    {
+        return toBeStaked[_userAddress].amount;
+    }
+
+    function getUnfinalizedWithdrawAmount(
+        address _userAddress
+    )
+    public
+    view override
+    returns (uint256)
+    {
+        return toWithdraw[_userAddress].amount;
+    }
+
+    function getFinalizeWithdrawTimestamp(
+        address _userAddress
+    )
+    public
+    view override
+    returns (uint256)
+    {
+        return toWithdraw[_userAddress].timestamp.add(timeToWithdraw);
+    }
+
     function getStakedBalance(address _userAddress)
     public
     view override
-    returns (uint256) {
+    returns (uint256)
+    {
         return stakedBalance[_userAddress];
     }
 }
