@@ -5,6 +5,7 @@ coverage*
 deployments
 pos/target
 node_modules
+src/types
 test/*/
 .vscode
 .node*

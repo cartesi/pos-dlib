@@ -10,7 +10,8 @@
     "@cartesi/util": "^0.3.0",
     "@openzeppelin/contracts": "^3.1.0",
     "@truffle/contract": "^4.2.20",
-    "@truffle/hdwallet-provider": "^1.0.43"
+    "@truffle/hdwallet-provider": "^1.0.43",
+    "commander": "^6.1.0"
   },
   "devDependencies": {
     "@nodefactory/buidler-typechain": "^0.2.0",
@@ -23,6 +24,7 @@
     "@typechain/truffle-v5": "^2.0.2",
     "@typechain/web3-v1": "^1.0.0",
     "@types/chai": "^4.2.11",
+    "@types/commander": "^2.12.2",
     "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.23",
     "buidler-deploy": "^0.5.18",

@@ -72,7 +72,7 @@ const config: BuidlerConfig = {
             accounts: mnemonic ? { mnemonic } : undefined
         },
         coverage: {
-            url: 'http://localhost:8555'
+            url: "http://localhost:8555"
         }
     },
     solc: {
