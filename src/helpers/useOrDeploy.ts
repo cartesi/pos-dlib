@@ -19,28 +19,28 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import {
-    BuidlerRuntimeEnvironment,
-    DeployFunction
-} from "@nomiclabs/buidler/types";
-import useOrDeploy from "../src/helpers/useOrDeploy";
+import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 
-const CTSI = require("@cartesi/token/build/contracts/CartesiToken.json");
-
-const DAY = 86400; // seconds in a day
-
-const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
-    const { deployments, getNamedAccounts } = bre;
+export default async (
+    bre: BuidlerRuntimeEnvironment,
+    deployer: string,
+    contract: any
+): Promise<string> => {
+    const { deployments, getChainId } = bre;
     const { deploy } = deployments;
-    const { deployer } = await getNamedAccounts();
-    const CTSIAddress = await useOrDeploy(bre, deployer, CTSI);
+    const network_id = await getChainId();
 
-    await deploy("StakingImpl", {
-        args: [CTSIAddress, 5 * DAY, 5 * DAY],
-        from: deployer,
-        log: true
-    });
+    if (contract.networks && contract.networks[network_id]) {
+        return Promise.resolve(contract.networks[network_id].address);
+    } else {
+        const { contractName } = contract;
+        console.log(
+            `${contractName} not deployed at network ${network_id}. Deploying...`
+        );
+        return deploy(contractName, {
+            from: deployer,
+            contract,
+            log: true
+        }).then(result => result.address);
+    }
 };
-
-export default func;
-export const tags = ["Staking"];

@@ -24,23 +24,34 @@ import {
     DeployFunction
 } from "@nomiclabs/buidler/types";
 import useOrDeploy from "../src/helpers/useOrDeploy";
-
 const CTSI = require("@cartesi/token/build/contracts/CartesiToken.json");
-
-const DAY = 86400; // seconds in a day
 
 const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = bre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
-    const CTSIAddress = await useOrDeploy(bre, deployer, CTSI);
 
-    await deploy("StakingImpl", {
-        args: [CTSIAddress, 5 * DAY, 5 * DAY],
+    const { PoS } = await deployments.all();
+    const CartesiTokenAddress = await useOrDeploy(bre, deployer, CTSI);
+
+    // rate = 0.005% = 0.00005 = 5 / 100000
+    const numerator = 5;
+    const denominator = 100000;
+    const minimumPrize = 0;
+
+    await deploy("PrizeManager", {
         from: deployer,
+        args: [
+            PoS.address,
+            CartesiTokenAddress,
+            minimumPrize,
+            numerator,
+            denominator
+        ],
         log: true
     });
 };
 
 export default func;
-export const tags = ["Staking"];
+export const tags = ["PrizeManager"];
+export const dependencies = ["PoS"];
