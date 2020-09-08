@@ -27,7 +27,7 @@
     "@types/commander": "^2.12.2",
     "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.23",
-    "buidler-deploy": "^0.5.18",
+    "buidler-deploy": "next",
     "chai": "^4.2.0",
     "ethereum-waffle": "^3.1.0",
     "ethers": "^5.0.9",

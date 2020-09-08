@@ -86,6 +86,15 @@ const config: BuidlerConfig = {
         deploy: "deploy",
         deployments: "deployments"
     },
+    external: {
+        artifacts: ["node_modules/@cartesi/util/artifacts"],
+        deployments: {
+            localhost: [
+                "node_modules/@cartesi/util/deployments/localhost_31337"
+            ],
+            rinkeby: ["node_modules/@cartesi/util/deployments/rinkeby"]
+        }
+    },
     typechain: {
         outDir: "src/types",
         target: "ethers-v5"

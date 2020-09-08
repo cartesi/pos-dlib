@@ -22,31 +22,27 @@
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 import { program } from "commander";
 import { PoS } from "../src/types/PoS";
-import useOrDeploy from "../src/helpers/useOrDeploy";
-//const WorkerAuthManager = require("@cartesi/util/build/contracts/WorkerAuthManagerImpl.json");
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers, getNamedAccounts } = bre;
 
 async function main() {
-    const { Lottery, PoS, PrizeManager, StakingImpl } = await deployments.all();
+    const {
+        Lottery,
+        PoS,
+        PrizeManager,
+        StakingImpl,
+        WorkerAuthManagerImpl
+    } = await deployments.all();
 
     const drawInterval = program.drawInterval;
     const diffAdjustment = program.diffAdjustment;
-
     const pos = (await ethers.getContractAt("PoS", PoS.address)) as PoS;
-
-    const WorkerManager = await deployments.get("WorkerManagerImpl");
-    const WorkerAuthManager = await deployments.get("WorkerAuthManagerImpl");
-
-    console.log(WorkerManager, WorkerAuthManager);
-    // const { deployer } = await getNamedAccounts();
-    // const WorkerAuthManagerAddress = await useOrDeploy(bre, deployer, WorkerAuthManagerImpl);
 
     const transaction = await pos.instantiate(
         StakingImpl.address,
         Lottery.address,
-        WorkerAuthManager.address,
+        WorkerAuthManagerImpl.address,
         diffAdjustment,
         drawInterval,
         PrizeManager.address
