@@ -1,18 +1,8 @@
 version: '3'
 services:
-  ganache:
-    image: trufflesuite/ganache-cli:v6.9.1
-    command: ["ganache-cli", "--networkId", "7777"]
-    expose:
-      - 8545
-    ports:
-      - 8545:8545
-    networks:
-      - ethereum
-
   alice_signer:
     image: cartesi/ethsigner:latest
-    command: "--chain-id=7777 --downstream-http-host=ganache --downstream-http-port=8545 --http-listen-port=8546"
+    command: "--chain-id=31337 --downstream-http-host=host.docker.internal --downstream-http-port=8545 --http-listen-port=8546"
     expose:
       - 8546
     networks:
@@ -43,7 +33,7 @@ services:
 
   bob_signer:
     image: cartesi/ethsigner:latest
-    command: "--chain-id=7777 --downstream-http-host=ganache --downstream-http-port=8545 --http-listen-port=8547"
+    command: "--chain-id=31337 --downstream-http-host=host.docker.internal --downstream-http-port=8545 --http-listen-port=8547"
     expose:
       - 8547
     networks:
