@@ -23,7 +23,7 @@
 
 /// @title Cartesi Staking
 /// @author Felipe Argento
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -54,7 +54,7 @@ contract StakingImpl is Staking {
         address _ctsiAddress,
         uint256 _timeToStake,
         uint256 _timeToWithdraw
-    ) public {
+    ) {
         ctsi = IERC20(_ctsiAddress);
         timeToStake = _timeToStake;
         timeToWithdraw = _timeToWithdraw;

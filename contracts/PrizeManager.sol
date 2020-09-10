@@ -24,7 +24,7 @@
 /// @author Felipe Argento
 
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -52,7 +52,7 @@ contract PrizeManager {
         uint256 _minimumPrize,
         uint256 _distNumerator,
         uint256 _distDenominator
-    ) public {
+    ) {
 
         operator = _operator;
         ctsi = IERC20(_ctsiAddress);

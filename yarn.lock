@@ -910,12 +910,17 @@
     safe-buffer "^5.1.1"
     util.promisify "^1.0.0"
 
+"@openzeppelin/contracts@3.1.0-solc-0.7":
+  version "3.1.0-solc-0.7"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.1.0-solc-0.7.tgz#c6c937d402abaefd2d541178e4c0b1131bf06b9f"
+  integrity sha512-b3DjBHKn74XC9spvQEmn6t7dRZRN7pkeZ9IlDzkMgib09FUE3CDpKmtFCIUDYSLd8lkgSmB9Ig7Chctg8GWUiA==
+
 "@openzeppelin/contracts@^2.5.0":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-2.5.1.tgz#c76e3fc57aa224da3718ec351812a4251289db31"
   integrity sha512-qIy6tLx8rtybEsIOAlrM4J/85s2q2nPkDqj/Rx46VakBZ0LwtFhXIVub96LXHczQX0vaqmAueDqNPXtbSXSaYQ==
 
-"@openzeppelin/contracts@^3.0.1", "@openzeppelin/contracts@^3.1.0":
+"@openzeppelin/contracts@^3.0.1":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.1.0.tgz#bcea457ef89069fbe5a617f50b25b6a8272895d5"
   integrity sha512-dVXDnUKxrAKLzPdCRkz+N8qsVkK1XxJ6kk3zuI6zaQmcKxN7CkizoDP7lXxcs/Mi2I0mxceTRjJBqlzFffLJrQ==
@@ -2699,10 +2704,10 @@ buffer@^5.0.5, buffer@^5.2.1, buffer@^5.5.0, buffer@^5.6.0:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
 
-buidler-deploy@next:
-  version "0.6.0-beta.15"
-  resolved "https://registry.yarnpkg.com/buidler-deploy/-/buidler-deploy-0.6.0-beta.15.tgz#700d0cabed95de7eff9d6d1752ac70c79f9c6925"
-  integrity sha512-4sxWdsktfveWIlBGmY2xW8YNg1zkbYISzYRA+nLm/2m08JlSoSkeFWb0WiGNZYFtx6X2m//QBa+npAcA8h+fMw==
+buidler-deploy@0.6.0-beta.18:
+  version "0.6.0-beta.18"
+  resolved "https://registry.yarnpkg.com/buidler-deploy/-/buidler-deploy-0.6.0-beta.18.tgz#335b8eba1e093885f6f8afb6fe5657ede92c2240"
+  integrity sha512-xBqEpbSTeNswnzR/Hd8raLdcp77DiM7MFwI6Wi/EJPplpEF4U0n9EDTW5ozcGtYUBY//P7YevxGRv2KecDf/Rw==
   dependencies:
     "@ethersproject/abi" "^5.0.2"
     "@ethersproject/abstract-signer" "^5.0.2"
@@ -4872,6 +4877,11 @@ follow-redirects@1.5.10:
   integrity sha512-0V5l4Cizzvqt5D44aTXbFZz+FtyXV1vrDN6qrelxtfYQKW0KO0W2T/hkE8xvGa/540LkZlkaUjO4ailYTFtHVQ==
   dependencies:
     debug "=3.1.0"
+
+follow-redirects@^1.12.1:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.0.tgz#b42e8d93a2a7eea5ed88633676d6597bc8e384db"
+  integrity sha512-aq6gF1BEKje4a9i9+5jimNFIpq4Q1WiwBToeRK5NvZBd/TRsmW8BsJfOEGkr76TbOyPVD3OVDN910EcUNtRYEA==
 
 for-each@~0.3.3:
   version "0.3.3"
@@ -8599,6 +8609,21 @@ solc@^0.6.3:
   dependencies:
     command-exists "^1.2.8"
     commander "3.0.2"
+    fs-extra "^0.30.0"
+    js-sha3 "0.8.0"
+    memorystream "^0.3.1"
+    require-from-string "^2.0.0"
+    semver "^5.5.0"
+    tmp "0.0.33"
+
+solc@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.7.1.tgz#a8283af3406ada8919a35026ba7469c068c3f839"
+  integrity sha512-LepFVKDOcZ1O3OskOy45XTQ6G4rMRTmsGjn4gssaOrI9uyJI9LL6/X2MlYqeJx22UrpPUtCjQAb5IFWRoOSe+w==
+  dependencies:
+    command-exists "^1.2.8"
+    commander "3.0.2"
+    follow-redirects "^1.12.1"
     fs-extra "^0.30.0"
     js-sha3 "0.8.0"
     memorystream "^0.3.1"

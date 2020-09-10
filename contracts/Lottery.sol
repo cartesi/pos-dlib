@@ -23,17 +23,17 @@
 /// @title Lottery
 /// @author Felipe Argento
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 import "@cartesi/util/contracts/CartesiMath.sol";
-import "@cartesi/util/contracts/Instantiator.sol";
+import "@cartesi/util/contracts/InstantiatorImpl.sol";
 import "@cartesi/util/contracts/Decorated.sol";
 
 import "./PrizeManager.sol";
 
-contract Lottery is Instantiator, Decorated, CartesiMath{
+contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     using SafeMath for uint256;
 
     struct LotteryCtx {
@@ -181,7 +181,7 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
 
     function getState(uint256 _index, address _user)
     public view returns (uint256[5] memory _uintValues) {
-        LotteryCtx memory i = instance[_index];
+        LotteryCtx storage i = instance[_index];
 
         uint256[5] memory uintValues = [
             block.number,
@@ -194,12 +194,12 @@ contract Lottery is Instantiator, Decorated, CartesiMath{
         return uintValues;
     }
 
-    function isConcerned(uint256, address) public override view returns (bool) {
+    function isConcerned(uint256, address) public override pure returns (bool) {
         return false; // isConcerned is only for the main concern (PoS)
     }
 
     function getSubInstances(uint256, address)
-        public override view returns (address[] memory _addresses,
+        public override pure returns (address[] memory _addresses,
             uint256[] memory _indices)
     {
         address[] memory a;
