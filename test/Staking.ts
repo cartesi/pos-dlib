@@ -11,7 +11,7 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { Staking } from "../src/types/Staking";
+import { Staking } from "../src/contracts/pos/Staking";
 import { Signer } from "ethers";
 import { splitSignature } from "ethers/lib/utils";
 

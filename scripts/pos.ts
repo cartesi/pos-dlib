@@ -21,7 +21,7 @@
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 import { program } from "commander";
-import { PoS } from "../src/types/PoS";
+import { PoS } from "../src/contracts/pos/PoS";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers, getNamedAccounts } = bre;

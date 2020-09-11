@@ -20,10 +20,8 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
-import { program } from "commander";
-import { Staking } from "../src/types/Staking";
-import { Ierc20 } from "../src/types/Ierc20";
-
+import { Staking } from "../src/contracts/pos/Staking";
+import { Ierc20 } from "../src/contracts/pos/Ierc20";
 
 const { advanceTime } = require("../test/utils");
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
@@ -35,10 +33,16 @@ async function main() {
     const MATURATION = 5 * DAY + 1;
 
     const [user] = await ethers.getSigners();
-    const {StakingImpl, CartesiToken} = await deployments.all();
+    const { StakingImpl, CartesiToken } = await deployments.all();
 
-    const staking = (await ethers.getContractAt("StakingImpl", StakingImpl.address)) as Staking;
-    const ctsi = (await ethers.getContractAt("CartesiToken", CartesiToken.address)) as Ierc20;
+    const staking = (await ethers.getContractAt(
+        "StakingImpl",
+        StakingImpl.address
+    )) as Staking;
+    const ctsi = (await ethers.getContractAt(
+        "CartesiToken",
+        CartesiToken.address
+    )) as Ierc20;
 
     // approve ctsi spending
     const approve_tx = await ctsi.approve(staking.address, STAKING_AMOUNT);
@@ -59,4 +63,3 @@ async function main() {
     const finalize_transaction = await staking.finalizeStakes();
     console.log(`Finalize stake transaction: ${finalize_transaction.hash}`);
 }
-

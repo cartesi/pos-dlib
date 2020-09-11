@@ -1,7 +1,7 @@
 {
   "name": "@cartesi/pos",
   "version": "0.1.0",
-  "description": "",
+  "description": "CTSI Proof of Stake",
   "directories": {
     "test": "test"
   },
@@ -39,6 +39,8 @@
   "scripts": {
     "info": "npm-scripts-info",
     "prepare": "buidler compile",
+    "typechain": "typechain --target ethers-v5 --outDir src/contracts/pos './artifacts/*.json' && typechain --target ethers-v5 --outDir src/contracts/util './node_modules/@cartesi/util/artifacts/*.json'",
+    "pretest": "run-s prepare typechain",
     "test": "buidler test",
     "clean": "rimraf artifacts && rimraf cache && rimraf deployments && rimraf src/types/*",
     "deploy": "run-s deploy:development",
@@ -53,6 +55,7 @@
   },
   "scripts-info": {
     "info": "Displays information about the scripts.",
+    "typechain": "Generate TypeScript code to interact with Smart Contracts, powered by TypeChain",
     "test": "Run unit tests",
     "clean": "Clean build artifacts, including contracts deployment information",
     "deploy": "Deploy contracts to local ganache. Requires ganache running on localhost:8545",

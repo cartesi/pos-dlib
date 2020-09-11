@@ -21,7 +21,7 @@
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 import { program } from "commander";
-import { Lottery } from "../src/types/Lottery";
+import { Lottery } from "../src/contracts/pos/Lottery";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers } = bre;

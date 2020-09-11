@@ -20,15 +20,14 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
-import { program } from "commander";
-import { WorkerAuthManager } from "../src/types/WorkerAuthManager";
-import { WorkerManager } from "../../solidity-util/src/types/WorkerManager";
+import { WorkerAuthManager } from "../src/contracts/util/WorkerAuthManager";
+import { WorkerManager } from "../src/contracts/util/WorkerManager";
 
-import { WorkerManagerFactory } from "../../solidity-util/src/types/WorkerManagerFactory";
-import { WorkerAuthManagerFactory } from "../src/types/WorkerAuthManagerFactory";
+import { WorkerManagerFactory } from "../src/contracts/util/WorkerManagerFactory";
+import { WorkerAuthManagerFactory } from "../src/contracts/util/WorkerAuthManagerFactory";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
-const { deployments, ethers, getNamedAccounts } = bre;
+const { deployments, ethers } = bre;
 
 let userWM: WorkerManager;
 let workerWM: WorkerManager;
@@ -59,7 +58,9 @@ async function main() {
     console.log(`accept_job: ${accept_job.hash}`);
 
     // user authorizes PoS dapp
-    const authorize_transaction = await userWAM.authorize(workerAddress, posAddress);
+    const authorize_transaction = await userWAM.authorize(
+        workerAddress,
+        posAddress
+    );
     console.log(`authorize_transaction: ${authorize_transaction.hash}`);
 }
-

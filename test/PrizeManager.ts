@@ -10,7 +10,7 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { PrizeManager } from "../src/types/PrizeManager";
+import { PrizeManager } from "../src/contracts/pos/PrizeManager";
 import { Signer } from "ethers";
 
 const ctsiJSON = require("@cartesi/token/build/contracts/CartesiToken.json");
