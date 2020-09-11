@@ -1,8 +1,7 @@
-import { assert, expect, use } from "chai";
+import { expect, use } from "chai";
 import {
     deployments,
     ethers,
-    getNamedAccounts,
     getChainId,
 } from "@nomiclabs/buidler";
 import {
@@ -11,15 +10,10 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { PoS } from "../src/types/PoS";
 import { PrizeManager } from "../src/types/PrizeManager";
 import { Signer } from "ethers";
-import { splitSignature } from "ethers/lib/utils";
-
-const { advanceTime } = require("./utils");
 
 const ctsiJSON = require("@cartesi/token/build/contracts/CartesiToken.json");
-const posJSON = require("../build/contracts/PoS.json");
 
 use(solidity);
 
@@ -52,7 +46,7 @@ describe("PrizeManager", async () => {
     } = {}): Promise<PrizeManager> => {
         const network_id = await getChainId();
         const posAddress =
-            pos || posJSON.networks[network_id].address;
+            pos || (await deployments.get("PoS")).address;
         const ctsiAddress = ctsi || ctsiJSON.networks[network_id].address;
         const prizeFactory = await ethers.getContractFactory("PrizeManager");
         const prizeManager = await prizeFactory.deploy(
@@ -72,7 +66,7 @@ describe("PrizeManager", async () => {
         [signer, alice, bob] = await ethers.getSigners();
         aliceAddress = await alice.getAddress();
         mockToken = await deployMockContract(signer, ctsiJSON.abi);
-        mockPoS = await deployMockContract(signer, posJSON.abi);
+        mockPoS = await deployMockContract(signer, (await deployments.getArtifact("PoS")).abi);
     });
 
     it("payWinner can only be called by PoS", async () => {
