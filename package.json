@@ -1,6 +1,6 @@
 {
-  "name": "pos",
-  "version": "1.0.0",
+  "name": "@cartesi/pos",
+  "version": "0.1.0",
   "description": "",
   "directories": {
     "test": "test"
@@ -9,8 +9,6 @@
     "@cartesi/token": "^1.0.0",
     "@cartesi/util": "^0.3.0",
     "@openzeppelin/contracts": "3.1.0-solc-0.7",
-    "@truffle/contract": "^4.2.20",
-    "@truffle/hdwallet-provider": "^1.0.43",
     "commander": "^6.1.0"
   },
   "devDependencies": {
@@ -18,16 +16,12 @@
     "@nomiclabs/buidler": "^1.4.5",
     "@nomiclabs/buidler-ethers": "^2.0.0",
     "@nomiclabs/buidler-waffle": "^2.0.0",
-    "@typechain/ethers-v4": "^1.0.0",
     "@typechain/ethers-v5": "^1.0.0",
-    "@typechain/truffle-v4": "^2.0.3",
-    "@typechain/truffle-v5": "^2.0.2",
-    "@typechain/web3-v1": "^1.0.0",
     "@types/chai": "^4.2.11",
     "@types/commander": "^2.12.2",
     "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.23",
-    "buidler-deploy": "0.6.0-beta.18",
+    "buidler-deploy": "0.6.0-beta.21",
     "chai": "^4.2.0",
     "ethereum-waffle": "^3.1.0",
     "ethers": "^5.0.9",
@@ -36,11 +30,11 @@
     "npm-scripts-info": "^0.3.9",
     "rimraf": "^3.0.2",
     "solc": "^0.7.1",
-    "solidity-coverage": "^0.7.9",
+    "solidity-coverage": "^0.7.10",
     "ts-generator": "^0.0.8",
-    "ts-node": "^8.10.2",
+    "ts-node": "^9.0.0",
     "typechain": "^2.0.0",
-    "typescript": "^3.9.7"
+    "typescript": "^4.0.2"
   },
   "scripts": {
     "info": "npm-scripts-info",
