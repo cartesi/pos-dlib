@@ -1,5 +1,5 @@
 # pos-dlib
-Proof of Stack DLib
+Proof of Stake DLib
 
 This repository will hold the main components to chose a random participant based on Proof of Stake, meaning that the probability to be chosen at random is proportional to the amount of tokens held by the participand.
 
