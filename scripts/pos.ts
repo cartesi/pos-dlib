@@ -27,19 +27,23 @@ const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers, getNamedAccounts } = bre;
 
 async function main() {
+    const [deployer] = await ethers.getSigners();
     const {
         Lottery,
         PoS,
         PrizeManager,
         StakingImpl,
-        WorkerAuthManagerImpl
+        WorkerAuthManagerImpl,
+        CartesiToken
     } = await deployments.all();
 
     const drawInterval = program.drawInterval;
     const diffAdjustment = program.diffAdjustment;
     const pos = (await ethers.getContractAt("PoS", PoS.address)) as PoS;
+    const ctsi = new ethers.Contract(CartesiToken.address, CartesiToken.abi, deployer.provider);
+    const ctsi_deployer = ctsi.connect(deployer);
 
-    const transaction = await pos.instantiate(
+    const pos_tx = await pos.instantiate(
         StakingImpl.address,
         Lottery.address,
         WorkerAuthManagerImpl.address,
@@ -47,7 +51,10 @@ async function main() {
         drawInterval,
         PrizeManager.address
     );
-    console.log(`PoS created: ${transaction.hash}`);
+    console.log(`PoS created: ${pos_tx.hash}`);
+
+    const ctsi_tx = await ctsi_deployer.transfer(PrizeManager.address, 250000000);
+    console.log(`Transfer to PrizeManager: ${ctsi_tx.hash}`);
 }
 
 program
