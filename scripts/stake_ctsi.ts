@@ -32,25 +32,36 @@ async function main() {
     const DAY = 86400; // seconds in a day
     const MATURATION = 5 * DAY + 1;
 
-    const [user] = await ethers.getSigners();
+    const [worker, user] = await ethers.getSigners();
+    const userAddress = await user.getAddress();
     const { StakingImpl, CartesiToken } = await deployments.all();
 
     const staking = (await ethers.getContractAt(
         "StakingImpl",
         StakingImpl.address
     )) as Staking;
-    const ctsi = (await ethers.getContractAt(
-        "CartesiToken",
-        CartesiToken.address
-    )) as Ierc20;
+
+    const ctsi = new ethers.Contract(CartesiToken.address, CartesiToken.abi, user.provider);
+
+    // create signed instance of contracts
+    const user_ctsi = ctsi.connect(user)
+    const worker_ctsi = ctsi.connect(worker)
+
+    const user_staking = staking.connect(user)
+
+    // transfer money to user (worker is the deployer)
+    await worker_ctsi.transfer(userAddress, STAKING_AMOUNT);
+
+    console.log("user CTSI balance: ");
+    console.log(await user_ctsi.balanceOf(userAddress));
 
     // approve ctsi spending
-    const approve_tx = await ctsi.approve(staking.address, STAKING_AMOUNT);
+    const approve_tx = await user_ctsi.approve(staking.address, STAKING_AMOUNT);
 
     console.log(`spending approve: ${approve_tx.hash}`);
 
     // deposit stake
-    const deposit_transaction = await staking.depositStake(STAKING_AMOUNT);
+    const deposit_transaction = await user_staking.depositStake(STAKING_AMOUNT);
     console.log(`Deposit transaction: ${deposit_transaction.hash}`);
 
     // TODO: on current deploy, MATURATION == 5 days, should be decreased for testnet
@@ -60,6 +71,13 @@ async function main() {
     await advanceTime(user.provider, MATURATION);
 
     // finalize stake
-    const finalize_transaction = await staking.finalizeStakes();
+    const finalize_transaction = await user_staking.finalizeStakes();
     console.log(`Finalize stake transaction: ${finalize_transaction.hash}`);
 }
+
+main()
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });
