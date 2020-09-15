@@ -90,7 +90,7 @@ const config: BuidlerConfig = {
         artifacts: ["node_modules/@cartesi/util/artifacts"],
         deployments: {
             localhost: [
-                "node_modules/@cartesi/util/deployments/localhost_31337"
+                "node_modules/@cartesi/util/deployments/localhost"
             ],
             rinkeby: ["node_modules/@cartesi/util/deployments/rinkeby"]
         }
