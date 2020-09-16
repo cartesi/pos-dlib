@@ -21,16 +21,17 @@
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 import { Staking } from "../src/contracts/pos/Staking";
-import { Ierc20 } from "../src/contracts/pos/Ierc20";
 
 const { advanceTime } = require("../test/utils");
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
-const { deployments, ethers, getNamedAccounts } = bre;
+const { deployments, ethers } = bre;
 
 async function main() {
     const STAKING_AMOUNT = 5000000;
-    const DAY = 86400; // seconds in a day
-    const MATURATION = 5 * DAY + 1;
+    const MINUTE = 60;
+    const HOUR = 60 * MINUTE;
+    const DAY = 24 * HOUR; // seconds in a day
+    const MATURATION = 2 * HOUR + 1;
 
     const [worker, user] = await ethers.getSigners();
     const userAddress = await user.getAddress();

@@ -62,13 +62,13 @@ program
         "-da, --diff-adjustment <adjustment>",
         "Specify the difficult adjustment parameter",
         parseFloat,
-        200
+        20000
     )
     .option(
         "-di, --draw-interval <duration>",
         "Specify the desired duration of each draw, in seconds",
         parseFloat,
-        100
+        10 * 60
     );
 
 main()

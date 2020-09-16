@@ -27,7 +27,9 @@ import useOrDeploy from "../src/helpers/useOrDeploy";
 
 const CTSI = require("@cartesi/token/build/contracts/CartesiToken.json");
 
-const DAY = 86400; // seconds in a day
+const MINUTE = 60; // seconds in a minute
+const HOUR = 60 * MINUTE; // seconds in an hour
+const DAY = 24 * HOUR; // seconds in a day
 
 const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = bre;
@@ -36,7 +38,7 @@ const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
     const CTSIAddress = await useOrDeploy(bre, deployer, CTSI);
 
     await deploy("StakingImpl", {
-        args: [CTSIAddress, 5 * DAY, 5 * DAY],
+        args: [CTSIAddress, 2 * HOUR, 2 * HOUR],
         from: deployer,
         log: true
     });

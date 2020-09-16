@@ -21,8 +21,10 @@
 
 import {
     BuidlerRuntimeEnvironment,
-    DeployFunction
+    DeployFunction,
 } from "@nomiclabs/buidler/types";
+import { BigNumber } from "ethers";
+
 import useOrDeploy from "../src/helpers/useOrDeploy";
 const CTSI = require("@cartesi/token/build/contracts/CartesiToken.json");
 
@@ -37,7 +39,7 @@ const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
     // rate = 0.005% = 0.00005 = 5 / 100000
     const numerator = 5;
     const denominator = 100000;
-    const minimumPrize = 0;
+    const minimumPrize = BigNumber.from("1000000000000000000");
 
     await deploy("PrizeManager", {
         from: deployer,
