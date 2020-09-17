@@ -64,15 +64,18 @@ const config: BuidlerConfig = {
             accounts: mnemonic ? { mnemonic } : undefined
         },
         ropsten: infuraNetwork("ropsten", 3, 6283185),
-        kovan: infuraNetwork("kovan", 42, 6283185),
         rinkeby: infuraNetwork("rinkeby", 4, 6283185),
+        kovan: infuraNetwork("kovan", 42, 6283185),
+        goerli: infuraNetwork("goerli", 5, 6283185),
         matic_testnet: {
-            url: "https://testnetv3.matic.network",
-            chainId: 15001,
+            url: "https://rpc-mumbai.matic.today",
+            chainId: 80001,
             accounts: mnemonic ? { mnemonic } : undefined
         },
-        coverage: {
-            url: "http://localhost:8555"
+        bsc_testnet: {
+            url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+            chainId: 97,
+            accounts: mnemonic ? { mnemonic } : undefined
         }
     },
     solc: {

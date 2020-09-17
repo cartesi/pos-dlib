@@ -42,14 +42,16 @@
     "typechain": "typechain --target ethers-v5 --outDir src/contracts/pos './artifacts/*.json' && typechain --target ethers-v5 --outDir src/contracts/util './node_modules/@cartesi/util/artifacts/*.json'",
     "pretest": "run-s prepare typechain",
     "test": "buidler test",
-    "clean": "rimraf artifacts && rimraf cache && rimraf deployments && rimraf src/types/*",
+    "clean": "rimraf artifacts && rimraf cache && rimraf deployments/localhost && rimraf src/types/*",
     "deploy": "run-s deploy:development",
-    "deploy:testnet": "run-s deploy:ropsten deploy:rinkeby deploy:matic_testnet",
+    "deploy:testnet": "run-s deploy:ropsten deploy:rinkeby deploy:kovan deploy:goerli deploy:matic_testnet deploy:bsc_testnet",
     "deploy:development": "buidler deploy --network localhost",
     "deploy:ropsten": "buidler deploy --network ropsten",
-    "deploy:kovan": "buidler deploy --network kovan",
     "deploy:rinkeby": "buidler deploy --network rinkeby",
+    "deploy:kovan": "buidler deploy --network kovan",
+    "deploy:goerli": "buidler deploy --network goerli",
     "deploy:matic_testnet": "buidler deploy --network matic_testnet",
+    "deploy:bsc_testnet": "buidler deploy --network bsc_testnet",
     "prepack": "run-s clean deploy:testnet",
     "start": "buidler node"
   },
@@ -62,19 +64,21 @@
     "deploy:testnet": "Deploy contracts to all supported testnets. Requires two environment variables: PROJECT_ID and MNEMONIC.",
     "deploy:development": "Deploy contracts to local ganache. Requires ganache running on localhost:8545",
     "deploy:ropsten": "Deploy contracts to ropsten. Requires two environment variables: PROJECT_ID and MNEMONIC.",
-    "deploy:kovan": "Deploy contracts to kovan. Requires two environment variables: PROJECT_ID and MNEMONIC.",
     "deploy:rinkeby": "Deploy contracts to rinkeby. Requires two environment variables: PROJECT_ID and MNEMONIC.",
-    "deploy:matic_testnet": "Deploy contracts to matic_testnet."
+    "deploy:kovan": "Deploy contracts to kovan. Requires two environment variables: PROJECT_ID and MNEMONIC.",
+    "deploy:goerli": "Deploy contracts to goerli. Requires two environment variables: PROJECT_ID and MNEMONIC.",
+    "deploy:matic_testnet": "Deploy contracts to matic_testnet.",
+    "deploy:bsc_testnet": "Deploy contracts to bsc_testnet."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cartesi-corp/pos-dlib.git"
+    "url": "git+https://github.com/cartesi/pos-dlib.git"
   },
-  "author": "Felipe Argento <felipe@cartesi.io>",
+  "author": "Felipe Argento <felipe.argento@cartesi.io>",
   "bugs": {
-    "url": "https://github.com/cartesi-corp/pos-dlib/issues"
+    "url": "https://github.com/cartesi/pos-dlib/issues"
   },
-  "homepage": "https://github.com/cartesi-corp/pos-dlib#readme",
+  "homepage": "https://github.com/cartesi/pos-dlib#readme",
   "optionalDependencies": {
     "fsevents": "^2.1.3"
   }
