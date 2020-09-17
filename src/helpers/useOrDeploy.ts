@@ -21,26 +21,22 @@
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 
-export default async (
+export const useOrDeploy = async (
     bre: BuidlerRuntimeEnvironment,
     deployer: string,
-    contract: any
+    name: string
 ): Promise<string> => {
-    const { deployments, getChainId } = bre;
-    const { deploy } = deployments;
-    const network_id = await getChainId();
-
-    if (contract.networks && contract.networks[network_id]) {
-        return Promise.resolve(contract.networks[network_id].address);
+    const deployment = await bre.deployments.getOrNull(name);
+    if (deployment) {
+        // using pre-deployed contract
+        return deployment.address;
     } else {
-        const { contractName } = contract;
-        console.log(
-            `${contractName} not deployed at network ${network_id}. Deploying...`
-        );
-        return deploy(contractName, {
+        // deploying contract
+        const artifact = await bre.deployments.getArtifact(name);
+        const deployed = await bre.deployments.deploy(name, {
             from: deployer,
-            contract,
-            log: true
-        }).then(result => result.address);
+            contract: artifact
+        });
+        return deployed.address;
     }
 };

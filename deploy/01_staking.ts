@@ -23,9 +23,7 @@ import {
     BuidlerRuntimeEnvironment,
     DeployFunction
 } from "@nomiclabs/buidler/types";
-import useOrDeploy from "../src/helpers/useOrDeploy";
-
-const CTSI = require("@cartesi/token/build/contracts/CartesiToken.json");
+import { useOrDeploy } from "../src/helpers/useOrDeploy";
 
 const MINUTE = 60; // seconds in a minute
 const HOUR = 60 * MINUTE; // seconds in an hour
@@ -35,10 +33,14 @@ const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = bre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
-    const CTSIAddress = await useOrDeploy(bre, deployer, CTSI);
+    const CartesiTokenAddress = await useOrDeploy(
+        bre,
+        deployer,
+        "CartesiToken"
+    );
 
     await deploy("StakingImpl", {
-        args: [CTSIAddress, 2 * HOUR, 2 * HOUR],
+        args: [CartesiTokenAddress, 2 * HOUR, 2 * HOUR],
         from: deployer,
         log: true
     });

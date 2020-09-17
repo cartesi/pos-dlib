@@ -21,8 +21,8 @@
 
 import { expect, use } from "chai";
 import {
+    deployments,
     ethers,
-    getChainId,
 } from "@nomiclabs/buidler";
 import {
     deployMockContract,
@@ -34,8 +34,6 @@ import { Staking } from "../src/contracts/pos/Staking";
 import { Signer } from "ethers";
 
 const { advanceTime } = require("./utils");
-
-const ctsiJSON = require("@cartesi/token/build/contracts/CartesiToken.json");
 
 use(solidity);
 
@@ -57,8 +55,7 @@ describe("Staking", async () => {
     }: {
         ctsi?: string;
     } = {}): Promise<Staking> => {
-        const network_id = await getChainId();
-        const ctsiAddress = ctsi || ctsiJSON.networks[network_id].address;
+        const ctsiAddress = ctsi || (await deployments.get("CartesiToken")).address;
         const stakingFactory = await ethers.getContractFactory("StakingImpl");
         const staking = await stakingFactory.deploy(ctsiAddress, 5 * DAY, 5 * DAY);
         await staking.deployed();
@@ -70,7 +67,8 @@ describe("Staking", async () => {
 
         [signer, alice, bob] = await ethers.getSigners();
         aliceAddress = await alice.getAddress();
-        mockToken = await deployMockContract(signer, ctsiJSON.abi);
+        const CartesiToken = await deployments.getArtifact("CartesiToken");
+        mockToken = await deployMockContract(signer, CartesiToken.abi);
 
         staking = await deployStaking({ ctsi: mockToken.address });
     });

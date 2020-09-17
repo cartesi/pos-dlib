@@ -25,8 +25,7 @@ import {
 } from "@nomiclabs/buidler/types";
 import { BigNumber } from "ethers";
 
-import useOrDeploy from "../src/helpers/useOrDeploy";
-const CTSI = require("@cartesi/token/build/contracts/CartesiToken.json");
+import { useOrDeploy } from "../src/helpers/useOrDeploy";
 
 const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = bre;
@@ -34,7 +33,11 @@ const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
     const { deployer } = await getNamedAccounts();
 
     const { PoS } = await deployments.all();
-    const CartesiTokenAddress = await useOrDeploy(bre, deployer, CTSI);
+    const CartesiTokenAddress = await useOrDeploy(
+        bre,
+        deployer,
+        "CartesiToken"
+    );
 
     // rate = 0.005% = 0.00005 = 5 / 100000
     const numerator = 5;

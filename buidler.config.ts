@@ -87,12 +87,39 @@ const config: BuidlerConfig = {
         deployments: "deployments"
     },
     external: {
-        artifacts: ["node_modules/@cartesi/util/artifacts"],
+        artifacts: [
+            "node_modules/@cartesi/util/artifacts",
+            "node_modules/@cartesi/token/artifacts"
+        ],
         deployments: {
             localhost: [
-                "node_modules/@cartesi/util/deployments/localhost"
+                "node_modules/@cartesi/util/deployments/localhost",
+                "node_modules/@cartesi/token/deployments/localhost"
             ],
-            rinkeby: ["node_modules/@cartesi/util/deployments/rinkeby"]
+            ropsten: [
+                "node_modules/@cartesi/util/deployments/ropsten",
+                "node_modules/@cartesi/token/deployments/ropsten"
+            ],
+            rinkeby: [
+                "node_modules/@cartesi/util/deployments/rinkeby",
+                "node_modules/@cartesi/token/deployments/rinkeby"
+            ],
+            kovan: [
+                "node_modules/@cartesi/util/deployments/kovan",
+                "node_modules/@cartesi/token/deployments/kovan"
+            ],
+            goerli: [
+                "node_modules/@cartesi/util/deployments/goerli",
+                "node_modules/@cartesi/token/deployments/goerli"
+            ],
+            matic_testnet: [
+                "node_modules/@cartesi/util/deployments/matic_testnet",
+                "node_modules/@cartesi/token/deployments/matic_testnet"
+            ],
+            bsc_testnet: [
+                "node_modules/@cartesi/util/deployments/bsc_testnet",
+                "node_modules/@cartesi/token/deployments/bsc_testnet"
+            ]
         }
     },
     typechain: {

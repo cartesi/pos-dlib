@@ -23,7 +23,6 @@ import { expect, use } from "chai";
 import {
     deployments,
     ethers,
-    getChainId,
 } from "@nomiclabs/buidler";
 import {
     deployMockContract,
@@ -33,8 +32,6 @@ import { solidity } from "ethereum-waffle";
 
 import { PrizeManager } from "../src/contracts/pos/PrizeManager";
 import { Signer } from "ethers";
-
-const ctsiJSON = require("@cartesi/token/build/contracts/CartesiToken.json");
 
 use(solidity);
 
@@ -65,10 +62,8 @@ describe("PrizeManager", async () => {
         numerator?: number;
         denominator?: number;
     } = {}): Promise<PrizeManager> => {
-        const network_id = await getChainId();
-        const posAddress =
-            pos || (await deployments.get("PoS")).address;
-        const ctsiAddress = ctsi || ctsiJSON.networks[network_id].address;
+        const posAddress = pos || (await deployments.get("PoS")).address;
+        const ctsiAddress = ctsi || (await deployments.get("CartesiToken")).address;
         const prizeFactory = await ethers.getContractFactory("PrizeManager");
         const prizeManager = await prizeFactory.deploy(
             posAddress,
@@ -86,7 +81,8 @@ describe("PrizeManager", async () => {
 
         [signer, alice, bob] = await ethers.getSigners();
         aliceAddress = await alice.getAddress();
-        mockToken = await deployMockContract(signer, ctsiJSON.abi);
+        const CartesiToken = await deployments.getArtifact("CartesiToken");
+        mockToken = await deployMockContract(signer, CartesiToken.abi);
         mockPoS = await deployMockContract(signer, (await deployments.getArtifact("PoS")).abi);
     });
 
