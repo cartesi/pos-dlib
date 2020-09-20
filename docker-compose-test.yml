@@ -3,8 +3,8 @@ services:
   alice_signer:
     image: cartesi/ethsigner:latest
     command: "--chain-id=31337 --downstream-http-host=host.docker.internal --downstream-http-port=8545 --http-listen-port=8546"
-    expose:
-      - 8546
+    ports:
+      - 8546:8546
     networks:
       ethereum: {}
       alice:
@@ -17,13 +17,15 @@ services:
     environment:
       RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info
       WEB3_PROVIDER_URI: http://signer:8546
-      CHAIN_NAME: localhost_31337
+      CHAIN_NAME: localhost
+      ACCOUNT_ADDRESS: "0xc783df8a850f42e7F7e57013759C285caa701eB6"
       QUERY_PORT: 3001
       ETHEREUM_HOST: signer
       ETHEREUM_PORT: 8546
       DOCKER: "TRUE"
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
+      - ./node_modules/@cartesi/util/:/opt/cartesi/share/blockchain/node_modules/@cartesi/util/:ro
       - alice_data:/opt/cartesi/srv/pos
     networks:
       ethereum: {}
@@ -34,8 +36,8 @@ services:
   bob_signer:
     image: cartesi/ethsigner:latest
     command: "--chain-id=31337 --downstream-http-host=host.docker.internal --downstream-http-port=8545 --http-listen-port=8547"
-    expose:
-      - 8547
+    ports:
+      - 8547:8547
     networks:
       ethereum: {}
       bob:
@@ -47,14 +49,16 @@ services:
     restart: always
     environment:
       RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info
+      ACCOUNT_ADDRESS: "0xeAD9C93b79Ae7C1591b1FB5323BD777E86e150d4"
       WEB3_PROVIDER_URI: http://signer:8547
-      CHAIN_NAME: localhost_31337
+      CHAIN_NAME: localhost
       QUERY_PORT: 3001
       ETHEREUM_HOST: signer
       ETHEREUM_PORT: 8547
       DOCKER: "TRUE"
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
+      - ./node_modules/@cartesi/util/:/opt/cartesi/share/blockchain/node_modules/@cartesi/util/:ro
       - bob_data:/opt/cartesi/srv/pos
     networks:
       bob:

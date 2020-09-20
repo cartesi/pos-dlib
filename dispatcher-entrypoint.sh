@@ -32,8 +32,12 @@ echo "Waiting for services..."
 dockerize -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} -timeout ${ETHEREUM_TIMEOUT}
 
 if [ -z "${CONCERN_SEMAPHORE}" ] && [ -z "${MNEMONIC}" ]; then
-    echo "No mnemonic or file set, using external signer"
-    export ACCOUNT_ADDRESS=$(curl -X POST --data '{"jsonrpc":"2.0","method":"eth_accounts","params":[],"id":1}' http://${ETHEREUM_HOST}:${ETHEREUM_PORT} | jq -r '.result[0]')
+    if [ -z "${ACCOUNT_ADDRESS}" ]; then
+        echo "No mnemonic or file set, using external signer at http://${ETHEREUM_HOST}:${ETHEREUM_PORT}"
+        export ACCOUNT_ADDRESS=$(curl -X POST --data '{"jsonrpc":"2.0","method":"eth_accounts","params":[],"id":1}' http://${ETHEREUM_HOST}:${ETHEREUM_PORT} | jq -r '.result[0]')
+    else
+        echo "Account address defined in ENV"
+    fi
 fi
 
 echo "Creating configuration file at /opt/cartesi/etc/pos/config.yaml with account ${ACCOUNT_ADDRESS}"
