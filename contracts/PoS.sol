@@ -162,11 +162,12 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
 
     /// @notice Get state of a particular instance
     /// @param _index index of instance
+    /// @param _user address of user
     /// @return bool if user is eligible to produce next block
     /// @return address of user that was chosen to build the block
     /// @return current prize paid by the network for that block
     /// @return percentage of prize that goes to the user
-    function getState(uint256 _index, address)
+    function getState(uint256 _index, address _user)
     public
     view
     returns (
@@ -177,29 +178,21 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
     )
     {
         PoSCtx storage pos = instance[_index];
-
-        // translate worker/user address
-        address user = pos.workerAuth.getOwner(msg.sender);
-
         return (
             pos.lottery.canWin(
                 pos.lotteryIndex,
-                user,
-                pos.staking.getStakedBalance(user)
+                _user,
+                pos.staking.getStakedBalance(_user)
             ),
-            user,
+            _user,
             pos.prizeManager.getCurrentPrize(),
-            pos.splitMap[user]
+            pos.splitMap[_user]
         );
     }
 
-    function isConcerned(uint256 _index, address) public override view returns (bool) {
+    function isConcerned(uint256 _index, address _user) public override view returns (bool) {
         PoSCtx storage pos = instance[_index];
-
-        // translate worker/user address
-        address user = pos.workerAuth.getOwner(msg.sender);
-
-        return pos.staking.getStakedBalance(user) > 0;
+        return pos.staking.getStakedBalance(_user) > 0;
     }
 
     function getSubInstances(uint256 _index, address)
