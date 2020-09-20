@@ -4,6 +4,7 @@ main_concern:
   user_address: "${ACCOUNT_ADDRESS}"
 confirmations: 12
 max_delay: 500
+worker_abi: "/opt/cartesi/share/blockchain/node_modules/@cartesi/util/deployments/${CHAIN_NAME}/WorkerManagerImpl.json"
 query_port: ${QUERY_PORT}
 services: []
 testing: true
