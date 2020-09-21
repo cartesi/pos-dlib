@@ -29,7 +29,7 @@ import { deployments, ethers } from "@nomiclabs/buidler";
 // const bre = require("@nomiclabs/buidler");
 // const { deployments, ethers } = bre;
 
-async function main(aliceWorker: string, bobWorker: string) {
+async function main(aliceWorker: string) {
     const [alice, bob] = await ethers.getSigners();
     const wmAddress = (await deployments.get("WorkerManagerImpl")).address;
 
@@ -39,11 +39,11 @@ async function main(aliceWorker: string, bobWorker: string) {
     })
     console.log(`give_eth_transaction_alice: ${give_eth_transaction_alice.hash}`);
 
-    const give_eth_transaction_bob = await bob.sendTransaction({
-        to: bobWorker,
-        value: ethers.utils.parseEther("5")
-    })
-    console.log(`give_eth_transaction_bob: ${give_eth_transaction_bob.hash}`);
+    // const give_eth_transaction_bob = await bob.sendTransaction({
+    //     to: bobWorker,
+    //     value: ethers.utils.parseEther("5")
+    // })
+    // console.log(`give_eth_transaction_bob: ${give_eth_transaction_bob.hash}`);
 
     // user hires worker
     let aliceWM: WorkerManager = WorkerManagerFactory.connect(wmAddress, alice);
@@ -54,21 +54,21 @@ async function main(aliceWorker: string, bobWorker: string) {
 
 
   // user hires worker
-    let bobWM: WorkerManager = WorkerManagerFactory.connect(wmAddress, bob);
-    const hire_transaction_bob = await bobWM.hire(bobWorker, {
-        value: ethers.utils.parseEther("1")
-    });
-    console.log(`hire_transaction_bob: ${hire_transaction_bob.hash}`);
+    // let bobWM: WorkerManager = WorkerManagerFactory.connect(wmAddress, bob);
+    // const hire_transaction_bob = await bobWM.hire(bobWorker, {
+    //     value: ethers.utils.parseEther("1")
+    // });
+    // console.log(`hire_transaction_bob: ${hire_transaction_bob.hash}`);
 }
 
 const alice_obj = require('./alice_account.json')
-const bob_obj = require('./bob_account.json')
+// const bob_obj = require('./bob_account.json')
 const aliceWorker = alice_obj.result[0]
-const bobWorker = bob_obj.result[0]
+// const bobWorker = bob_obj.result[0]
 console.log(`Alice worker address: ${aliceWorker}`);
-console.log(`Bob worker address: ${bobWorker}`);
+// console.log(`Bob worker address: ${bobWorker}`);
 
-main(aliceWorker, bobWorker)
+main(aliceWorker)
     .then(() => process.exit(0))
     .catch(error => {
         console.error(error);
