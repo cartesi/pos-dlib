@@ -1,41 +1,29 @@
 version: '3'
 services:
-  alice_signer:
+  signer:
     image: cartesi/ethsigner:latest
-    command: "--chain-id=31337 --downstream-http-host=host.docker.internal --downstream-http-port=8545 --http-listen-port=8546"
+    command: "--chain-id=31337 --downstream-http-host=host.docker.internal --http-cors-origins=\"*\" --downstream-http-port=7545 --http-listen-port=8545"
+    expose:
+      - 8545
     ports:
-      - 8546:8546
-    networks:
-      ethereum: {}
-      alice:
-        aliases:
-          - signer
+      - 8545:8545
   
-  alice_dispatcher:
+  dispatcher:
     image: cartesi/pos:latest
     restart: always
     environment:
       RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info
-      WEB3_PROVIDER_URI: http://signer:8546
+      WEB3_PROVIDER_URI: http://signer:8545
       CHAIN_NAME: localhost
       ACCOUNT_ADDRESS: "0xc783df8a850f42e7F7e57013759C285caa701eB6"
       QUERY_PORT: 3001
       ETHEREUM_HOST: signer
-      ETHEREUM_PORT: 8546
+      ETHEREUM_PORT: 8545
       DOCKER: "TRUE"
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
-      - ./node_modules/@cartesi/util/:/opt/cartesi/share/blockchain/node_modules/@cartesi/util/:ro
-      - alice_data:/opt/cartesi/srv/pos
-    networks:
-      ethereum: {}
-      alice:
-        aliases:
-          - dispatcher
 
-volumes:
-  alice_data:
-
-networks:
-  ethereum:
-  alice:
+  explorer:
+    image: cartesi/console:latest
+    ports:
+      - 8000:80

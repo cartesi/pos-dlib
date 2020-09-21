@@ -42,3 +42,10 @@ More precisely
 
 Observing that the `T_i`'s are independent of one another, their minimum `T = min{T_i}` is also an exponential random variable with parameter given by `b/difficulty`, where `b` is the total balance of all active stakers `b = sum(b_1, b_2...)`.
 This means that the average time for a block to appear is given by `difficulty/b`, so in other words, everytime the actively staked balance of all users change by a factor, the difficulty has to adapt by the same amount in order to regulate the expected interval between selections.
+
+# Running locally
+
+```
+npx buidler node --port 7454
+docker-compose -f docker-compose-test.yml -p alice up
+```

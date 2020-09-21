@@ -2,7 +2,7 @@ version: '3'
 services:
   signer:
     image: cartesi/ethsigner:latest
-    command: "--chain-id=4 --downstream-http-host=rinkeby.infura.io --downstream-http-port=443 --downstream-http-tls-enabled --downstream-http-path=/v3/$INFURA_ID"
+    command: "--chain-id=4 --downstream-http-host=rinkeby.infura.io --downstream-http-port=443 --http-cors-origins=\"https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${INFURA_ID:?INFURA_ID undefined, please set up an application at Infura}"
     ports:
       - 8545:8545
   
@@ -15,11 +15,5 @@ services:
       CHAIN_NAME: rinkeby
       QUERY_PORT: 3001
       ETHEREUM_HOST: signer
-      ETHEREUM_PORT: 8546
+      ETHEREUM_PORT: 8545
       DOCKER: "TRUE"
-    volumes:
-      - ./blockchain:/opt/cartesi/share/blockchain:ro
-      - data:/opt/cartesi/srv/pos
-
-volumes:
-  data:
