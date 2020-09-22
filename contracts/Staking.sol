@@ -34,64 +34,53 @@ interface Staking {
 
     /// @notice Returns the timestamp when next deposit can be finalized
     /// @return timestamp of when finalizeStakes() is callable
-    function getFinalizeDepositTimestamp(address _userAddress) external view returns (uint256);
+    function getMaturingTimestamp(address _userAddress) external view returns (uint256);
 
     /// @notice Returns the timestamp when next withdraw can be finalized
     /// @return timestamp of when finalizeWithdraw() is callable
-    function getFinalizeWithdrawTimestamp(address _userAddress) external view returns (uint256);
+    function getReleasingTimestamp(address _userAddress) external view returns (uint256);
 
 
     /// @notice Returns the amount of money to be deposited after finalization
     /// @return amount that will get staked after finalization
-    function getUnfinalizedDepositAmount(address _userAddress) external view  returns (uint256);
+    function getMaturingAmount(address _userAddress) external view  returns (uint256);
 
     /// @notice Returns the amount of money to be withdrew after finalization
     /// @return amount that will get withdrew after finalization
-    function getUnfinalizedWithdrawAmount(address _userAddress) external view  returns (uint256);
+    function getReleasingAmount(address _userAddress) external view  returns (uint256);
 
 
     /// @notice Deposit CTSI to be staked. The money will turn into staked
-    ///         balance after timeToStake days, if the function finalizeStakes
-    ///         is called.
+    ///         balance after timeToStake days
     /// @param _amount The amount of tokens that are gonna be deposited.
-    function depositStake(uint256 _amount) external;
+    function stake(uint256 _amount) external;
 
-    /// @notice Transforms msg.sender mature deposits into staked tokens.
-    function finalizeStakes() external;
+    /// @notice Remove tokens from staked balance. The money can
+    ///         be released after timeToRelease seconds, if the
+    ///         function withdraw is called.
+    /// @param _amount The amount of tokens that are gonna be unstaked.
+    function unstake(uint256 _amount) external;
 
-    /// @notice Start CTSI withdraw from staked balance process. The money will
-    ///         turn into withdrawal balance after timeToWithdraw days, if the
-    ///         function finalizeWithdraw is called.
-    /// @param _amount The amount of tokens that are gonna be withdrew.
-    function startWithdraw(uint256 _amount) external;
-
-    /// @notice Finalizes msg.sender mature withdraws.
-    function finalizeWithdraws() external;
+    /// @notice Transfer tokens to user's wallet.
+    /// @param _amount The amount of tokens that are gonna be transferred.
+    function withdraw(uint256 _amount) external;
 
     // events
-    /// @notice CTSI tokens were deposited as a Stake, can be finalized after _maturationDate
+    /// @notice CTSI tokens were deposited, they count as stake after _maturationDate
     /// @param _amount amount deposited for staking
     /// @param _address address of msg.sender
     /// @param _maturationDate date when the stake can be finalized
-    event StakeDeposited(
+    event Stake(
         uint256 indexed _amount,
         address indexed _address,
         uint256 indexed _maturationDate
     );
 
-    /// @notice Stake was finalized, effectively counting for the PoS now
-    /// @param _amount total amount staked for that msg.sender
+    /// @notice Unstake tokens, moving them to releasing structure
+    /// @param _amount amount of tokens to be released
     /// @param _address address of msg.sender
-    event StakeFinalized(
-        uint256 indexed _amount,
-        address indexed _address
-    );
-
-    /// @notice Withdraw process has started, tokens will be freed after _maturationDate
-    /// @param _amount amount of tokens for that withdraw request
-    /// @param _address address of msg.sender
-    /// @param _maturationDate date when the withdraw can be finalized
-    event WithdrawStarted(
+    /// @param _maturationDate date when the tokens can be withdrew
+    event Unstake(
         uint256 indexed _amount,
         address indexed _address,
         uint256 indexed _maturationDate
@@ -100,7 +89,7 @@ interface Staking {
     /// @notice Withdraw process was finalized
     /// @param _amount amount of tokens withdrawn
     /// @param _address address of msg.sender
-    event WithdrawFinalized(
+    event Withdraw(
         uint256 indexed _amount,
         address indexed _address
     );
