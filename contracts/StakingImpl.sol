@@ -68,7 +68,7 @@ contract StakingImpl is Staking {
         MaturationStruct storage m = maturing[msg.sender];
 
         // check if there are mature coins to be staked
-        if (m.timestamp + timeToStake <= block.timestamp) {
+        if (m.timestamp.add(timeToStake) <= block.timestamp) {
             staked[msg.sender] = staked[msg.sender].add(m.amount);
             m.amount = 0;
         }
@@ -95,7 +95,7 @@ contract StakingImpl is Staking {
         emit Stake(
             m.amount,
             msg.sender,
-            block.timestamp + timeToStake
+            block.timestamp.add(timeToStake)
         );
     }
 
@@ -120,7 +120,7 @@ contract StakingImpl is Staking {
         emit Unstake(
             r.amount,
             msg.sender,
-            block.timestamp + timeToRelease
+            block.timestamp.add(timeToRelease)
         );
     }
 
