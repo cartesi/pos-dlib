@@ -155,7 +155,7 @@ contract StakingImpl is Staking {
         return maturing[_userAddress].timestamp.add(timeToStake);
     }
 
-    function getMaturingAmount(
+    function getMaturingBalance(
         address _userAddress
     )
     public
@@ -165,7 +165,7 @@ contract StakingImpl is Staking {
         return maturing[_userAddress].amount;
     }
 
-    function getReleasingAmount(
+    function getReleasingBalance(
         address _userAddress
     )
     public

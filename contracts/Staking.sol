@@ -41,13 +41,13 @@ interface Staking {
     function getReleasingTimestamp(address _userAddress) external view returns (uint256);
 
 
-    /// @notice Returns the amount of money to be deposited after finalization
+    /// @notice Returns the balance waiting/ready to be matured
     /// @return amount that will get staked after finalization
-    function getMaturingAmount(address _userAddress) external view  returns (uint256);
+    function getMaturingBalance(address _userAddress) external view  returns (uint256);
 
-    /// @notice Returns the amount of money to be withdrew after finalization
+    /// @notice Returns the balance waiting/ready to be released
     /// @return amount that will get withdrew after finalization
-    function getReleasingAmount(address _userAddress) external view  returns (uint256);
+    function getReleasingBalance(address _userAddress) external view  returns (uint256);
 
 
     /// @notice Deposit CTSI to be staked. The money will turn into staked
