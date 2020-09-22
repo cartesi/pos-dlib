@@ -35,11 +35,11 @@ contract StakingImpl is Staking {
     IERC20 private ctsi;
 
     uint256 timeToStake; // time it takes for deposited tokens to become staked.
-    uint256 timeToWithdraw; // time it takes from witdraw signal to tokens to be unlocked.
+    uint256 timeToRelease; // time it takes from witdraw signal to tokens to be unlocked.
 
-    mapping(address => uint256) stakedBalance; // amount of money being staked.
-    mapping(address => MaturationStruct) toBeStaked; // deposits waiting to be staked.
-    mapping(address => MaturationStruct) toWithdraw; // money waiting for withdraw.
+    mapping(address => uint256) staked; // amount of money being staked.
+    mapping(address => MaturationStruct) maturing; // deposits waiting to be staked.
+    mapping(address => MaturationStruct) releasing; // money waiting for withdraw.
 
     struct MaturationStruct {
         uint256 amount;
@@ -49,126 +49,140 @@ contract StakingImpl is Staking {
     /// @notice constructor
     /// @param _ctsiAddress address of compatible ERC20
     /// @param _timeToStake time it takes for deposited tokens to become staked.
-    /// @param _timeToWithdraw time it takes from witdraw to tokens being unlocked.
+    /// @param _timeToRelease time it takes from unstake to tokens being unlocked.
     constructor(
         address _ctsiAddress,
         uint256 _timeToStake,
-        uint256 _timeToWithdraw
+        uint256 _timeToRelease
     ) {
         ctsi = IERC20(_ctsiAddress);
         timeToStake = _timeToStake;
-        timeToWithdraw = _timeToWithdraw;
+        timeToRelease = _timeToRelease;
     }
 
-    function depositStake(uint256 _amount) public override {
-        // transfer stake to contract
-        // from: msg.sender
-        // to: this contract
-        // value: _amount
-        ctsi.transferFrom(msg.sender, address(this), _amount);
+    function stake(uint256 _amount) public override {
+        require(_amount > 0, "amount cant be zero");
 
-        toBeStaked[msg.sender].amount = toBeStaked[msg.sender].amount.add(_amount);
-        toBeStaked[msg.sender].timestamp = block.timestamp;
+        // pointers to releasing/maturing structs
+        MaturationStruct storage r = releasing[msg.sender];
+        MaturationStruct storage m = maturing[msg.sender];
 
-        emit StakeDeposited(
-            toBeStaked[msg.sender].amount,
+        // check if there are mature coins to be staked
+        if (m.timestamp + timeToStake <= block.timestamp) {
+            staked[msg.sender] = staked[msg.sender].add(m.amount);
+            m.amount = 0;
+        }
+
+        // first move tokens from releasing pool to maturing
+        // then transfer from wallet
+        if (r.amount >= _amount) {
+            r.amount = (r.amount).sub(_amount);
+            m.amount = (m.amount).add(_amount);
+        } else {
+            // transfer stake to contract
+            // from: msg.sender
+            // to: this contract
+            // value: _amount - releasing[msg.sender].amount
+            ctsi.transferFrom(msg.sender, address(this), _amount.sub(r.amount));
+
+            r.amount = 0;
+
+            m.amount = m.amount.add(_amount);
+        }
+
+        m.timestamp = block.timestamp;
+
+        emit Stake(
+            m.amount,
             msg.sender,
             block.timestamp + timeToStake
         );
     }
 
-    function finalizeStakes() public override {
-        require(
-            toBeStaked[msg.sender].amount != 0,
-            "No deposits to be staked"
-        );
+    function unstake(uint256 _amount) public override {
+        require(_amount > 0, "amount cant be zero");
 
-        require(
-            toBeStaked[msg.sender].timestamp.add(timeToStake) <= block.timestamp,
-            "Deposits are not ready to be staked"
-        );
+        // pointers to releasing/maturing structs
+        MaturationStruct storage r = releasing[msg.sender];
+        MaturationStruct storage m = maturing[msg.sender];
 
-        stakedBalance[msg.sender] = stakedBalance[msg.sender].add(toBeStaked[msg.sender].amount);
-        toBeStaked[msg.sender].amount = 0;
+        if (m.amount >= _amount) {
+            m.amount = (m.amount).sub(_amount);
+        } else {
+            // safemath.sub guarantees that _amount <= m.amount + staked amount
+            staked[msg.sender] = staked[msg.sender].sub(_amount.sub(m.amount));
+            m.amount = 0;
+        }
+        // update releasing amount
+        r.amount = (r.amount).add(_amount);
+        r.timestamp = block.timestamp;
 
-        emit StakeFinalized(toBeStaked[msg.sender].amount, msg.sender);
-    }
-
-    function startWithdraw(uint256 _amount) public override {
-        // SafeMath.sub() will revert if _amount > stakedBalance[msg.sender]
-        stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(_amount);
-
-        toWithdraw[msg.sender].amount = toWithdraw[msg.sender].amount.add(_amount);
-        toWithdraw[msg.sender].timestamp = block.timestamp;
-
-        emit WithdrawStarted(
-            toWithdraw[msg.sender].amount,
+        emit Unstake(
+            r.amount,
             msg.sender,
-            block.timestamp + timeToWithdraw
+            block.timestamp + timeToRelease
         );
     }
 
-    function finalizeWithdraws() public override {
-        uint256 withdrawAmount = toWithdraw[msg.sender].amount;
+    function withdraw(uint256 _amount) public override {
+        // pointer to releasing struct
+        MaturationStruct storage r = releasing[msg.sender];
+
+        require(_amount > 0, "amount cant be zero");
         require(
-            withdrawAmount != 0,
-            "No withdraws to be finalized"
+            r.timestamp.add(timeToRelease) <= block.timestamp,
+            "tokens are not yet ready to be released"
         );
 
-        require(
-            toWithdraw[msg.sender].timestamp.add(timeToWithdraw) <= block.timestamp,
-            "Withdraw is not ready to be finalized"
-        );
-
-        toWithdraw[msg.sender].amount = 0;
+        r.amount = (r.amount).sub(_amount, "not enough tokens waiting to be released;");
 
         // withdraw tokens
         // from: this contract
         // to: msg.sender
         // value: bet total withdraw value on toWithdraw
-        ctsi.transfer(msg.sender, withdrawAmount);
-        emit WithdrawFinalized(withdrawAmount, msg.sender);
+        ctsi.transfer(msg.sender, _amount);
+        emit Withdraw(_amount, msg.sender);
     }
 
     // getters
-    function getFinalizeDepositTimestamp(
+    function getMaturingTimestamp(
         address _userAddress
     )
     public
     view override
     returns (uint256)
     {
-        return toBeStaked[_userAddress].timestamp.add(timeToStake);
+        return maturing[_userAddress].timestamp.add(timeToStake);
     }
 
-    function getUnfinalizedDepositAmount(
+    function getMaturingAmount(
         address _userAddress
     )
     public
     view override
     returns (uint256)
     {
-        return toBeStaked[_userAddress].amount;
+        return maturing[_userAddress].amount;
     }
 
-    function getUnfinalizedWithdrawAmount(
+    function getReleasingAmount(
         address _userAddress
     )
     public
     view override
     returns (uint256)
     {
-        return toWithdraw[_userAddress].amount;
+        return releasing[_userAddress].amount;
     }
 
-    function getFinalizeWithdrawTimestamp(
+    function getReleasingTimestamp(
         address _userAddress
     )
     public
     view override
     returns (uint256)
     {
-        return toWithdraw[_userAddress].timestamp.add(timeToWithdraw);
+        return releasing[_userAddress].timestamp.add(timeToRelease);
     }
 
     function getStakedBalance(address _userAddress)
@@ -176,6 +190,13 @@ contract StakingImpl is Staking {
     view override
     returns (uint256)
     {
-        return stakedBalance[_userAddress];
+        MaturationStruct storage m = maturing[_userAddress];
+
+        // if there are mature deposits, treat them as staked
+        if (m.timestamp.add(timeToStake) <= block.timestamp) {
+            return staked[_userAddress].add(m.amount);
+        }
+
+        return staked[_userAddress];
     }
 }
