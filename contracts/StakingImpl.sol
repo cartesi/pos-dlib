@@ -77,19 +77,17 @@ contract StakingImpl is Staking {
         // then transfer from wallet
         if (r.amount >= _amount) {
             r.amount = (r.amount).sub(_amount);
-            m.amount = (m.amount).add(_amount);
         } else {
             // transfer stake to contract
             // from: msg.sender
             // to: this contract
             // value: _amount - releasing[msg.sender].amount
             ctsi.transferFrom(msg.sender, address(this), _amount.sub(r.amount));
-
             r.amount = 0;
 
-            m.amount = m.amount.add(_amount);
         }
 
+        m.amount = (m.amount).add(_amount);
         m.timestamp = block.timestamp;
 
         emit Stake(
