@@ -1,6 +1,6 @@
 {
   "name": "@cartesi/pos",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "description": "CTSI Proof of Stake",
   "directories": {
     "test": "test"
@@ -8,12 +8,12 @@
   "dependencies": {
     "@cartesi/token": "^1.1.0",
     "@cartesi/util": "^0.4.2",
-    "@openzeppelin/contracts": "3.1.0-solc-0.7",
+    "@openzeppelin/contracts": "3.2.1-solc-0.7",
     "commander": "^6.1.0"
   },
   "devDependencies": {
     "@nodefactory/buidler-typechain": "^0.2.0",
-    "@nomiclabs/buidler": "^1.4.6",
+    "@nomiclabs/buidler": "^1.4.7",
     "@nomiclabs/buidler-ethers": "^2.0.0",
     "@nomiclabs/buidler-waffle": "^2.0.0",
     "@typechain/ethers-v5": "^1.0.0",

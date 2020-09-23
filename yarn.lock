@@ -697,10 +697,10 @@
     "@types/sinon-chai" "^3.2.3"
     "@types/web3" "1.0.19"
 
-"@nomiclabs/buidler@^1.4.6":
-  version "1.4.6"
-  resolved "https://registry.yarnpkg.com/@nomiclabs/buidler/-/buidler-1.4.6.tgz#7507ea5418b7d4ce1ff1ae7dea9f8bac67c38741"
-  integrity sha512-BF3JL5EDnGIkUwVUaPlgEYGWSeTWaF89VrglKvIYDLdnSQ5USAcf/fuMaJJaEufwyQQGTorSJCXfTQAcFaToCg==
+"@nomiclabs/buidler@^1.4.7":
+  version "1.4.7"
+  resolved "https://registry.yarnpkg.com/@nomiclabs/buidler/-/buidler-1.4.7.tgz#88436ba53e0e830d37c16601df59da4dbffde524"
+  integrity sha512-TyJKwKyKwu82uYPneqLf5HKFr96QX7cHDT7O7Ro93zmk1b84+EH9tn3zNIO/+96DMGISp8cCRwZhct89OwblRA==
   dependencies:
     "@nomiclabs/ethereumjs-vm" "^4.1.1"
     "@sentry/node" "^5.18.1"
@@ -767,15 +767,15 @@
     safe-buffer "^5.1.1"
     util.promisify "^1.0.0"
 
-"@openzeppelin/contracts@3.1.0-solc-0.7":
-  version "3.1.0-solc-0.7"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.1.0-solc-0.7.tgz#c6c937d402abaefd2d541178e4c0b1131bf06b9f"
-  integrity sha512-b3DjBHKn74XC9spvQEmn6t7dRZRN7pkeZ9IlDzkMgib09FUE3CDpKmtFCIUDYSLd8lkgSmB9Ig7Chctg8GWUiA==
-
 "@openzeppelin/contracts@3.2.0-solc-0.7":
   version "3.2.0-solc-0.7"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.2.0-solc-0.7.tgz#507d3a04ab65d19449b3b9659b3b8b75014afbbf"
   integrity sha512-E9cb+9o1TOecuIix9hzGz+NVIfLCUiQXkDH4lmgUdGOTQLV2o9c8M13U1naahtmjkffTBAjLNDSCy46b2jeDpA==
+
+"@openzeppelin/contracts@3.2.1-solc-0.7":
+  version "3.2.1-solc-0.7"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.2.1-solc-0.7.tgz#067a60918b935d4733208edb3d7e35cd1d51026b"
+  integrity sha512-VfKZE9L2HNaZVBR7l5yHbRmap3EiVw9F5iVXRRDdgfnA9vQ1yFanrs0VYmdo2VIXC+EsI9wPPYZY9Ic7/qDBdw==
 
 "@openzeppelin/contracts@^2.5.0":
   version "2.5.1"

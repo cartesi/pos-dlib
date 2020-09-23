@@ -13,4 +13,5 @@ test/*/
 *.abi
 /out
 build
+.env
 .venv
