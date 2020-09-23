@@ -1,8 +1,7 @@
-artifacts
 cache
 contracts.json
 coverage*
-deployments
+deployments/localhost
 pos/target
 node_modules
 src/contracts
