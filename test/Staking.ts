@@ -20,13 +20,10 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { expect, use } from "chai";
-import {
-    deployments,
-    ethers,
-} from "@nomiclabs/buidler";
+import { deployments, ethers } from "@nomiclabs/buidler";
 import {
     deployMockContract,
-    MockContract,
+    MockContract
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
@@ -42,34 +39,32 @@ describe("Staking", async () => {
     const MATURATION = 5 * DAY + 1;
 
     let signer: Signer;
-    let alice: Signer;
-    let bob: Signer;
-
-    let aliceAddress: string;
 
     let staking: Staking;
     let mockToken: MockContract;
 
     const deployStaking = async ({
-        ctsi,
+        ctsi
     }: {
         ctsi?: string;
     } = {}): Promise<Staking> => {
-        const ctsiAddress = ctsi || (await deployments.get("CartesiToken")).address;
+        const ctsiAddress =
+            ctsi || (await deployments.get("CartesiToken")).address;
         const stakingFactory = await ethers.getContractFactory("StakingImpl");
-        const staking = await stakingFactory.deploy(ctsiAddress, 5 * DAY, 5 * DAY);
+        const staking = await stakingFactory.deploy(
+            ctsiAddress,
+            5 * DAY,
+            5 * DAY
+        );
         await staking.deployed();
         return staking as Staking;
     };
 
     beforeEach(async () => {
-        //await deployments.fixture();
+        [signer] = await ethers.getSigners();
 
-        [signer, alice, bob] = await ethers.getSigners();
-        aliceAddress = await alice.getAddress();
         const CartesiToken = await deployments.getArtifact("CartesiToken");
         mockToken = await deployMockContract(signer, CartesiToken.abi);
-
         staking = await deployStaking({ ctsi: mockToken.address });
     });
 
@@ -96,7 +91,7 @@ describe("Staking", async () => {
         await staking.stake(toBeDeposited);
 
         expect(
-            await staking.getStakedBalance(aliceAddress),
+            await staking.getStakedBalance(await signer.getAddress()),
             "staked Balance should still be zero, deposit not finalized"
         ).to.equal(0);
     });
@@ -124,10 +119,10 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
 
         await staking.stake(toBeDeposited);
-        await advanceTime(signer.provider, MATURATION/2);
+        await advanceTime(signer.provider, MATURATION / 2);
         await staking.stake(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION/3);
+        await advanceTime(signer.provider, MATURATION / 3);
         await advanceBlock(signer.provider);
 
         expect(
@@ -142,7 +137,6 @@ describe("Staking", async () => {
             await staking.getStakedBalance(await signer.getAddress()),
             "staked balance should match finalized deposit"
         ).to.equal(2 * toBeDeposited);
-
     });
 
     it("multiple deposit should mature at once", async () => {
@@ -184,7 +178,6 @@ describe("Staking", async () => {
     });
 
     it("withdraw should revert if tokens are not ready to be released", async () => {
-
         let toBeDeposited = 5;
         await mockToken.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
@@ -198,18 +191,23 @@ describe("Staking", async () => {
             staking.withdraw(toBeDeposited),
             "should revert if tokens are not ready to be released"
         ).to.be.revertedWith("tokens are not yet ready to be released");
-
     });
 
-    it("unstaked should revert if amount is zero", async () => {
+    it("unstake should revert if amount is zero", async () => {
         await expect(
             staking.unstake(0),
             "amount cant be zero"
         ).to.be.revertedWith("amount cant be zero");
     });
 
-    it("unstaked should revert if amount is too big", async () => {
+    it("unstake should revert if amount is too big", async () => {
         let toBeDeposited = 5;
+
+        await expect(
+            staking.unstake(1),
+            "not enough tokens to unstake"
+        ).to.be.revertedWith("revert SafeMath: subtraction overflow");
+
         await mockToken.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
@@ -220,105 +218,170 @@ describe("Staking", async () => {
             staking.unstake(toBeDeposited + 1),
             "not enough tokens to unstake"
         ).to.be.revertedWith("revert SafeMath: subtraction overflow");
-
-
     });
 
-    //it("finalize withdraws should revert if amount is zero", async () => {
-    //    let toBeDeposited = 5;
-    //    await mockToken.mock.transferFrom.returns(true);
-    //    await staking.depositStake(toBeDeposited);
+    it("unstake should move funds from m.amount first", async () => {
+        let toBeDeposited = 5;
 
-    //    await advanceTime(signer.provider, MATURATION);
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
 
-    //    await staking.finalizeStakes();
+        await advanceTime(signer.provider, MATURATION);
+        await advanceBlock(signer.provider);
 
-    //    await mockToken.mock.transfer.returns(true);
+        await staking.stake(toBeDeposited);
 
-    //    await staking.startWithdraw(toBeDeposited);
+        await staking.unstake(toBeDeposited);
 
-    //    await advanceTime(signer.provider, MATURATION);
+        expect(
+            await staking.getStakedBalance(await signer.getAddress()),
+            "staked balance should include all 3 deposits"
+        ).to.equal(toBeDeposited);
 
-    //    await expect(
-    //        staking.finalizeWithdraws(),
-    //        "Finalizing withdraw should emit event"
-    //    )
-    //        .to.emit(staking, "WithdrawFinalized")
-    //        .withArgs(toBeDeposited, signer.getAddress);
+        await staking.unstake(toBeDeposited);
 
-    //    await expect(
-    //        staking.finalizeWithdraws(),
-    //        "No withdraws to be finalized"
-    //    ).to.be.revertedWith("No withdraws to be finalized");
-    //});
+        expect(
+            await staking.getStakedBalance(await signer.getAddress()),
+            "staked balance should include all 3 deposits"
+        ).to.equal(0);
+    });
 
-    //it("new withdraws should extend maturation deadline", async () => {
-    //    let toBeDeposited = 5;
-    //    await mockToken.mock.transferFrom.returns(true);
-    //    await staking.depositStake(2 * toBeDeposited);
+    it("unstake should emit event", async () => {
+        let toBeDeposited = 5;
 
-    //    await advanceTime(signer.provider, MATURATION);
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
 
-    //    await staking.finalizeStakes();
+        await expect(
+            staking.unstake(toBeDeposited),
+            "Unstake should emit event"
+        ).to.emit(staking, "Unstake");
+    });
 
-    //    await mockToken.mock.transfer.returns(true);
+    it("withdraw should emit event", async () => {
+        let toBeDeposited = 5;
 
-    //    await staking.startWithdraw(toBeDeposited);
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
+        await staking.unstake(toBeDeposited);
 
-    //    await advanceTime(signer.provider, MATURATION);
+        await advanceTime(signer.provider, MATURATION);
+        await advanceBlock(signer.provider);
 
-    //    await staking.startWithdraw(toBeDeposited);
+        await mockToken.mock.transfer.returns(true);
 
-    //    await expect(
-    //        staking.finalizeWithdraws(),
-    //        "Withdraw is not mature yet"
-    //    ).to.be.revertedWith("Withdraw is not ready to be finalized");
+        await expect(
+            staking.withdraw(toBeDeposited),
+            "Deposting stake should emit event"
+        ).to.emit(staking, "Withdraw");
+    });
 
-    //    await advanceTime(signer.provider, MATURATION);
+    it("maturing timestamp getter", async () => {
+        let toBeDeposited = 5;
+        var now = new Date().getSeconds(); // time in ms
 
-    //    await expect(
-    //        staking.finalizeWithdraws(),
-    //        "Finalizing withdraw should emit event"
-    //    )
-    //        .to.emit(staking, "WithdrawFinalized")
-    //        .withArgs(toBeDeposited * 2, signer.getAddress);
-    //});
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
 
-    //it("finalize multiple withdraws should work", async () => {
-    //    let toBeDeposited = 5;
-    //    await mockToken.mock.transferFrom.returns(true);
+        var maturing = await staking.getMaturingTimestamp(
+            await signer.getAddress()
+        );
 
-    //    await staking.depositStake(toBeDeposited);
-    //    await staking.depositStake(toBeDeposited);
-    //    await staking.depositStake(toBeDeposited);
-    //    await staking.depositStake(toBeDeposited);
+        expect(
+            maturing,
+            "maturing timestamp should be bigger than now"
+        ).to.be.above(now);
+    });
 
-    //    await advanceTime(signer.provider, MATURATION);
+    it("maturing balance getter", async () => {
+        let toBeDeposited = 5;
 
-    //    await staking.finalizeStakes();
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
 
-    //    expect(
-    //        await staking.getStakedBalance(await signer.getAddress()),
-    //        "staked balance should equivalent to deposits"
-    //    ).to.equal(toBeDeposited * 4);
+        expect(
+            await staking.getMaturingBalance(await signer.getAddress()),
+            "maturing balance should be toBeDeposit"
+        ).to.equal(toBeDeposited);
 
-    //    await mockToken.mock.transfer.returns(true);
-    //    await staking.startWithdraw(toBeDeposited);
-    //    await staking.startWithdraw(2 * toBeDeposited);
-    //    await staking.startWithdraw(toBeDeposited);
+        await advanceTime(signer.provider, MATURATION);
+        await advanceBlock(signer.provider);
 
-    //    await advanceTime(signer.provider, MATURATION);
+        expect(
+            await staking.getMaturingBalance(await signer.getAddress()),
+            "maturing balance shouldnt count matured balance"
+        ).to.equal(0);
 
-    //    await expect(
-    //        staking.finalizeWithdraws(),
-    //        "Finalizing withdraw should emit event"
-    //    )
-    //        .to.emit(staking, "WithdrawFinalized")
-    //        .withArgs(toBeDeposited * 4, signer.getAddress);
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
 
-    //    expect(
-    //        await staking.getStakedBalance(await signer.getAddress()),
-    //        "staked balance should be 0 after all withdraws are finalized"
-    //    ).to.equal(0);
-    //});
+        expect(
+            await staking.getMaturingBalance(await signer.getAddress()),
+            "maturing balance should be toBeDeposit after new deposit"
+        ).to.equal(toBeDeposited);
+    });
+
+    it("releasing timestamp getter", async () => {
+        let toBeDeposited = 5;
+        var now = new Date().getSeconds(); // time in ms
+
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
+        await staking.unstake(toBeDeposited);
+
+        var maturing = await staking.getReleasingTimestamp(
+            await signer.getAddress()
+        );
+
+        expect(
+            maturing,
+            "releasing timestamp should be bigger than now"
+        ).to.be.above(now);
+    });
+
+    it("releasing balance getter", async () => {
+        let toBeDeposited = 5;
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "realeasing balance should be 0"
+        ).to.equal(0);
+
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(2 * toBeDeposited);
+        await staking.unstake(toBeDeposited);
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "realeasing balance should be toBeDeposit"
+        ).to.equal(toBeDeposited);
+
+        await staking.unstake(toBeDeposited);
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "realeasing balance should be 2 * toBeDeposit"
+        ).to.equal(2 * toBeDeposited);
+
+        await advanceTime(signer.provider, MATURATION);
+        await advanceBlock(signer.provider);
+
+        await mockToken.mock.transfer.returns(true);
+
+        await staking.withdraw(toBeDeposited);
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "realeasing balance should be toBeDeposit after first withdraw"
+        ).to.equal(toBeDeposited);
+
+        await mockToken.mock.transfer.returns(true);
+
+        await staking.withdraw(toBeDeposited);
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "realeasing balance should be 0 after first withdraw"
+        ).to.equal(0);
+    });
 });
