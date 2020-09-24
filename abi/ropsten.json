@@ -3,7 +3,7 @@
   "chainId": "3",
   "contracts": {
     "Lottery": {
-      "address": "0x1801CA814d200E3b890Ad1A05FB2e805D99e20e5",
+      "address": "0x2885edBf89E949f409E8D0BF6d44Da4109C9e8a1",
       "abi": [
         {
           "anonymous": false,
@@ -286,7 +286,7 @@
       ]
     },
     "PoS": {
-      "address": "0xCC075E3e753f5a269781e512A925f9D5059B41D2",
+      "address": "0xE30F4265274DFaD8118FAd2F7315dd95166E9e91",
       "abi": [
         {
           "anonymous": false,
@@ -635,7 +635,7 @@
       ]
     },
     "PrizeManager": {
-      "address": "0xa6Cef12Edeb185DA176a964aCaC8CD92BD4E3339",
+      "address": "0xdB973FEC327153d797E430be61A3B99f32319892",
       "abi": [
         {
           "inputs": [
@@ -734,7 +734,7 @@
       ]
     },
     "StakingImpl": {
-      "address": "0xAc301c9CD929bBC333BB47cf12802B5045A31820",
+      "address": "0xa5E388D70A4C2e1876CcF17E6c51aeE16dD343c6",
       "abi": [
         {
           "inputs": [
@@ -750,7 +750,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "_timeToWithdraw",
+              "name": "_timeToRelease",
               "type": "uint256"
             }
           ],
@@ -779,45 +779,7 @@
               "type": "uint256"
             }
           ],
-          "name": "StakeDeposited",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "_address",
-              "type": "address"
-            }
-          ],
-          "name": "StakeFinalized",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "_address",
-              "type": "address"
-            }
-          ],
-          "name": "WithdrawFinalized",
+          "name": "Stake",
           "type": "event"
         },
         {
@@ -842,35 +804,27 @@
               "type": "uint256"
             }
           ],
-          "name": "WithdrawStarted",
+          "name": "Unstake",
           "type": "event"
         },
         {
+          "anonymous": false,
           "inputs": [
             {
+              "indexed": true,
               "internalType": "uint256",
               "name": "_amount",
               "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_address",
+              "type": "address"
             }
           ],
-          "name": "depositStake",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "finalizeStakes",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "finalizeWithdraws",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
+          "name": "Withdraw",
+          "type": "event"
         },
         {
           "inputs": [
@@ -880,7 +834,7 @@
               "type": "address"
             }
           ],
-          "name": "getFinalizeDepositTimestamp",
+          "name": "getMaturingBalance",
           "outputs": [
             {
               "internalType": "uint256",
@@ -899,7 +853,45 @@
               "type": "address"
             }
           ],
-          "name": "getFinalizeWithdrawTimestamp",
+          "name": "getMaturingTimestamp",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_userAddress",
+              "type": "address"
+            }
+          ],
+          "name": "getReleasingBalance",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_userAddress",
+              "type": "address"
+            }
+          ],
+          "name": "getReleasingTimestamp",
           "outputs": [
             {
               "internalType": "uint256",
@@ -932,39 +924,14 @@
         {
           "inputs": [
             {
-              "internalType": "address",
-              "name": "_userAddress",
-              "type": "address"
-            }
-          ],
-          "name": "getUnfinalizedDepositAmount",
-          "outputs": [
-            {
               "internalType": "uint256",
-              "name": "",
+              "name": "_amount",
               "type": "uint256"
             }
           ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_userAddress",
-              "type": "address"
-            }
-          ],
-          "name": "getUnfinalizedWithdrawAmount",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
+          "name": "stake",
+          "outputs": [],
+          "stateMutability": "nonpayable",
           "type": "function"
         },
         {
@@ -975,7 +942,20 @@
               "type": "uint256"
             }
           ],
-          "name": "startWithdraw",
+          "name": "unstake",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "withdraw",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
