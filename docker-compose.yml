@@ -2,7 +2,7 @@ version: '3'
 services:
   signer:
     image: cartesi/ethsigner:latest
-    command: "--chain-id=4 --downstream-http-host=rinkeby.infura.io --downstream-http-port=443 --http-cors-origins=\"https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${INFURA_ID:?INFURA_ID undefined, please set up an application at Infura}"
+    command: "--chain-id=${CHAIN_ID:-4} --downstream-http-host=${CHAIN_NAME:-rinkeby}.infura.io --downstream-http-port=443 --http-cors-origins=\"https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${INFURA_ID:?INFURA_ID undefined, please set up an application at Infura}"
     ports:
       - 8545:8545
   
@@ -12,7 +12,7 @@ services:
     environment:
       RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info,descartes=trace
       WEB3_PROVIDER_URI: http://signer:8545
-      CHAIN_NAME: rinkeby
+      CHAIN_NAME: ${CHAIN_NAME:-rinkeby}
       QUERY_PORT: 3001
       ETHEREUM_HOST: signer
       ETHEREUM_PORT: 8545
