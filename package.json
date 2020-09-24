@@ -46,12 +46,12 @@
     "deploy": "run-s deploy:development",
     "deploy:testnet": "run-s deploy:ropsten deploy:rinkeby deploy:kovan deploy:goerli deploy:matic_testnet deploy:bsc_testnet",
     "deploy:development": "buidler deploy --network localhost",
-    "deploy:ropsten": "buidler deploy --network ropsten",
-    "deploy:rinkeby": "buidler deploy --network rinkeby",
-    "deploy:kovan": "buidler deploy --network kovan",
-    "deploy:goerli": "buidler deploy --network goerli",
-    "deploy:matic_testnet": "buidler deploy --network matic_testnet",
-    "deploy:bsc_testnet": "buidler deploy --network bsc_testnet",
+    "deploy:ropsten": "buidler deploy --network ropsten --export abi/ropsten.json",
+    "deploy:rinkeby": "buidler deploy --network rinkeby --export abi/rinkeby.json",
+    "deploy:kovan": "buidler deploy --network kovan --export abi/kovan.json",
+    "deploy:goerli": "buidler deploy --network goerli --export abi/goerli.json",
+    "deploy:matic_testnet": "buidler deploy --network matic_testnet --export abi/matic_testnet.json",
+    "deploy:bsc_testnet": "buidler deploy --network bsc_testnet --export abi/bsc_testnet.json",
     "prepack": "run-s clean deploy:testnet",
     "start": "buidler node"
   },
@@ -75,6 +75,7 @@
     "url": "git+https://github.com/cartesi/pos-dlib.git"
   },
   "files": [
+    "abi",
     "artifacts",
     "contracts",
     "deployments"

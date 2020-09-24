@@ -2,6 +2,7 @@ cache
 contracts.json
 coverage*
 deployments/localhost
+deployments/*/solcInputs/*.json
 pos/target
 node_modules
 src/contracts

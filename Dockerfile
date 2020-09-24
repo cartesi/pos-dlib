@@ -49,12 +49,17 @@ WORKDIR /opt/cartesi
 COPY --from=build /usr/local/cargo/bin/pos $BASE/bin/pos
 COPY --from=build /usr/local/cargo/bin/wagyu /usr/local/bin
 
+# Copy onchain deployments and artifacts
+COPY artifacts $BASE/share/blockchain/artifacts
+COPY deployments $BASE/share/blockchain/deployments
+COPY node_modules/@cartesi $BASE/share/blockchain/node_modules/@cartesi
+
 # Copy dispatcher scripts
 COPY ./dispatcher-entrypoint.sh $BASE/bin/
 COPY ./config-template.yaml $BASE/etc/pos/
 RUN mkdir -p $BASE/srv/pos
 
-ENV ETHEREUM_HOST "ganache"
+ENV ETHEREUM_HOST "localhost"
 ENV ETHEREUM_PORT "8545"
 ENV ETHEREUM_TIMEOUT "120s"
 
