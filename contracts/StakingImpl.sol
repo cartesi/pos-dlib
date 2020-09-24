@@ -160,7 +160,13 @@ contract StakingImpl is Staking {
     view override
     returns (uint256)
     {
-        return maturing[_userAddress].amount;
+        MaturationStruct storage m = maturing[_userAddress];
+
+        if (m.timestamp.add(timeToStake) <= block.timestamp) {
+            return 0;
+        }
+
+        return m.amount;
     }
 
     function getReleasingBalance(
