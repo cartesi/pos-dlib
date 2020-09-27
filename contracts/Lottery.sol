@@ -127,6 +127,11 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     function canWin(uint256 _index, address _user, uint256 _weight) public view returns (bool) {
         LotteryCtx storage lot = instance[_index];
 
+        // cannot win if lottery goal hasnt been decided yet
+        if (block.number < lot.currentGoalBlockNumber) {
+            return false;
+        }
+
         uint256 timePassedMicroSeconds = ((block.timestamp).sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
 
         // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
