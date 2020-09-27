@@ -31,8 +31,6 @@ import "@cartesi/util/contracts/CartesiMath.sol";
 import "@cartesi/util/contracts/InstantiatorImpl.sol";
 import "@cartesi/util/contracts/Decorated.sol";
 
-import "./PrizeManager.sol";
-
 contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     using SafeMath for uint256;
 
