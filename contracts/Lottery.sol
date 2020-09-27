@@ -67,7 +67,11 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         address _posManagerAddress
     ) public returns (uint256)
     {
-        require(_desiredDrawTimeInterval > 30, "Desired draw time interval has to be bigger than 30 seconds");
+        require(
+            _desiredDrawTimeInterval > 30,
+            "Desired draw time interval has to be bigger than 30 seconds"
+        );
+
         instance[currentIndex].difficulty = 1000000;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
         instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
@@ -102,13 +106,11 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         require(_weight > 0, "Caller must have at least one staked token");
         require(msg.sender == lot.posManagerAddress, "Function can only be called by pos address");
 
-        uint256 timePassedMicroSeconds = ((block.timestamp).sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
-
         if (canWin(_index, _user, _weight)) {
             emit RoundClaimed(
                 _user,
                 lot.roundCount,
-                timePassedMicroSeconds,
+                getTimeSinceLastDraw(_index),
                 lot.difficulty
             );
 
@@ -130,11 +132,14 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
             return false;
         }
 
-        uint256 timePassedMicroSeconds = ((block.timestamp).sub(lot.currentDrawStartTime)).mul(1000000); // time since draw started times 1e6 (microseconds)
+        uint256 time = getTimeSinceLastDraw(_index);
 
         // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
         // new goal cannot be in the past, otherwise user could "choose it"
-        return (block.number).sub(lot.currentGoalBlockNumber) > 220 || (_weight.mul(timePassedMicroSeconds)) > lot.difficulty.mul((256000000 - getLogOfRandom(_index, _user)));
+        return (
+            (block.number).sub(lot.currentGoalBlockNumber) > 220 ||
+            (_weight.mul(time)) > lot.difficulty.mul((256000000 - getLogOfRandom(_index, _user)))
+        );
     }
 
     /// @notice Finish Round, declare winner and ajust difficulty
@@ -180,6 +185,16 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         }
 
         return _oldDifficulty;
+    }
+
+    /// @notice Returns time since last draw started, in microseconds
+    /// @param _index the index of the instance of lottery to be interact with
+    /// @return microseconds passed since last draw started
+    function getTimeSinceLastDraw(uint256 _index) public view returns(uint256) {
+        LotteryCtx storage lot = instance[_index];
+
+        // time since draw started times 1e6 (microseconds)
+        return ((block.timestamp).sub(lot.currentDrawStartTime)).mul(1000000);
     }
 
     function getState(uint256 _index, address _user)
