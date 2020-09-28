@@ -21,10 +21,12 @@
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 import { program } from "commander";
+import { BigNumber } from "ethers";
 import { PoS } from "../src/contracts/pos/PoS";
+import { CartesiToken } from "../src/contracts/token/CartesiToken";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
-const { deployments, ethers, getNamedAccounts } = bre;
+const { deployments, ethers } = bre;
 
 async function main() {
     const [deployer] = await ethers.getSigners();
@@ -40,8 +42,11 @@ async function main() {
     const drawInterval = program.drawInterval;
     const diffAdjustment = program.diffAdjustment;
     const pos = (await ethers.getContractAt("PoS", PoS.address)) as PoS;
-    const ctsi = new ethers.Contract(CartesiToken.address, CartesiToken.abi, deployer.provider);
-    const ctsi_deployer = ctsi.connect(deployer);
+    const ctsi = (await ethers.getContractAt(
+        CartesiToken.abi,
+        CartesiToken.address,
+        deployer
+    )) as CartesiToken;
 
     const pos_tx = await pos.instantiate(
         StakingImpl.address,
@@ -53,7 +58,10 @@ async function main() {
     );
     console.log(`PoS created: ${pos_tx.hash}`);
 
-    const ctsi_tx = await ctsi_deployer.transfer(PrizeManager.address, 250000000);
+    const ctsi_tx = await ctsi.transfer(
+        PrizeManager.address,
+        BigNumber.from("25000000000000000000")
+    );
     console.log(`Transfer to PrizeManager: ${ctsi_tx.hash}`);
 }
 
