@@ -110,7 +110,7 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
             emit RoundClaimed(
                 _user,
                 lot.roundCount,
-                getTimeSinceLastDraw(_index),
+                getMicrosecondsSinceLastDraw(_index),
                 lot.difficulty
             );
 
@@ -132,7 +132,7 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
             return false;
         }
 
-        uint256 time = getTimeSinceLastDraw(_index);
+        uint256 time = getMicrosecondsSinceLastDraw(_index);
 
         // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
         // new goal cannot be in the past, otherwise user could "choose it"
@@ -190,7 +190,7 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     /// @notice Returns time since last draw started, in microseconds
     /// @param _index the index of the instance of lottery to be interact with
     /// @return microseconds passed since last draw started
-    function getTimeSinceLastDraw(uint256 _index) public view returns(uint256) {
+    function getMicrosecondsSinceLastDraw(uint256 _index) public view returns(uint256) {
         LotteryCtx storage lot = instance[_index];
 
         // time since draw started times 1e6 (microseconds)
