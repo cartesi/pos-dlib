@@ -3,7 +3,7 @@
   "chainId": "97",
   "contracts": {
     "Lottery": {
-      "address": "0x22189c430844c8cC84224A18aa8B5Cbd354a234f",
+      "address": "0x9E8975270EdEAD10B69129C71DEF097920DF0042",
       "abi": [
         {
           "anonymous": false,
@@ -118,6 +118,25 @@
           "name": "deactivate",
           "outputs": [],
           "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getMicrosecondsSinceLastDraw",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
           "type": "function"
         },
         {
@@ -286,7 +305,7 @@
       ]
     },
     "PoS": {
-      "address": "0x995ff7313259e65BD9dd3Eb9Db5bfE4A810E3bfc",
+      "address": "0x7584B53DFd2011AF38E3d2bE982036C988553D7a",
       "abi": [
         {
           "anonymous": false,
@@ -635,7 +654,7 @@
       ]
     },
     "PrizeManager": {
-      "address": "0x2e8777c80C6b31e54CA065f3c8D5A70f203fD7EC",
+      "address": "0xb2DFFc8C33e6e21eE5F01e9db8dF292b0Cd34b05",
       "abi": [
         {
           "inputs": [
