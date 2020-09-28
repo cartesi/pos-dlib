@@ -1,7 +1,6 @@
-# pos-dlib
-Proof of Stake DLib
+# PoS DLib - Proof of Stake DLib
 
-This repository will hold the main components to chose a random participant based on Proof of Stake, meaning that the probability to be chosen at random is proportional to the amount of tokens held by the participand.
+This repository will hold the main components to choose a random participant based on Proof of Stake, meaning that the probability to be chosen at random is proportional to the amount of tokens held by the participant.
 
 # Selection process
 
@@ -16,7 +15,7 @@ After the hash `H` of the block is available for random number generation, each 
 The first user to call such claim function is the one officially selected.
 These random times being different for each user mitigates the problem of race conditions.
 
-- We denote by `T_i` the time interval (countig from the last selection) after which the user `i` can claim to be the winer.
+- We denote by `T_i` the time interval (counting from the last selection) after which the user `i` can claim to be the winner.
 - We write `a_i` and `b_i` for the address and balance of user `i` respectively
 - Let `H` denote the hash which will be used as source of randomness
 - Let `Y_i = hash(a_i, H)`, which will be a random number specific to user `i`
@@ -43,9 +42,18 @@ More precisely
 Observing that the `T_i`'s are independent of one another, their minimum `T = min{T_i}` is also an exponential random variable with parameter given by `b/difficulty`, where `b` is the total balance of all active stakers `b = sum(b_1, b_2...)`.
 This means that the average time for a block to appear is given by `difficulty/b`, so in other words, everytime the actively staked balance of all users change by a factor, the difficulty has to adapt by the same amount in order to regulate the expected interval between selections.
 
-# Running locally
+# Running locally (private net)
 
 ```
-npx buidler node --port 7454
+yarn
+npx buidler node --port 7545
 docker-compose -f docker-compose-test.yml -p alice up
+```
+
+# Running locally (testnet)
+
+```
+yarn
+docker build . -t cartesi/pos
+INFURA_ID=<your_infura_id_here> CHAIN_NAME=ropsten CHAIN_ID=3 docker-compose up
 ```
