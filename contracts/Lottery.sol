@@ -128,7 +128,7 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         LotteryCtx storage lot = instance[_index];
 
         // cannot win if lottery goal hasnt been decided yet
-        if (block.number < lot.currentGoalBlockNumber) {
+        if (block.number <= lot.currentGoalBlockNumber) {
             return false;
         }
 
