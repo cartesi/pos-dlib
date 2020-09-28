@@ -20,36 +20,64 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
+import { program } from "commander";
+import { BigNumber } from "ethers";
 import { PoS } from "../src/contracts/pos/PoS";
-import { Staking } from "../src/contracts/pos/Staking";
+import { CartesiToken } from "../src/contracts/token/CartesiToken";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
-const { deployments, ethers, getNamedAccounts } = bre;
+const { deployments, ethers } = bre;
 
 async function main() {
-    const { alice } = await getNamedAccounts();
-    const PoS = await deployments.get("PoS");
-    const StakingImp = await deployments.get("StakingImpl");
+    const [deployer] = await ethers.getSigners();
+    const {
+        Lottery,
+        PoS,
+        PrizeManager,
+        StakingImpl,
+        WorkerAuthManagerImpl,
+        CartesiToken
+    } = await deployments.all();
 
-    const staking = (await ethers.getContractAt(
-        "StakingImpl",
-        StakingImp.address
-    )) as Staking;
+    const drawInterval = program.drawInterval;
+    const diffAdjustment = program.diffAdjustment;
     const pos = (await ethers.getContractAt("PoS", PoS.address)) as PoS;
+    const ctsi = (await ethers.getContractAt(
+        CartesiToken.abi,
+        CartesiToken.address,
+        deployer
+    )) as CartesiToken;
 
-    console.log(`PoS: ${PoS.address}`);
-    const staked = await staking.getStakedBalance(alice);
-    console.log(`Staked Balance of ${alice}: ${staked}`);
+    const pos_tx = await pos.instantiate(
+        StakingImpl.address,
+        Lottery.address,
+        WorkerAuthManagerImpl.address,
+        diffAdjustment,
+        drawInterval,
+        PrizeManager.address
+    );
+    console.log(`PoS created: ${pos_tx.hash}`);
 
-    const currentIndex = await pos.currentIndex();
-    console.log(`Instances: ${currentIndex}`);
-    for (let i = 0; i < currentIndex.toNumber(); i++) {
-        console.log(`[${i}].isConcerned = ${await pos.isConcerned(i, alice)}`);
-        console.log(`[${i}].isActive = ${await pos.isActive(i)}`);
-        const state = await pos.getState(i, alice);
-        console.log(state);
-    }
+    const ctsi_tx = await ctsi.transfer(
+        PrizeManager.address,
+        BigNumber.from("25000000000000000000")
+    );
+    console.log(`Transfer to PrizeManager: ${ctsi_tx.hash}`);
 }
+
+program
+    .option(
+        "-da, --diff-adjustment <adjustment>",
+        "Specify the difficult adjustment parameter",
+        parseFloat,
+        20000
+    )
+    .option(
+        "-di, --draw-interval <duration>",
+        "Specify the desired duration of each draw, in seconds",
+        parseFloat,
+        10 * 60
+    );
 
 main()
     .then(() => process.exit(0))
