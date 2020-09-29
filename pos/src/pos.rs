@@ -86,7 +86,7 @@ impl DApp<()> for PoS {
 
         // TODO: Move this to a parameter, it varies according to user/worker
         // behavior and base layer tx cost
-        let required_prize = 10;
+        let required_prize = 0;
         let base_split = 10000;
 
         // TODO: check if cast to u_64() is problematic
@@ -99,7 +99,6 @@ impl DApp<()> for PoS {
                 function: "claimWin".into(),
                 data: vec![
                     Token::Uint(instance.index),
-                    Token::Address(ctx.winner_address),
                 ],
                 gas: None,
                 strategy: transaction::Strategy::Simplest,
