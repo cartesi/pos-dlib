@@ -62,65 +62,92 @@ The PrizeManager payout is defined by the total amount of money in it times the 
 
 The PoS contract manages the interactions between the Staking, Lottery and PrizeManager. It is responsible for making sure permissioned calls are secure, instantiating the Lottery and guiding the PrizeManager on whom to transfer money to. It is also the main concern and the contract that will interact with the offchain part of this dlib.
 
-# Running locally (private net)
+# Running locally on Ropsten testnet
 
+All contracts in this project are already pre-deployed at several testnets including [ropsten](https://ropsten.etherscan.io), which is the one we are going to use in the section.
+
+You will need:
+
+- The mnemonic of a ropsten account with at least 2 ETH in it. Use a ropsten ETH faucet for that
+- An [Infura](https://infura.io) application
+- [Docker and docker-compose installed](https://docs.docker.com/get-docker/)
+
+In order to test the staking you will need to perform the following steps:
+
+- Get fake CTSI from our ropsten faucet
+- Allow the Staking contract to transfer CTSI to it
+- Stake your CTSI
+- Run a local node
+- Hire this node so you can start participating
+
+Assuming you already cloned this repo to your machine, run the following commands:
 ```
 yarn
-npx buidler node --port 7545
-docker-compose -f docker-compose-test.yml -p alice up
+yarn run typechain
+export PROJECT_ID=<your_infura_project_id_here>
+export MNEMONIC="your twelve words mnemonic"
 ```
 
-# Running locally (testnet)
+## Fake Ropsten CTSI
+
+The first step is to have CTSI in your account.
+We provide a faucet the drops 100 fake CTSI in exchange for 0.3 testnet ETH.
+Run the following command:
 
 ```
-yarn
-docker build . -t cartesi/pos
-INFURA_ID=<your_infura_id_here> CHAIN_NAME=ropsten CHAIN_ID=3 docker-compose up
+npx buidler run scripts/drip.ts --network ropsten
 ```
 
-# Using buidler node to interact with the PoS
+## Allowance
+
+ERC20 requires you to allow the Staking contract to "spend" some of your CTSI.
+You must set an allowance, by running the following command:
 
 ```
-npx buidler node --network name_of_network
+npx buidler run scripts/approve_staking_spending.ts --network ropsten
+```
 
-// getting main variables (if its a private net, contracts need to be deployed first)
+This will set an allowance of 100 CTSI.
 
-const { PoS, Lottery, StakingImpl, CartesiToken, WorkerManagerImpl, WorkerAuthManagerImpl} = await deployments.all();
+## Stake CTSI
 
-const [alice, worker] = await ethers.getSigners();
+The next step is to actually stake your CTSI.
+The following command will stake 100 CTSI to the Staking contract.
 
-// Staking tokens
-const ctsi = (await ethers.getContractAt("CartesiToken", CartesiToken.address))
-const staking = (await ethers.getContractAt("StakingImpl", StakingImpl.address))
+```
+npx buidler run scripts/stake_ctsi.ts --network ropsten
+```
 
-const alice_ctsi = ctsi.connect(alice);
-const alice_staking = staking.connect(alice);
+As explained in the sections above the staked CTSI has a maturation period, which is set to 2 hours in this test configuration.
+So you have to wait this period for it to be really be considered staked.
 
-// approve ctsi spending
-await alice_ctsi.approve(staking.address, YOUR_STAKING_AMOUNT);
-// stake tokens - will be counted as staking after maturation
-await alice_staking.stake(YOUR_STAKING_AMOUNT);
+## Run a local node
 
-// hiring a worker
+Finally you need to run a local node, by running the following command:
 
-const worker_manager = new ethers.Contract(WorkerManagerImpl.address, WorkerManagerImpl.abi, ethers.provider);
-const worker_auth_manager = new ethers.Contract(WorkerAuthManagerImpl.address, WorkerAuthManagerImpl.abi, ethers.provider);
+```
+docker-compose up
+```
 
-const alice_wm = worker_manager.connect(alice);
-const alice_wam = worker_auth_manager.connect(alice);
-const worker_wm = worker_manager.connect(worker);
+The worker node starts with a new empty wallet, and keeps polling the blockchain to see if any user wants to hire him.
+You should see the following lines in your console:
 
-// alice can hire a worker
-await alice_wm.hire(worker._address, {value: ethers.utils.parseEther(YOUR_ETHER_VALUE)})
+```
+dispatcher_1  | [2020-09-30T16:28:20Z INFO  configuration] Getting worker state
+dispatcher_1  | [2020-09-30T16:28:20Z INFO  configuration] Worker state: Available
+```
 
-// worker hast to accept the job
-await worker_wm.acceptJob();
+You must hire this node so it can actually starts working for you, and also authorize the Staking contract to accepts call from your worker node on your behalf.
 
-// alice authorizes the (worker, dapp) pair
-await alice_wam.authorize(worker._address, PoS.address);
+You can hire the node using the command below.
+It needs a small amount of ETH to cover its gas costs. For now we are trasfering 1 ETH.
 
-// if its a private net, PoS needs to be instantiated:
-const pos = (await ethers.getContractAt("PoS", PoS.address));
+```
+npx buidler run scripts/hire_worker.ts --network ropsten
+```
 
-await pos.instantiate(StakingImpl.address,Lottery.address,WorkerAuthManagerImpl.address,diffAdjustment,drawInterval,PrizeManager.address);
+Finally you need to authorize the PoS contract to be called from the worker node on your behalf, by running the following command:
+
+```
+npx buidler run scripts/auth.ts --network ropsten
 ```

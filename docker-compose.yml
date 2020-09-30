@@ -2,7 +2,7 @@ version: '3'
 services:
   signer:
     image: cartesi/ethsigner:latest
-    command: "--chain-id=${CHAIN_ID:-3} --downstream-http-host=${CHAIN_NAME:-ropsten}.infura.io --downstream-http-port=443 --http-cors-origins=\"http://localhost:3000,https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${INFURA_ID:?INFURA_ID undefined, please set up an application at Infura}"
+    command: "--chain-id=${CHAIN_ID:-3} --downstream-http-host=${CHAIN_NAME:-ropsten}.infura.io --downstream-http-port=443 --http-cors-origins=\"http://localhost:3000,https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${PROJECT_ID:?PROJECT_ID undefined, please set up an application at Infura}"
     ports:
       - 8545:8545
   
