@@ -44,17 +44,18 @@ This means that the average time for a block to appear is given by `difficulty/b
 
 # Staking
 
-In order for tokens to increase the chance of an user being selected they havet o be staked. That interaction is done through the StakingImpl.sol contract, which offer three main functions:
+In order for tokens to increase the chance of a user being selected they have to be staked. That interaction is done through the StakingImpl.sol contract, which offers three main functions:
 
-- `stake(uint256 amount)`, where an user can deposit CTSI tokens for them to be staked. Tokens deposit will count as staked balance after a maturation time.
+- `stake(uint256 amount)`, where a user can deposit CTSI tokens for them to be staked. Tokens deposited will count as a staked balance after a maturation time.
 
-- `unstake(uint256 amount)`, where an user can decide to remove their tokens from the staked balance, in order to withdraw them. The tokens unstaked are also, for security reasons, subject to a maturation period before withdrawal is allowed. Unstaked tokens are instantly removed from staked balance, even if theyre still stored inside the Staking contract.
+- `unstake(uint256 amount)`, where a user can decide to remove their tokens from the staked balance in order to withdraw them. The tokens unstaked are also, for security reasons, subject to a maturation period before withdrawal is allowed. Unstaked tokens are instantly removed from staked balance, even if theyre still stored inside the Staking contract.
 
-- `withdraw(uint256 amount)`, to transfer mature unstaked tokens back to an user's wallet.
+- `withdraw(uint256 amount)`, to transfer mature unstaked tokens back to a user's wallet.
 
 # PrizeManager
 
 Users that get selected by the `Lottery.sol` contract, which implements the aforementioned selection process, are rewarded by the PrizeManager contract. This contract is responsible for calculating the correct prize in CTSI and also for transferring that to the selected address - which is informed by the PoS main contract.
+
 The PrizeManager payout is defined by the total amount of money in it times the payout rate. Meaning that the prize paid per each draw diminishes slightly after every transfer.
 
 # PoS
