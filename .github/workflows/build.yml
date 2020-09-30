@@ -18,6 +18,11 @@ jobs:
       - name: Build docker image
         run: docker build . -t cartesi/pos
 
+      - run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Push image to Docker Hub
         run: |
           docker tag cartesi/pos cartesi/pos:${GITHUB_REF:11}
