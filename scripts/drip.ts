@@ -31,7 +31,9 @@ async function main() {
 
     const faucet = new ethers.Contract(CTSIFaucet.address, CTSIFaucet.abi, ethers.provider);
 
-    await faucet.drip({value: ethers.utils.parseEther("1")});
+    const drip_tx = await faucet.drip({value: ethers.utils.parseEther("0.3")});
+
+    console.log(`drip transaction: ${drip_tx.hash}`);
 }
 
 main()
