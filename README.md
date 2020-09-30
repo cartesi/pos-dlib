@@ -80,6 +80,10 @@ In order to test the staking you will need to perform the following steps:
 - Run a local node
 - Hire and authorize this node so you can start participating
 
+We provide several buidler scripts to perform each of this steps, which will be explained below.
+All the scripts print out the hashes of the transactions they send to the blockchain.
+We recommend you check the transactions on [etherscan](https://ropsten.etherscan.io) to make sure they are properly mined.
+
 Assuming you already cloned this repo to your machine, run the following commands:
 ```
 yarn
