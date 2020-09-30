@@ -21,7 +21,7 @@
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 
-import { WorkerManager} from "../src/contracts/util/WorkerManager";
+import { WorkerManager } from "../src/contracts/util/WorkerManager";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers } = bre;
@@ -36,9 +36,8 @@ async function main() {
     );
     const [workerAddress] = await localProvider.listAccounts();
 
-
     const worker = (await ethers.getContractAt(
-        "WorkerManagerImpl",
+        WorkerManagerImpl.abi,
         WorkerManagerImpl.address
     )) as WorkerManager;
 

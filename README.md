@@ -62,25 +62,26 @@ The PrizeManager payout is defined by the total amount of money in it times the 
 
 The PoS contract manages the interactions between the Staking, Lottery and PrizeManager. It is responsible for making sure permissioned calls are secure, instantiating the Lottery and guiding the PrizeManager on whom to transfer money to. It is also the main concern and the contract that will interact with the offchain part of this dlib.
 
-# Running locally on Ropsten testnet
+# Running on ropsten testnet
 
 All contracts in this project are already pre-deployed at several testnets including [ropsten](https://ropsten.etherscan.io), which is the one we are going to use in the section.
 
 You will need:
 
-- The mnemonic of a ropsten account with at least 2 ETH in it. Use a ropsten ETH faucet for that
-- An [Infura](https://infura.io) application
-- [Docker and docker-compose installed](https://docs.docker.com/get-docker/)
+- The mnemonic of a ropsten account with at least 2 ETH in it. Use a ropsten ETH faucet get funds;
+- An [Infura](https://infura.io) application;
+- Docker and docker-compose [installed](https://docs.docker.com/get-docker/)
+- Node 12+ [installed](https://nodejs.org/en/download/)
 
-In order to test the staking you will need to perform the following steps:
+In order to test the staking you will perform the following steps:
 
-- Get fake CTSI from our ropsten faucet
-- Allow the Staking contract to transfer CTSI on your behalf
-- Stake your CTSI
-- Run a local node
-- Hire and authorize this node so you can start participating
+- Get fake CTSI from our ropsten faucet;
+- Allow the Staking contract to transfer CTSI on your behalf;
+- Stake your tokens;
+- Run a local node;
+- Hire and authorize this node so you can start participating.
 
-We provide several buidler scripts to perform each of this steps, which will be explained below.
+We provide several [buidler](https://buidler.dev) scripts to perform each of this steps, which will be explained in the following sections.
 All the scripts print out the hashes of the transactions they send to the blockchain.
 We recommend you check the transactions on [etherscan](https://ropsten.etherscan.io) to make sure they are properly mined.
 
@@ -115,15 +116,31 @@ This will set an allowance of 100 CTSI.
 
 ## Stake CTSI
 
-The next step is to actually stake your CTSI.
+The next step is to actually stake your tokens.
 The following command will stake 100 CTSI to the Staking contract.
 
 ```
 npx buidler run scripts/stake_ctsi.ts --network ropsten
 ```
 
-As explained in the sections above the staked CTSI has a maturation period, which is set to 2 hours in this test configuration.
-So you have to wait this period for it to be really be considered staked.
+At this point you can check your staked balance using the following command:
+
+```
+npx buidler run ../pos-dlib/scripts/pos.ts --network ropsten
+```
+
+This should print out something like:
+
+```
+PoS address: 0x05e97d1d5A8D9c5ee50786f9AB7b7bB1B6b8223c
+Staked balance of 0xA0ab8e67E71485792e6bD1Afb51E407B0548355e: 0.0 CTSI
+Maturing balance of 0xA0ab8e67E71485792e6bD1Afb51E407B0548355e: 100.0 CTSI
+Maturation date: Wed Sep 30 2020 17:38:42 GMT-0400 (Eastern Daylight Time)
+Unstaked balance of 0xA0ab8e67E71485792e6bD1Afb51E407B0548355e: 0.0 CTSI
+```
+
+As explained in the sections above the staked tokens has a maturation period, which is set to 2 hours in this testnet deployment.
+So you have to wait this period for it to be really considered as staked.
 
 ## Run a local node
 
@@ -141,13 +158,19 @@ dispatcher_1  | [2020-09-30T16:28:20Z INFO  configuration] Getting worker state
 dispatcher_1  | [2020-09-30T16:28:20Z INFO  configuration] Worker state: Available
 ```
 
-You must hire this node so it can actually starts working for you, and also authorize the Staking contract to accepts call from your worker node on your behalf.
+You must hire this node so it can actually starts working for you, and also authorize the Staking contract to accepts calls from your worker node on your behalf.
 
 You can hire the node using the command below.
-It needs a small amount of ETH to cover its gas costs. For now we are trasfering 1 ETH.
+It needs an amount of ETH to cover its gas costs. For now we are trasferring 1 ETH.
 
 ```
 npx buidler run scripts/hire_worker.ts --network ropsten
+```
+
+This should kickstart your node, making it accept the job and printing something like the line below, where `0xa0ab8e67e71485792e6bd1afb51e407b0548355e` is your account address.
+
+```
+dispatcher_1  | [2020-09-30T20:09:53Z INFO  configuration] Worker state: Owned(0xa0ab8e67e71485792e6bd1afb51e407b0548355e)
 ```
 
 Finally you need to authorize the PoS contract to be called from the worker node on your behalf, by running the following command:

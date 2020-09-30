@@ -35,19 +35,41 @@ async function main() {
         "StakingImpl",
         StakingImp.address
     )) as Staking;
-    const pos = (await ethers.getContractAt("PoS", PoS.address)) as PoS;
 
-    console.log(`PoS: ${PoS.address}`);
+    console.log(`PoS address: ${PoS.address}`);
     const staked = await staking.getStakedBalance(alice);
-    console.log(`Staked Balance of ${alice}: ${staked}`);
+    const maturing = await staking.getMaturingBalance(alice);
+    const unstaked = await staking.getReleasingBalance(alice);
+    const maturingTimestamp = await staking.getMaturingTimestamp(alice);
+    const unstakeTimestamp = await staking.getReleasingTimestamp(alice);
 
-    const currentIndex = await pos.currentIndex();
-    console.log(`Instances: ${currentIndex}`);
-    for (let i = 0; i < currentIndex.toNumber(); i++) {
-        console.log(`[${i}].isConcerned = ${await pos.isConcerned(i, alice)}`);
-        console.log(`[${i}].isActive = ${await pos.isActive(i)}`);
-        const state = await pos.getState(i, alice);
-        console.log(state);
+    console.log(
+        `Staked balance of ${alice}: ${ethers.utils.formatUnits(
+            staked,
+            18
+        )} CTSI`
+    );
+    console.log(
+        `Maturing balance of ${alice}: ${ethers.utils.formatUnits(
+            maturing,
+            18
+        )} CTSI`
+    );
+    if (maturing.gt(0)) {
+        console.log(
+            `Maturation date: ${new Date(maturingTimestamp.toNumber() * 1000)}`
+        );
+    }
+    console.log(
+        `Unstaked balance of ${alice}: ${ethers.utils.formatUnits(
+            unstaked,
+            18
+        )} CTSI`
+    );
+    if (unstaked.gt(0)) {
+        console.log(
+            `Release date: ${new Date(unstakeTimestamp.toNumber() * 1000)}`
+        );
     }
 }
 
