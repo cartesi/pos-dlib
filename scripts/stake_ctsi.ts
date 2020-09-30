@@ -20,9 +20,9 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
+import { BigNumber } from "ethers";
 import { Staking } from "../src/contracts/pos/Staking";
 
-const { advanceTime } = require("../test/utils");
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers } = bre;
 
@@ -34,7 +34,9 @@ async function main() {
         StakingImpl.address
     )) as Staking;
 
-    const staking_tx = await staking.stake(5000000); // update amount
+    const staking_tx = await staking.stake(
+        BigNumber.from("100000000000000000000")
+    ); // update amount
     console.log(`staking_tx: ${staking_tx.hash}`);
 }
 
