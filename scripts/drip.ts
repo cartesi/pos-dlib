@@ -28,10 +28,12 @@ const { deployments, ethers } = bre;
 
 async function main() {
     const { CTSIFaucet } = await deployments.all();
+    const [signer] = await ethers.getSigners();
 
     const faucet = new ethers.Contract(CTSIFaucet.address, CTSIFaucet.abi, ethers.provider);
+    const sfaucet = await faucet.connect(signer);
 
-    const drip_tx = await faucet.drip({value: ethers.utils.parseEther("0.3")});
+    const drip_tx = await sfaucet.drip({value: ethers.utils.parseEther("0.3")});
 
     console.log(`drip transaction: ${drip_tx.hash}`);
 }
