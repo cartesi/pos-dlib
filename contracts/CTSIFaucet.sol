@@ -41,7 +41,15 @@ contract CTSIFaucet {
 
     /// @notice Receives ether and sends CTSI back
     function drip() payable public {
-        require(msg.value >= 0.3 ether, "Not enough ether sent in the transaction");
+        require(
+            msg.value >= 0.3 ether,
+            "Not enough ether sent in the transaction"
+        );
+        require(
+            ctsi.balanceOf(address(this)) >= AMOUNT,
+            "Contract is out of funds"
+        );
+
         ctsi.transfer(msg.sender, AMOUNT);
     }
 }
