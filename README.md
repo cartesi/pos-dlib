@@ -77,3 +77,50 @@ yarn
 docker build . -t cartesi/pos
 INFURA_ID=<your_infura_id_here> CHAIN_NAME=ropsten CHAIN_ID=3 docker-compose up
 ```
+
+# Using buidler node to interact with the PoS
+
+```
+npx buidler node --network name_of_network
+
+// getting main variables (if its a private net, contracts need to be deployed first)
+
+const { PoS, Lottery, StakingImpl, CartesiToken, WorkerManagerImpl, WorkerAuthManagerImpl} = await deployments.all();
+
+const [alice, worker] = await ethers.getSigners();
+
+// Staking tokens
+const ctsi = (await ethers.getContractAt("CartesiToken", CartesiToken.address))
+const staking = (await ethers.getContractAt("StakingImpl", StakingImpl.address))
+
+const alice_ctsi = ctsi.connect(alice);
+const alice_staking = staking.connect(alice);
+
+// approve ctsi spending
+await alice_ctsi.approve(staking.address, YOUR_STAKING_AMOUNT);
+// stake tokens - will be counted as staking after maturation
+await alice_staking.stake(YOUR_STAKING_AMOUNT);
+
+// hiring a worker
+
+const worker_manager = new ethers.Contract(WorkerManagerImpl.address, WorkerManagerImpl.abi, ethers.provider);
+const worker_auth_manager = new ethers.Contract(WorkerAuthManagerImpl.address, WorkerAuthManagerImpl.abi, ethers.provider);
+
+const alice_wm = worker_manager.connect(alice);
+const alice_wam = worker_auth_manager.connect(alice);
+const worker_wm = worker_manager.connect(worker);
+
+// alice can hire a worker
+await alice_wm.hire(worker._address, {value: ethers.utils.parseEther(YOUR_ETHER_VALUE)})
+
+// worker hast to accept the job
+await worker_wm.acceptJob();
+
+// alice authorizes the (worker, dapp) pair
+await alice_wam.authorize(worker._address, PoS.address);
+
+// if its a private net, PoS needs to be instantiated:
+const pos = (await ethers.getContractAt("PoS", PoS.address));
+
+await pos.instantiate(StakingImpl.address,Lottery.address,WorkerAuthManagerImpl.address,diffAdjustment,drawInterval,PrizeManager.address);
+```
