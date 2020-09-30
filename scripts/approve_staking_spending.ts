@@ -32,7 +32,7 @@ async function main() {
     const ctsi = CartesiTokenFactory.connect(CartesiToken.address, signer);
     const approve_tx = await ctsi.approve(
         StakingImpl.address,
-        BigNumber.from("100e18")
+        BigNumber.from("100000000000000000000")
     );
     console.log(`spending approve: ${approve_tx.hash}`);
 }
