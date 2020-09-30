@@ -20,7 +20,6 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
-import { Staking } from "../src/contracts/pos/Staking";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers } = bre;
@@ -28,8 +27,15 @@ const { deployments, ethers } = bre;
 async function main() {
     const { StakingImpl, CartesiToken } = await deployments.all();
 
-    const ctsi = new ethers.Contract(CartesiToken.address, CartesiToken.abi, user.provider);
+    const ctsi = new ethers.Contract(CartesiToken.address, CartesiToken.abi, ethers.provider);
 
-    await ctsi.approve(Staking.address,);
+    const approve_tx = await ctsi.approve(StakingImpl.address, 5000000); // update this
     console.log(`spending approve: ${approve_tx.hash}`);
 }
+
+main()
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });
