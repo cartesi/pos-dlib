@@ -34,10 +34,10 @@ async function main() {
         StakingImpl.address
     )) as Staking;
 
-    const staking_tx = await staking.unstake(
+    const unstaking_tx = await staking.unstake(
         BigNumber.from("100000000000000000000")
     ); // update amount
-    console.log(`staking_tx: ${staking_tx.hash}`);
+    console.log(`unstaking_tx: ${unstaking_tx.hash}`);
 }
 
 main()
