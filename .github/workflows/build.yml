@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: '14'
       - run: yarn install
-      - run: npx buidler typechain
+      - run: yarn run typechain
       - run: yarn test
 
       - name: Build docker image
