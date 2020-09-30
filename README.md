@@ -75,10 +75,10 @@ You will need:
 In order to test the staking you will need to perform the following steps:
 
 - Get fake CTSI from our ropsten faucet
-- Allow the Staking contract to transfer CTSI to it
+- Allow the Staking contract to transfer CTSI on your behalf
 - Stake your CTSI
 - Run a local node
-- Hire this node so you can start participating
+- Hire and authorize this node so you can start participating
 
 Assuming you already cloned this repo to your machine, run the following commands:
 ```
@@ -88,9 +88,9 @@ export PROJECT_ID=<your_infura_project_id_here>
 export MNEMONIC="your twelve words mnemonic"
 ```
 
-## Fake Ropsten CTSI
+## Fake ropsten CTSI
 
-The first step is to have CTSI in your account.
+The first step is to have CTSI in your ropsten account.
 We provide a faucet the drops 100 fake CTSI in exchange for 0.3 testnet ETH.
 Run the following command:
 
@@ -150,4 +150,19 @@ Finally you need to authorize the PoS contract to be called from the worker node
 
 ```
 npx buidler run scripts/auth.ts --network ropsten
+```
+
+## Unstaking and withdrawing
+
+You should leave your node running as much as possible to you have the possibility to be selected and get CTSI rewards.
+If you do you can unstaking and withdraw the tokens back to your wallet, by running the following commands;
+
+```
+npx buidler run scripts/unstake_ctsi.ts --network ropsten
+```
+
+The unstaked balance have a maturation period of 2 hours. After this you can withdraw back to your wallet by running the following command:
+
+```
+npx buidler run scripts/withdrawal_ctsi.ts --network ropsten
 ```
