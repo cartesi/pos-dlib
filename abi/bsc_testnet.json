@@ -2,6 +2,29 @@
   "name": "bsc_testnet",
   "chainId": "97",
   "contracts": {
+    "CTSIFaucet": {
+      "address": "0x5C9a69315D74F3898eBeE37bce167814C23888C8",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_ctsi",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "drip",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }
+      ]
+    },
     "Lottery": {
       "address": "0x9E8975270EdEAD10B69129C71DEF097920DF0042",
       "abi": [
@@ -2327,29 +2350,6 @@
           ],
           "name": "OwnershipTransferred",
           "type": "event"
-        }
-      ]
-    },
-    "CTSIFaucet": {
-      "address": "0x5C9a69315D74F3898eBeE37bce167814C23888C8",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_ctsi",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "name": "drip",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
         }
       ]
     }

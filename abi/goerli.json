@@ -2,6 +2,29 @@
   "name": "goerli",
   "chainId": "5",
   "contracts": {
+    "CTSIFaucet": {
+      "address": "0xB24Aa5D844Dac69e0D544Cd40F539d3B4fc29c47",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_ctsi",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "drip",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }
+      ]
+    },
     "Lottery": {
       "address": "0x78C2519bc5b1973BF85c1b00D8D97293317ca097",
       "abi": [
@@ -2327,29 +2350,6 @@
           ],
           "name": "OwnershipTransferred",
           "type": "event"
-        }
-      ]
-    },
-    "CTSIFaucet": {
-      "address": "0xB24Aa5D844Dac69e0D544Cd40F539d3B4fc29c47",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_ctsi",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "name": "drip",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
         }
       ]
     }

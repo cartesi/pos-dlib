@@ -2,6 +2,29 @@
   "name": "ropsten",
   "chainId": "3",
   "contracts": {
+    "CTSIFaucet": {
+      "address": "0x3ba4426C5d3ccf0a4fac244cDe628e551c205949",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_ctsi",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "drip",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }
+      ]
+    },
     "Lottery": {
       "address": "0xe7C1808F9DB156235a7c0cE6e2919b9e1322A032",
       "abi": [
@@ -2327,29 +2350,6 @@
           ],
           "name": "OwnershipTransferred",
           "type": "event"
-        }
-      ]
-    },
-    "CTSIFaucet": {
-      "address": "0x3ba4426C5d3ccf0a4fac244cDe628e551c205949",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_ctsi",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "name": "drip",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
         }
       ]
     }

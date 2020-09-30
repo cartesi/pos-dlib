@@ -2,6 +2,29 @@
   "name": "kovan",
   "chainId": "42",
   "contracts": {
+    "CTSIFaucet": {
+      "address": "0x71cE145A2D6f626292AD64eAE93eB9b6AEb6777E",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_ctsi",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "drip",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }
+      ]
+    },
     "Lottery": {
       "address": "0xd3925F02CDA5D00976BFA2f18fCabDF58a85B479",
       "abi": [
@@ -2327,29 +2350,6 @@
           ],
           "name": "OwnershipTransferred",
           "type": "event"
-        }
-      ]
-    },
-    "CTSIFaucet": {
-      "address": "0x71cE145A2D6f626292AD64eAE93eB9b6AEb6777E",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_ctsi",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "name": "drip",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
         }
       ]
     }
