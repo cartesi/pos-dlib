@@ -20,16 +20,20 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
+import { BigNumber } from "ethers";
+import { CartesiTokenFactory } from "../src/contracts/token/CartesiTokenFactory";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers } = bre;
 
 async function main() {
     const { StakingImpl, CartesiToken } = await deployments.all();
-
-    const ctsi = new ethers.Contract(CartesiToken.address, CartesiToken.abi, ethers.provider);
-
-    const approve_tx = await ctsi.approve(StakingImpl.address, 5000000); // update this
+    const [signer] = await ethers.getSigners();
+    const ctsi = CartesiTokenFactory.connect(CartesiToken.address, signer);
+    const approve_tx = await ctsi.approve(
+        StakingImpl.address,
+        BigNumber.from("100e18")
+    );
     console.log(`spending approve: ${approve_tx.hash}`);
 }
 
