@@ -21,7 +21,7 @@
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
 
-import { CtsiFaucet } from "../src/types/CtsiFaucet";
+import { CtsiFaucet } from "../src/contract/pos/CtsiFaucet";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers } = bre;
