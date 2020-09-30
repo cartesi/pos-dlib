@@ -11,3 +11,13 @@ jobs:
       - run: yarn install
       - run: npx buidler typechain
       - run: yarn test
+
+      - name: Build docker image
+        run: docker build . -t cartesi/pos
+
+      - name: Push image to Docker Hub
+        run: |
+          docker tag cartesi/pos cartesi/pos:${GITHUB_REF:11}
+          docker push cartesi/pos
+          docker push cartesi/pos:${GITHUB_REF:11}
+        if:  startsWith(github.ref, 'refs/tags/v')
