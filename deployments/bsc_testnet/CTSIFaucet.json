@@ -1,0 +1,110 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_ctsi",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "drip",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "receipt": {
+    "to": null,
+    "from": "0x18930e8a66a1DbE21D00581216789AAB7460Afd0",
+    "contractAddress": "0x5C9a69315D74F3898eBeE37bce167814C23888C8",
+    "transactionIndex": 0,
+    "gasUsed": "214372",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x8486ca2011642ad12c0c244959961489095c1945b0d4550ae68116eb56bba1dc",
+    "transactionHash": "0x81dbafbbb5d8aba8b9ae36ba025369da5fa38818b35e92029e83832601b4d8b6",
+    "logs": [],
+    "blockNumber": 2369453,
+    "cumulativeGasUsed": "214372",
+    "status": 1,
+    "byzantium": true
+  },
+  "address": "0x5C9a69315D74F3898eBeE37bce167814C23888C8",
+  "args": [
+    "0x52BE964c9a9fd9Ebc2295979F9F8362551413cb5"
+  ],
+  "solcInputHash": "0x05c2590e2b7e46620b0280b670a5deb237210a330898dc6e9aa1122497d4e2bd",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.1+commit.f4a555be\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_ctsi\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"drip\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_ctsi\":\"address of ERC20 token to be used\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"Creates contract\"},\"drip()\":{\"notice\":\"Receives ether and sends CTSI back\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/CTSIFaucet.sol\":\"CTSIFaucet\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/math/SafeMath.sol\":{\"keccak256\":\"0xba96bc371ba999f452985a98717cca1e4c4abb598dc038a9a9c3db08129b1ba4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://26e50e3f7b6482fb6f598f2e006994a74aa492687daa4b3eee7fd4fb5398ce7f\",\"dweb:/ipfs/QmZudqoPSkA4USLMFsBBmt19dDPZFS8aaAmL5R7pECXu6t\"]},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xbd74f587ab9b9711801baf667db1426e4a03fd2d7f15af33e0e0d0394e7cef76\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2d0913dfbfce90d170df0d496ad7596c0778518e5fa7aba6c32562522546f66b\",\"dweb:/ipfs/QmR6B8nLj2PJf5e1JWD9Nk7ErkAwkqUwadCnvE82FJr1RU\"]},\"contracts/CTSIFaucet.sol\":{\"keccak256\":\"0x51a362a40c93eb11ee5a75208fb63fb7a2646e451cc4eaff3c598c9d0a8f3cf0\",\"license\":\"GPL-3.0-only\",\"urls\":[\"bzz-raw://2db9e80462ef866a79dd3c8f469b8fb904874e2fad36a1950826a7bad64eaf7c\",\"dweb:/ipfs/QmPdYWcGhPQ1v9sRVZSnpDVoVknRMkmQufGeMFJPYdirKP\"]}},\"version\":1}",
+  "bytecode": "0x608060405268056bc75e2d6310000060015534801561001d57600080fd5b506040516102973803806102978339818101604052602081101561004057600080fd5b5051600080546001600160a01b039092166001600160a01b0319909216919091179055610225806100726000396000f3fe60806040526004361061001e5760003560e01c80639f678cca14610023575b600080fd5b61002b61002d565b005b670429d069189e00003410156100745760405162461bcd60e51b81526004018080602001828103825260288152602001806101c86028913960400191505060405180910390fd5b600154600054604080516370a0823160e01b815230600482015290516001600160a01b03909216916370a0823191602480820192602092909190829003018186803b1580156100c257600080fd5b505afa1580156100d6573d6000803e3d6000fd5b505050506040513d60208110156100ec57600080fd5b50511015610141576040805162461bcd60e51b815260206004820152601860248201527f436f6e7472616374206973206f7574206f662066756e64730000000000000000604482015290519081900360640190fd5b600080546001546040805163a9059cbb60e01b81523360048201526024810192909252516001600160a01b039092169263a9059cbb926044808401936020939083900390910190829087803b15801561019957600080fd5b505af11580156101ad573d6000803e3d6000fd5b505050506040513d60208110156101c357600080fd5b505056fe4e6f7420656e6f7567682065746865722073656e7420696e20746865207472616e73616374696f6ea2646970667358221220ebdfa778cff27ee5ee9ec9bc15a0d9a7101112e2d8d88904f407a84e7689a73564736f6c63430007010033",
+  "deployedBytecode": "0x60806040526004361061001e5760003560e01c80639f678cca14610023575b600080fd5b61002b61002d565b005b670429d069189e00003410156100745760405162461bcd60e51b81526004018080602001828103825260288152602001806101c86028913960400191505060405180910390fd5b600154600054604080516370a0823160e01b815230600482015290516001600160a01b03909216916370a0823191602480820192602092909190829003018186803b1580156100c257600080fd5b505afa1580156100d6573d6000803e3d6000fd5b505050506040513d60208110156100ec57600080fd5b50511015610141576040805162461bcd60e51b815260206004820152601860248201527f436f6e7472616374206973206f7574206f662066756e64730000000000000000604482015290519081900360640190fd5b600080546001546040805163a9059cbb60e01b81523360048201526024810192909252516001600160a01b039092169263a9059cbb926044808401936020939083900390910190829087803b15801561019957600080fd5b505af11580156101ad573d6000803e3d6000fd5b505050506040513d60208110156101c357600080fd5b505056fe4e6f7420656e6f7567682065746865722073656e7420696e20746865207472616e73616374696f6ea2646970667358221220ebdfa778cff27ee5ee9ec9bc15a0d9a7101112e2d8d88904f407a84e7689a73564736f6c63430007010033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "params": {
+          "_ctsi": "address of ERC20 token to be used"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "constructor": {
+        "notice": "Creates contract"
+      },
+      "drip()": {
+        "notice": "Receives ether and sends CTSI back"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1506,
+        "contract": "contracts/CTSIFaucet.sol:CTSIFaucet",
+        "label": "ctsi",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_contract(IERC20)1500"
+      },
+      {
+        "astId": 1514,
+        "contract": "contracts/CTSIFaucet.sol:CTSIFaucet",
+        "label": "AMOUNT",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_contract(IERC20)1500": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  },
+  "gasEstimates": {
+    "creation": {
+      "codeDepositCost": "109800",
+      "executionCost": "infinite",
+      "totalCost": "infinite"
+    },
+    "external": {
+      "drip()": "infinite"
+    }
+  }
+}

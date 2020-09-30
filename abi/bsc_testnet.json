@@ -2329,6 +2329,29 @@
           "type": "event"
         }
       ]
+    },
+    "CTSIFaucet": {
+      "address": "0x5C9a69315D74F3898eBeE37bce167814C23888C8",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_ctsi",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "drip",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        }
+      ]
     }
   }
 }
