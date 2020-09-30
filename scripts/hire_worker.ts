@@ -20,49 +20,36 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
-import { WorkerAuthManager } from "../src/contracts/util/WorkerAuthManager";
-import { WorkerManager } from "../src/contracts/util/WorkerManager";
 
-import { WorkerManagerFactory } from "../src/contracts/util/WorkerManagerFactory";
-import { WorkerAuthManagerFactory } from "../src/contracts/util/WorkerAuthManagerFactory";
+import { WorkerManager} from "../src/contracts/util/WorkerManager";
 
 const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers } = bre;
 
-let userWM: WorkerManager;
-let workerWM: WorkerManager;
-
-let userWAM: WorkerAuthManager;
-
 async function main() {
-    const [worker, user] = await ethers.getSigners();
-    const workerAddress = await worker.getAddress();
+    const { WorkerManagerImpl } = await deployments.all();
+    const [signer] = await ethers.getSigners();
 
-    const posAddress = (await deployments.get("PoS")).address;
-    const wmAddress = (await deployments.get("WorkerManagerImpl")).address;
-    const wamAddress = (await deployments.get("WorkerAuthManagerImpl")).address;
+    // get worker address from local node
+    const localProvider = new ethers.providers.JsonRpcProvider(
+        "http://localhost:8545"
+    );
+    const [workerAddress] = await localProvider.listAccounts();
 
-    workerWM = WorkerManagerFactory.connect(wmAddress, worker);
-    userWM = WorkerManagerFactory.connect(wmAddress, user);
 
-    userWAM = WorkerAuthManagerFactory.connect(wamAddress, user);
+    const worker = (await ethers.getContractAt(
+        "WorkerManagerImpl",
+        WorkerManagerImpl.address
+    )) as WorkerManager;
+
+    const sWorker = await worker.connect(signer);
 
     // user hires worker
-    const hire_transaction = await userWM.hire(workerAddress, {
+    const hire_transaction = await sWorker.hire(workerAddress, {
         value: ethers.utils.parseEther("1")
     });
+
     console.log(`hire_transaction: ${hire_transaction.hash}`);
-
-    // worker accepts job
-    const accept_job = await workerWM.acceptJob();
-    console.log(`accept_job: ${accept_job.hash}`);
-
-    // user authorizes PoS dapp
-    const authorize_transaction = await userWAM.authorize(
-        workerAddress,
-        posAddress
-    );
-    console.log(`authorize_transaction: ${authorize_transaction.hash}`);
 }
 
 main()
