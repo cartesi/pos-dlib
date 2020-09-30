@@ -27,53 +27,15 @@ const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
 const { deployments, ethers } = bre;
 
 async function main() {
-    const STAKING_AMOUNT = 5000000;
-    const MINUTE = 60;
-    const HOUR = 60 * MINUTE;
-    const DAY = 24 * HOUR; // seconds in a day
-    const MATURATION = 2 * HOUR + 1;
-
-    const [worker, user] = await ethers.getSigners();
-    const userAddress = await user.getAddress();
-    const { StakingImpl, CartesiToken } = await deployments.all();
+    const { StakingImpl } = await deployments.all();
 
     const staking = (await ethers.getContractAt(
         "StakingImpl",
         StakingImpl.address
     )) as Staking;
 
-    const ctsi = new ethers.Contract(CartesiToken.address, CartesiToken.abi, user.provider);
-
-    // create signed instance of contracts
-    const user_ctsi = ctsi.connect(user)
-    const worker_ctsi = ctsi.connect(worker)
-
-    const user_staking = staking.connect(user)
-
-    // transfer money to user (worker is the deployer)
-    await worker_ctsi.transfer(userAddress, STAKING_AMOUNT);
-
-    console.log("user CTSI balance: ");
-    console.log(await user_ctsi.balanceOf(userAddress));
-
-    // approve ctsi spending
-    const approve_tx = await user_ctsi.approve(staking.address, STAKING_AMOUNT);
-
-    console.log(`spending approve: ${approve_tx.hash}`);
-
-    // deposit stake
-    const deposit_transaction = await user_staking.depositStake(STAKING_AMOUNT);
-    console.log(`Deposit transaction: ${deposit_transaction.hash}`);
-
-    // TODO: on current deploy, MATURATION == 5 days, should be decreased for testnet
-    // advancing time only works for private net
-
-    // advance time so stake could be finalized
-    await advanceTime(user.provider, MATURATION);
-
-    // finalize stake
-    const finalize_transaction = await user_staking.finalizeStakes();
-    console.log(`Finalize stake transaction: ${finalize_transaction.hash}`);
+    const staking_tx = await staking.stake(5000000); // update amount
+    console.log(`staking_tx: ${staking_tx.hash}`);
 }
 
 main()
