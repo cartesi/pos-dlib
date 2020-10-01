@@ -86,12 +86,16 @@ impl DApp<()> for PoS {
 
         // TODO: Move this to a parameter, it varies according to user/worker
         // behavior and base layer tx cost
-        let required_prize = 0;
-        let base_split = 10000;
+        //let required_prize = 0;
+        //let base_split = 10000;
 
         // TODO: check if cast to u_64() is problematic
-        let current_reward = ctx.current_prize.as_u64() * ctx.user_split.as_u64() / base_split;
-        if ctx.can_win && current_reward >= required_prize {
+        // TODO: Add ability to estimate transaction price and receive a
+        // minimum required prize
+
+        //let current_reward = ctx.current_prize.as_u64() * ctx.user_split.as_u64() / base_split;
+        //if ctx.can_win && current_reward >= required_prize {
+        if ctx.can_win {
             info!("Claiming victory for PoS (index: {})", instance.index);
             let request = TransactionRequest {
                 concern: instance.concern.clone(),
