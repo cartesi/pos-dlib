@@ -26,7 +26,7 @@
       ]
     },
     "Lottery": {
-      "address": "0xd3925F02CDA5D00976BFA2f18fCabDF58a85B479",
+      "address": "0xea07d8CdA3478d81DDA736fC5b83801082d6740e",
       "abi": [
         {
           "anonymous": false,
@@ -328,7 +328,7 @@
       ]
     },
     "PoS": {
-      "address": "0xCdb7f41655730b1b726A1DAafCF72e03AF8C7ef7",
+      "address": "0x4c1969E647A9cF2E82e227D1B63150486c6242f0",
       "abi": [
         {
           "anonymous": false,
@@ -677,7 +677,7 @@
       ]
     },
     "PrizeManager": {
-      "address": "0xD86F87DE0835c398a99042D0D0ef4FCA58fff02e",
+      "address": "0x11f04473A7A4A06B0f8b75Cb87dC1D001f6c6B9b",
       "abi": [
         {
           "inputs": [
