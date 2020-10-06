@@ -76,7 +76,7 @@ program
         "-di, --draw-interval <duration>",
         "Specify the desired duration of each draw, in seconds",
         parseFloat,
-        10 * 60
+        30 * 60
     );
 
 main()
