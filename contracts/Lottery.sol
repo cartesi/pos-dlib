@@ -181,7 +181,7 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         if (_timePassed < _desiredDrawTime) {
             return _oldDifficulty.add(_oldDifficulty.mul(_adjustmentParam).div(1000000) + 1);
         } else if (_timePassed > _desiredDrawTime) {
-            return _oldDifficulty.sub(_oldDifficulty.mul(1000000).div(_adjustmentParam) + 1);
+            return _oldDifficulty.sub(_oldDifficulty.mul(_adjustmentParam).div(1000000) + 1);
         }
 
         return _oldDifficulty;
