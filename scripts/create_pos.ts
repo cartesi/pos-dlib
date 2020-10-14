@@ -40,6 +40,8 @@ async function main() {
     } = await deployments.all();
 
     const drawInterval = program.drawInterval;
+    const minimumDiff = program.minimumDiff;
+    const initialDiff = program.initialDiff;
     const diffAdjustment = program.diffAdjustment;
     const pos = (await ethers.getContractAt("PoS", PoS.address)) as PoS;
     const ctsi = (await ethers.getContractAt(
@@ -69,13 +71,13 @@ async function main() {
 
 program
     .option(
-        "-md, --minimum-dif <difficulty>",
+        "-md, --minimum-diff <difficulty>",
         "specify the minimum difficulty parameter",
         parseFloat,
         10 ** 9
     )
     .option(
-        "-id, --initial-dif <difficulty>",
+        "-id, --initial-diff <difficulty>",
         "specify the initial difficulty parameter",
         parseFloat,
         10 ** 20
