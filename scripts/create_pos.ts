@@ -52,6 +52,8 @@ async function main() {
         StakingImpl.address,
         Lottery.address,
         WorkerAuthManagerImpl.address,
+        minimumDiff,
+        initialDiff,
         diffAdjustment,
         drawInterval,
         PrizeManager.address
@@ -66,6 +68,18 @@ async function main() {
 }
 
 program
+    .option(
+        "-md, --minimum-dif <difficulty>",
+        "specify the minimum difficulty parameter",
+        parseFloat,
+        10 ** 9
+    )
+    .option(
+        "-id, --initial-dif <difficulty>",
+        "specify the initial difficulty parameter",
+        parseFloat,
+        10 ** 20
+    )
     .option(
         "-da, --diff-adjustment <adjustment>",
         "Specify the difficult adjustment parameter",
