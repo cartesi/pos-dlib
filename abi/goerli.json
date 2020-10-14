@@ -26,7 +26,7 @@
       ]
     },
     "Lottery": {
-      "address": "0x7E7a933ab88123CcfE2C829544B3150e38Ba8f02",
+      "address": "0x52F7929527E06637F1B9Ed79F42fB812A5D18396",
       "abi": [
         {
           "anonymous": false,
@@ -238,6 +238,16 @@
           "inputs": [
             {
               "internalType": "uint256",
+              "name": "_minDifficulty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_initialDifficulty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "_difficultyAdjustmentParameter",
               "type": "uint256"
             },
@@ -328,7 +338,7 @@
       ]
     },
     "PoS": {
-      "address": "0x0f160ac88295fA46FaCFE53C95B464ce2dC09161",
+      "address": "0x15b9aA4B4b97429B04494e1505eae8979a1efdB5",
       "abi": [
         {
           "anonymous": false,
@@ -554,6 +564,16 @@
             },
             {
               "internalType": "uint256",
+              "name": "_minimumDifficulty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_initialDifficulty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "_difficultyAdjustmentParameter",
               "type": "uint256"
             },
@@ -677,7 +697,7 @@
       ]
     },
     "PrizeManager": {
-      "address": "0xc059e91C9140509CbABe16789784037D6989854D",
+      "address": "0x66D9a9a80Fa441f58879b64968C1d8659F297C86",
       "abi": [
         {
           "inputs": [
