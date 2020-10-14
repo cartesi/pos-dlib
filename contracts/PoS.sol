@@ -99,6 +99,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
         address _stakingAddress,
         address _lotteryAddress,
         address _workerAuthAddress,
+        uint256 _minimumDifficulty,
+        uint256 _initialDifficulty,
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
         address _prizeManagerAddress
@@ -111,6 +113,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
         instance[currentIndex].workerAuth = WorkerAuthManager(_workerAuthAddress);
 
         instance[currentIndex].lotteryIndex = instance[currentIndex].lottery.instantiate(
+            _minimumDifficulty,
+            _initialDifficulty,
             _difficultyAdjustmentParameter,
             _desiredDrawTimeInterval,
             address(this)
