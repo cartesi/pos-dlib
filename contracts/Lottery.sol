@@ -21,7 +21,6 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 /// @title Lottery
-/// @author Felipe Argento
 
 pragma solidity ^0.7.0;
 
@@ -39,6 +38,7 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         uint256 roundCount; // how many draw rounds happened
         uint256 currentDrawStartTime; // timestamp of when current draw started
         uint256 difficulty; // difficulty parameter defines how big the interval will be
+        uint256 minDifficulty; // lower bound for difficulty
         uint256 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired draw time, number * 1000000
         uint256 desiredDrawTimeInterval; // desired draw time interval, used to tune difficulty
         uint256 currentGoalBlockNumber; // block number which will decide current draw's goal
@@ -57,11 +57,15 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     );
 
     /// @notice Instantiates a Speed Bump structure
+    /// @param _minDifficulty lower bound for difficulty parameter
+    /// @param _initialDifficulty starting difficulty
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
     /// @param _desiredDrawTimeInterval how often we want to elect a winner
     /// @param _posManagerAddress address of ProofOfStake that will use this instance
     function instantiate(
+        uint256 _minDifficulty,
+        uint256 _initialDifficulty,
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
         address _posManagerAddress
@@ -72,7 +76,8 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
             "Desired draw time interval has to be bigger than 30 seconds"
         );
 
-        instance[currentIndex].difficulty = 1000000;
+        instance[currentIndex].minDifficulty = _minDifficulty;
+        instance[currentIndex].difficulty = _initialDifficulty;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
         instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
         instance[currentIndex].posManagerAddress = _posManagerAddress;
@@ -152,6 +157,7 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
 
         // adjust difficulty
         lot.difficulty = getNewDifficulty(
+            lot.minDifficulty,
             lot.difficulty,
             (block.timestamp).sub(lot.currentDrawStartTime),
             lot.desiredDrawTimeInterval,
@@ -173,18 +179,32 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     }
 
     /// @notice Calculates new difficulty parameter
-    /// @param _oldDifficulty is the difficulty of previous round
+    /// @param _minDiff minimum difficulty of instance
+    /// @param _oldDiff is the difficulty of previous round
     /// @param _timePassed is how long the previous round took
     /// @param _desiredDrawTime is how long a round is supposed to take
-    /// @param _adjustmentParam is how fast the difficulty gets adjusted, should be number * 1000000
-    function getNewDifficulty(uint256 _oldDifficulty, uint256 _timePassed, uint256 _desiredDrawTime, uint256 _adjustmentParam) internal pure returns (uint256) {
+    /// @param _adjustmentParam is how fast the difficulty gets adjusted,
+    ///         should be number * 1000000
+    function getNewDifficulty(
+        uint256 _minDiff,
+        uint256 _oldDiff,
+        uint256 _timePassed,
+        uint256 _desiredDrawTime,
+        uint256 _adjustmentParam
+    )
+    internal
+    pure
+    returns (uint256)
+    {
         if (_timePassed < _desiredDrawTime) {
-            return _oldDifficulty.add(_oldDifficulty.mul(_adjustmentParam).div(1000000) + 1);
+            return _oldDiff.add(_oldDiff.mul(_adjustmentParam).div(1000000) + 1);
         } else if (_timePassed > _desiredDrawTime) {
-            return _oldDifficulty.sub(_oldDifficulty.mul(_adjustmentParam).div(1000000) + 1);
+            uint256 newDiff = _oldDiff.sub(_oldDiff.mul(_adjustmentParam).div(1000000) + 1);
+
+            return newDiff > _minDiff ? newDiff : _minDiff;
         }
 
-        return _oldDifficulty;
+        return _oldDiff;
     }
 
     /// @notice Returns time since last draw started, in microseconds
