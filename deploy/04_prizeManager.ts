@@ -38,11 +38,12 @@ const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
         deployer,
         "CartesiToken"
     );
-
+    // minutes in 6 months 26280
     // rate = 0.005% = 0.00005 = 5 / 100000
     const numerator = 5;
     const denominator = 100000;
-    const minimumPrize = BigNumber.from("1000000000000000000");
+    const minimumPrize = BigNumber.from("1000000000000000000"); // 1 ctsi
+    const maxPrize = BigNumber.from("270000000000000000000"); // 270 ctsi
 
     await deploy("PrizeManager", {
         from: deployer,
@@ -50,6 +51,7 @@ const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
             PoS.address,
             CartesiTokenAddress,
             minimumPrize,
+            maxPrize,
             numerator,
             denominator
         ],
