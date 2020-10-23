@@ -207,10 +207,58 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         return _oldDiff;
     }
 
+    /// @notice Returns the round count of this instance
+    /// @param _index the index of the instance of lottery to be interact with
+    /// @return how many rounds have happened
+    function getRoundCount(uint256 _index) public view returns (uint256) {
+        return instance[_index].roundCount;
+    }
+
+    /// @notice Returns current draw time
+    /// @param _index the index of the instance of lottery to be interact with
+    /// @return timestamp of when current draw was instantiated
+    function getCurrentDrawStartTime(uint256 _index) public view returns (uint256) {
+        return instance[_index].currentDrawStartTime;
+    }
+
+    /// @notice Returns current difficulty
+    /// @param _index the index of the instance of lottery to be interact with
+    /// @return difficulty of current draw
+    function getDifficulty(uint256 _index) public view returns (uint256) {
+        return instance[_index].difficulty;
+    }
+
+    /// @notice Returns min difficulty
+    /// @param _index the index of the instance of lottery to be interact with
+    /// @return min difficulty of instance
+    function getMinDifficulty(uint256 _index) public view returns (uint256) {
+        return instance[_index].minDifficulty;
+    }
+
+    /// @notice Returns difficulty adjustment parameter
+    /// @param _index the index of the instance of lottery to be interact with
+    /// @return difficulty adjustment parameter
+    function getDifficultyAdjustmentParameter(
+        uint256 _index
+    )
+    public
+    view
+    returns (uint256)
+    {
+        return instance[_index].difficultyAdjustmentParameter;
+    }
+
+    /// @notice Returns desired draw interval
+    /// @param _index the index of the instance of lottery to be interact with
+    /// @return desired draw interval of this instance
+    function getDesiredDrawInterval(uint256 _index) public view returns (uint256) {
+        return instance[_index].desiredDrawTimeInterval;
+    }
+
     /// @notice Returns time since last draw started, in microseconds
     /// @param _index the index of the instance of lottery to be interact with
     /// @return microseconds passed since last draw started
-    function getMicrosecondsSinceLastDraw(uint256 _index) public view returns(uint256) {
+    function getMicrosecondsSinceLastDraw(uint256 _index) public view returns (uint256) {
         LotteryCtx storage lot = instance[_index];
 
         // time since draw started times 1e6 (microseconds)
