@@ -47,6 +47,7 @@ describe("PrizeManager", async () => {
     let mockPoS: MockContract;
 
     let minimumPrize = 10;
+    let maxPrize = 270;
     let numerator = 5000;
     let denominator = 100000; // pays  5%
 
@@ -59,6 +60,7 @@ describe("PrizeManager", async () => {
         pos?: string;
         ctsi?: string;
         minimumPrize?: number;
+        maxPrize?: number;
         numerator?: number;
         denominator?: number;
     } = {}): Promise<PrizeManager> => {
@@ -68,6 +70,7 @@ describe("PrizeManager", async () => {
         const prizeManager = await prizeFactory.deploy(
             posAddress,
             ctsiAddress,
+            maxPrize,
             minimumPrize,
             numerator,
             denominator
