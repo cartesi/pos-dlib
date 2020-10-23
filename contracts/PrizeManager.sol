@@ -33,6 +33,7 @@ contract PrizeManager {
     using SafeMath for uint256;
 
     uint256 minimumPrize;
+    uint256 maxPrize;
     uint256 distNumerator;
     uint256 distDenominator;
     address operator;
@@ -43,12 +44,14 @@ contract PrizeManager {
     /// @notice Creates contract
     /// @param _operator address of the operator
     /// @param _ctsiAddress address of token instance being used
+    /// @param _maxPrize max prize that this contract pays
     /// @param _minimumPrize minimum prize that this contract pays
     /// @param _distNumerator multiplier factor to define prize amount
     /// @param _distDenominator dividing factor to define prize amount
     constructor(
         address _operator,
         address _ctsiAddress,
+        uint256 _maxPrize,
         uint256 _minimumPrize,
         uint256 _distNumerator,
         uint256 _distDenominator
@@ -58,6 +61,7 @@ contract PrizeManager {
         ctsi = IERC20(_ctsiAddress);
 
         minimumPrize = _minimumPrize;
+        maxPrize = _maxPrize;
         distNumerator = _distNumerator;
         distDenominator = _distDenominator;
     }
@@ -82,6 +86,7 @@ contract PrizeManager {
     function getCurrentPrize() public view returns (uint256) {
         uint256 prize = (getBalance().mul(distNumerator)).div(distDenominator);
         prize = prize > minimumPrize? prize : minimumPrize;
+        prize = prize > maxPrize? maxPrize : prize;
 
         return prize > getBalance()? getBalance() : prize;
     }
