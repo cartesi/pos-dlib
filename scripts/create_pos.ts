@@ -19,14 +19,14 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { program } from "commander";
 import { BigNumber } from "ethers";
 import { PoS } from "../src/contracts/pos/PoS";
 import { CartesiToken } from "../src/contracts/token/CartesiToken";
 
-const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
-const { deployments, ethers } = bre;
+const hre = require("hardhat") as HardhatRuntimeEnvironment;
+const { deployments, ethers } = hre;
 
 async function main() {
     const [deployer] = await ethers.getSigners();
@@ -73,14 +73,14 @@ program
     .option(
         "-md, --minimum-diff <difficulty>",
         "specify the minimum difficulty parameter",
-        parseFloat,
-        10 ** 9
+        (str: string) => ethers.BigNumber.from(str),
+        ethers.BigNumber.from("1000000000")
     )
     .option(
         "-id, --initial-diff <difficulty>",
         "specify the initial difficulty parameter",
-        parseFloat,
-        10 ** 20
+        (str: string) => ethers.BigNumber.from(str),
+        ethers.BigNumber.from("100000000000000000000")
     )
     .option(
         "-da, --diff-adjustment <adjustment>",

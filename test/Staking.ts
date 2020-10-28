@@ -20,7 +20,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { expect, use } from "chai";
-import { deployments, ethers } from "@nomiclabs/buidler";
+import { deployments, ethers } from "hardhat";
 import {
     deployMockContract,
     MockContract
@@ -28,6 +28,7 @@ import {
 import { solidity } from "ethereum-waffle";
 
 import { Staking } from "../src/contracts/pos/Staking";
+import { StakingImplFactory } from "../src/contracts/pos/StakingImplFactory";
 import { Signer } from "ethers";
 
 const { advanceTime, advanceBlock } = require("./utils");
@@ -48,16 +49,16 @@ describe("Staking", async () => {
     }: {
         ctsi?: string;
     } = {}): Promise<Staking> => {
+        const [signer] = await ethers.getSigners();
         const ctsiAddress =
             ctsi || (await deployments.get("CartesiToken")).address;
-        const stakingFactory = await ethers.getContractFactory("StakingImpl");
+        const stakingFactory = new StakingImplFactory(signer);
         const staking = await stakingFactory.deploy(
             ctsiAddress,
             5 * DAY,
             5 * DAY
         );
-        await staking.deployed();
-        return staking as Staking;
+        return staking;
     };
 
     beforeEach(async () => {

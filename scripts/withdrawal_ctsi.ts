@@ -19,12 +19,12 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { BigNumber } from "ethers";
 import { Staking } from "../src/contracts/pos/Staking";
 
-const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
-const { deployments, ethers } = bre;
+const hre = require("hardhat") as HardhatRuntimeEnvironment;
+const { deployments, ethers } = hre;
 
 async function main() {
     const { StakingImpl } = await deployments.all();

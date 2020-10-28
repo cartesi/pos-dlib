@@ -19,16 +19,19 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { program } from "commander";
 import { Lottery } from "../src/contracts/pos/Lottery";
+import { BigNumber } from "ethers";
 
-const bre = require("@nomiclabs/buidler") as BuidlerRuntimeEnvironment;
-const { deployments, ethers } = bre;
+const hre = require("hardhat") as HardhatRuntimeEnvironment;
+const { deployments, ethers } = hre;
 
 async function main() {
     const { Lottery, PoS } = await deployments.all();
 
+    const minimalDifficulty = program.minimalDifficulty;
+    const initialDifficulty = program.initialDifficulty;
     const drawInterval = program.drawInterval;
     const diffAdjustment = program.diffAdjustment;
 
@@ -38,6 +41,8 @@ async function main() {
     )) as Lottery;
 
     const transaction = await lottery.instantiate(
+        minimalDifficulty,
+        initialDifficulty,
         diffAdjustment,
         drawInterval,
         PoS.address
@@ -47,16 +52,28 @@ async function main() {
 
 program
     .option(
+        "-id, --initial-difficulty <initial>",
+        "Specify the initial difficulty",
+        (str) => BigNumber.from(str),
+        BigNumber.from("1000000000")
+    )
+    .option(
+        "-md, --minimal-difficulty <minimal>",
+        "Specify the minimum difficulty",
+        (str) => BigNumber.from(str),
+        BigNumber.from("100000000000000000000")
+    )
+    .option(
         "-da, --diff-adjustment <adjustment>",
         "Specify the difficult adjustment parameter",
-        parseFloat,
-        20000
+        (str) => BigNumber.from(str),
+        BigNumber.from(20000)
     )
     .option(
         "-di, --draw-interval <duration>",
         "Specify the desired duration of each draw, in seconds",
-        parseFloat,
-        10 * 60 // 10 minutes
+        (str) => BigNumber.from(str),
+        BigNumber.from(30 * 60) // 30 minutes
     );
 
 main()

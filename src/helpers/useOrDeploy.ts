@@ -19,10 +19,10 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import { BuidlerRuntimeEnvironment } from "@nomiclabs/buidler/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export const useOrDeploy = async (
-    bre: BuidlerRuntimeEnvironment,
+    bre: HardhatRuntimeEnvironment,
     deployer: string,
     name: string
 ): Promise<string> => {

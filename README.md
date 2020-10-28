@@ -81,7 +81,7 @@ In order to test the staking you will perform the following steps:
 - Run a local node;
 - Hire and authorize this node so you can start participating.
 
-We provide several [buidler](https://buidler.dev) scripts to perform each of this steps, which will be explained in the following sections.
+We provide several [hardhat](https://hardhat.org) scripts to perform each of this steps, which will be explained in the following sections.
 All the scripts print out the hashes of the transactions they send to the blockchain.
 We recommend you check the transactions on [etherscan](https://ropsten.etherscan.io) to make sure they are properly mined.
 
@@ -100,7 +100,7 @@ We provide a faucet the drops 100 fake CTSI in exchange for 0.3 testnet ETH.
 Run the following command:
 
 ```
-npx buidler run scripts/drip.ts --network ropsten
+npx hardhat run scripts/drip.ts --network ropsten
 ```
 
 ## Allowance
@@ -109,7 +109,7 @@ ERC20 requires you to allow the Staking contract to "spend" some of your CTSI.
 You must set an allowance, by running the following command:
 
 ```
-npx buidler run scripts/approve_staking_spending.ts --network ropsten
+npx hardhat run scripts/approve_staking_spending.ts --network ropsten
 ```
 
 This will set an allowance of 100 CTSI.
@@ -120,13 +120,13 @@ The next step is to actually stake your tokens.
 The following command will stake 100 CTSI to the Staking contract.
 
 ```
-npx buidler run scripts/stake_ctsi.ts --network ropsten
+npx hardhat run scripts/stake_ctsi.ts --network ropsten
 ```
 
 At this point you can check your staked balance using the following command:
 
 ```
-npx buidler run ../pos-dlib/scripts/pos.ts --network ropsten
+npx hardhat run ../pos-dlib/scripts/pos.ts --network ropsten
 ```
 
 This should print out something like:
@@ -164,7 +164,7 @@ You can hire the node using the command below.
 It needs an amount of ETH to cover its gas costs. For now we are trasferring 1 ETH.
 
 ```
-npx buidler run scripts/hire_worker.ts --network ropsten
+npx hardhat run scripts/hire_worker.ts --network ropsten
 ```
 
 This should kickstart your node, making it accept the job and printing something like the line below, where `0xa0ab8e67e71485792e6bd1afb51e407b0548355e` is your account address.
@@ -176,7 +176,7 @@ dispatcher_1  | [2020-09-30T20:09:53Z INFO  configuration] Worker state: Owned(0
 Finally you need to authorize the PoS contract to be called from the worker node on your behalf, by running the following command:
 
 ```
-npx buidler run scripts/auth.ts --network ropsten
+npx hardhat run scripts/auth.ts --network ropsten
 ```
 
 ## Unstaking and withdrawing
@@ -185,11 +185,11 @@ You should leave your node running as much as possible to you have the possibili
 If you do you can unstaking and withdraw the tokens back to your wallet, by running the following commands;
 
 ```
-npx buidler run scripts/unstake_ctsi.ts --network ropsten
+npx hardhat run scripts/unstake_ctsi.ts --network ropsten
 ```
 
 The unstaked balance have a maturation period of 2 hours. After this you can withdraw back to your wallet by running the following command:
 
 ```
-npx buidler run scripts/withdrawal_ctsi.ts --network ropsten
+npx hardhat run scripts/withdrawal_ctsi.ts --network ropsten
 ```

@@ -1,53 +1,41 @@
-import fs from "fs";
-import { Wallet } from "@ethersproject/wallet";
-import { BuidlerConfig, task, usePlugin } from "@nomiclabs/buidler/config";
-import { HttpNetworkConfig } from "@nomiclabs/buidler/types";
+// Copyright (C) 2020 Cartesi Pte. Ltd.
 
-usePlugin("@nomiclabs/buidler-ethers");
-usePlugin("@nomiclabs/buidler-waffle");
-usePlugin("@nodefactory/buidler-typechain");
-usePlugin("buidler-deploy");
-usePlugin("solidity-coverage");
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
 
-// This is a sample Buidler task. To learn how to create your own go to
-// https://buidler.dev/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, bre) => {
-    const accounts = await bre.ethers.getSigners();
+// This program is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+// PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-    for (const account of accounts) {
-        console.log(await account.getAddress());
-    }
-});
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-// read MNEMONIC from file or from env variable
+// Note: This component currently has dependencies that are licensed under the GNU
+// GPL, version 3, and so you should treat this component as a whole as being under
+// the GPL version 3. But all Cartesi-written code in this component is licensed
+// under the Apache License, version 2, or a compatible permissive license, and can
+// be used independently under the Apache v2 license. After this component is
+// rewritten, the entire component will be released under the Apache v2 license.
+
+import { HardhatUserConfig, task } from "hardhat/config";
+import { HttpNetworkUserConfig } from "hardhat/types";
+
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
+import "hardhat-typechain";
+import "hardhat-deploy";
+import "hardhat-deploy-ethers";
+
+// read MNEMONIC from env variable
 let mnemonic = process.env.MNEMONIC;
-try {
-    mnemonic = fs
-        .readFileSync(process.env.MNEMONIC_PATH || ".mnemonic")
-        .toString();
-} catch (e) {}
-
-// create a Buidler EVM account array from mnemonic
-const mnemonicAccounts = (n = 10) => {
-    return mnemonic
-        ? Array.from(Array(n).keys()).map(i => {
-              const wallet = Wallet.fromMnemonic(
-                  mnemonic as string,
-                  `m/44'/60'/0'/0/${i}`
-              );
-              return {
-                  privateKey: wallet.privateKey,
-                  balance: "1000000000000000000000"
-              };
-          })
-        : undefined;
-};
 
 const infuraNetwork = (
     network: string,
     chainId?: number,
     gas?: number
-): HttpNetworkConfig => {
+): HttpNetworkUserConfig => {
     return {
         url: `https://${network}.infura.io/v3/${process.env.PROJECT_ID}`,
         chainId,
@@ -56,9 +44,9 @@ const infuraNetwork = (
     };
 };
 
-const config: BuidlerConfig = {
+const config: HardhatUserConfig = {
     networks: {
-        buidlerevm: mnemonic ? { accounts: mnemonicAccounts() } : {},
+        hardhat: mnemonic ? { accounts: { mnemonic } } : {},
         localhost: {
             url: "http://localhost:8545",
             accounts: mnemonic ? { mnemonic } : undefined
@@ -78,10 +66,12 @@ const config: BuidlerConfig = {
             accounts: mnemonic ? { mnemonic } : undefined
         }
     },
-    solc: {
-        version: "0.7.1",
-        optimizer: {
-            enabled: true
+    solidity: {
+        version: "0.7.4",
+        settings: {
+            optimizer: {
+                enabled: true
+            }
         }
     },
     paths: {
@@ -123,11 +113,15 @@ const config: BuidlerConfig = {
                 "node_modules/@cartesi/util/deployments/bsc_testnet",
                 "node_modules/@cartesi/token/deployments/bsc_testnet"
             ]
-        }
+        },
+        deploy: [
+            "node_modules/@cartesi/util/deploy",
+            "node_modules/@cartesi/token/deploy"
+        ]
     },
     typechain: {
         outDir: "src/types",
-        target: "ethers-v5"
+        target: "ethers-v5",
     },
     namedAccounts: {
         deployer: {
@@ -138,7 +132,10 @@ const config: BuidlerConfig = {
         },
         bob: {
             default: 1
-        }
+        },
+        beneficiary: {
+            default: 1,
+        },
     }
 };
 

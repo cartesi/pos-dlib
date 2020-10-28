@@ -20,16 +20,16 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import {
-    BuidlerRuntimeEnvironment,
+    HardhatRuntimeEnvironment,
     DeployFunction
-} from "@nomiclabs/buidler/types";
+} from "hardhat/types";
 import { useOrDeploy } from "../src/helpers/useOrDeploy";
 
 const MINUTE = 60; // seconds in a minute
 const HOUR = 60 * MINUTE; // seconds in an hour
 const DAY = 24 * HOUR; // seconds in a day
 
-const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
+const func: DeployFunction = async (bre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = bre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();

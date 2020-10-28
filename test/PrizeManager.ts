@@ -23,7 +23,7 @@ import { expect, use } from "chai";
 import {
     deployments,
     ethers,
-} from "@nomiclabs/buidler";
+} from "hardhat";
 import {
     deployMockContract,
     MockContract,
@@ -31,7 +31,8 @@ import {
 import { solidity } from "ethereum-waffle";
 
 import { PrizeManager } from "../src/contracts/pos/PrizeManager";
-import { Signer } from "ethers";
+import { PrizeManagerFactory } from "../src/contracts/pos/PrizeManagerFactory";
+import { BigNumberish, Signer } from "ethers";
 
 use(solidity);
 
@@ -59,24 +60,26 @@ describe("PrizeManager", async () => {
     }: {
         pos?: string;
         ctsi?: string;
-        minimumPrize?: number;
-        maxPrize?: number;
-        numerator?: number;
-        denominator?: number;
+        minimumPrize?: BigNumberish;
+        maxPrize?: BigNumberish;
+        numerator?: BigNumberish;
+        denominator?: BigNumberish;
     } = {}): Promise<PrizeManager> => {
+        const [signer] = await ethers.getSigners();
         const posAddress = pos || (await deployments.get("PoS")).address;
         const ctsiAddress = ctsi || (await deployments.get("CartesiToken")).address;
-        const prizeFactory = await ethers.getContractFactory("PrizeManager");
+        const n = numerator || 5000;
+        const d = denominator || 100000;
+        const prizeFactory = new PrizeManagerFactory(signer);
         const prizeManager = await prizeFactory.deploy(
             posAddress,
             ctsiAddress,
             maxPrize,
             minimumPrize,
-            numerator,
-            denominator
+            n,
+            d
         );
-        await prizeManager.deployed();
-        return prizeManager as PrizeManager;
+        return prizeManager;
     };
 
     beforeEach(async () => {
