@@ -28,12 +28,10 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
 import "@cartesi/util/contracts/CartesiMath.sol";
 import "@cartesi/util/contracts/InstantiatorImpl.sol";
 import "@cartesi/util/contracts/Decorated.sol";
 import "@cartesi/util/contracts/WorkerAuthManager.sol";
-
 
 import "./Staking.sol";
 import "./Lottery.sol";
@@ -45,8 +43,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
     uint256 constant SPLIT_BASE = 10000;
 
     struct PoSCtx {
-        mapping (address => address) beneficiaryMap;
-        mapping (address => uint256) splitMap;
+        mapping(address => address) beneficiaryMap;
+        mapping(address => uint256) splitMap;
         uint256 lotteryIndex;
         Lottery lottery;
         Staking staking;
@@ -58,8 +56,9 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
 
     event PrizePaid(
         uint256 indexed index,
+        address indexed worker,
         address indexed user,
-        address indexed beneficiary,
+        address beneficiary,
         uint256 userPrize,
         uint256 beneficiaryPrize
     );
@@ -75,24 +74,15 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
         uint256 _index,
         address _beneficiary,
         uint256 _split
-    ) public
-    {
+    ) public {
         PoSCtx storage pos = instance[_index];
 
-        require(
-            _split <= SPLIT_BASE,
-            "split has to be less than 100%"
-        );
+        require(_split <= SPLIT_BASE, "split has to be less than 100%");
 
         pos.beneficiaryMap[msg.sender] = _beneficiary;
         pos.splitMap[msg.sender] = SPLIT_BASE.sub(_split);
 
-        emit BeneficiaryAdded(
-            _index,
-            msg.sender,
-            _beneficiary,
-            _split
-        );
+        emit BeneficiaryAdded(_index, msg.sender, _beneficiary, _split);
     }
 
     /// @notice Instantiates a Proof of Stake
@@ -112,15 +102,19 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
         uint256 _difficultyAdjustmentParameter,
         uint256 _desiredDrawTimeInterval,
         address _prizeManagerAddress
-    ) public onlyOwner() returns (uint256)
-    {
-
+    ) public onlyOwner() returns (uint256) {
         instance[currentIndex].staking = Staking(_stakingAddress);
         instance[currentIndex].lottery = Lottery(_lotteryAddress);
-        instance[currentIndex].prizeManager = PrizeManager(_prizeManagerAddress);
-        instance[currentIndex].workerAuth = WorkerAuthManager(_workerAuthAddress);
+        instance[currentIndex].prizeManager = PrizeManager(
+            _prizeManagerAddress
+        );
+        instance[currentIndex].workerAuth = WorkerAuthManager(
+            _workerAuthAddress
+        );
 
-        instance[currentIndex].lotteryIndex = instance[currentIndex].lottery.instantiate(
+        instance[currentIndex].lotteryIndex = instance[currentIndex]
+            .lottery
+            .instantiate(
             _minimumDifficulty,
             _initialDifficulty,
             _difficultyAdjustmentParameter,
@@ -136,7 +130,6 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
     /// @param _index the index of the instance of pos you want to interact with
     /// @dev this function can only be called by a worker, user never calls it directly
     function claimWin(uint256 _index) public returns (bool) {
-
         PoSCtx storage pos = instance[_index];
 
         require(
@@ -151,7 +144,11 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
         uint256 beneficiarySplit = SPLIT_BASE.sub(userSplit);
 
         require(
-            pos.lottery.claimRound(pos.lotteryIndex, user, pos.staking.getStakedBalance(user)),
+            pos.lottery.claimRound(
+                pos.lotteryIndex,
+                user,
+                pos.staking.getStakedBalance(user)
+            ),
             "User couldnt claim round successfully"
         );
 
@@ -159,17 +156,38 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
 
         if (beneficiary == address(0) || userSplit == SPLIT_BASE) {
             pos.prizeManager.payWinner(user, currentPrize);
-            emit PrizePaid(_index, user, beneficiary, currentPrize, 0);
+            emit PrizePaid(
+                _index,
+                msg.sender,
+                user,
+                beneficiary,
+                currentPrize,
+                0
+            );
         } else if (beneficiarySplit == SPLIT_BASE) {
             pos.prizeManager.payWinner(beneficiary, currentPrize);
-            emit PrizePaid(_index, user, beneficiary, 0, currentPrize);
+            emit PrizePaid(
+                _index,
+                msg.sender,
+                user,
+                beneficiary,
+                0,
+                currentPrize
+            );
         } else {
             uint256 bSplit = currentPrize.mul(beneficiarySplit).div(SPLIT_BASE);
             uint256 uSplit = SPLIT_BASE.sub(bSplit);
 
             pos.prizeManager.payWinner(beneficiary, bSplit);
             pos.prizeManager.payWinner(user, uSplit);
-            emit PrizePaid(_index, user, beneficiary, uSplit, bSplit);
+            emit PrizePaid(
+                _index,
+                msg.sender,
+                user,
+                beneficiary,
+                uSplit,
+                bSplit
+            );
         }
 
         return true;
@@ -183,14 +201,14 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
     /// @return current prize paid by the network for that block
     /// @return percentage of prize that goes to the user
     function getState(uint256 _index, address _user)
-    public
-    view
-    returns (
-        bool,
-        address,
-        uint256,
-        uint256
-    )
+        public
+        view
+        returns (
+            bool,
+            address,
+            uint256,
+            uint256
+        )
     {
         PoSCtx storage pos = instance[_index];
         return (
@@ -205,14 +223,21 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
         );
     }
 
-    function isConcerned(uint256 _index, address _user) public override view returns (bool) {
+    function isConcerned(uint256 _index, address _user)
+        public
+        override
+        view
+        returns (bool)
+    {
         PoSCtx storage pos = instance[_index];
         return pos.staking.getStakedBalance(_user) > 0;
     }
 
     function getSubInstances(uint256 _index, address)
-        public override view returns (address[] memory _addresses,
-            uint256[] memory _indices)
+        public
+        override
+        view
+        returns (address[] memory _addresses, uint256[] memory _indices)
     {
         PoSCtx storage pos = instance[_index];
 
