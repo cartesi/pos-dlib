@@ -113,11 +113,7 @@ const config: HardhatUserConfig = {
                 "node_modules/@cartesi/util/deployments/bsc_testnet",
                 "node_modules/@cartesi/token/deployments/bsc_testnet"
             ]
-        },
-        deploy: [
-            "node_modules/@cartesi/util/deploy",
-            "node_modules/@cartesi/token/deploy"
-        ]
+        }
     },
     typechain: {
         outDir: "src/types",
@@ -132,10 +128,7 @@ const config: HardhatUserConfig = {
         },
         bob: {
             default: 1
-        },
-        beneficiary: {
-            default: 1,
-        },
+        }
     }
 };
 
