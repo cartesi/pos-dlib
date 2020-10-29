@@ -19,10 +19,8 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import {
-    HardhatRuntimeEnvironment,
-    DeployFunction,
-} from "hardhat/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 
 import { useOrDeploy } from "../src/helpers/useOrDeploy";
