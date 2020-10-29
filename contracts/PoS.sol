@@ -56,11 +56,19 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
 
     mapping(uint256 => PoSCtx) internal instance;
 
+    event PrizePaid(
+        uint256 indexed index,
+        address indexed user,
+        address indexed beneficiary,
+        uint256 userPrize,
+        uint256 beneficiaryPrize
+    );
+
     event BeneficiaryAdded(
-        uint256 indexed _index,
-        address indexed _user,
-        address indexed _beneficiary,
-        uint256 _split
+        uint256 indexed index,
+        address indexed user,
+        address indexed beneficiary,
+        uint256 split
     );
 
     function addBeneficiary(
@@ -151,14 +159,17 @@ contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
 
         if (beneficiary == address(0) || userSplit == SPLIT_BASE) {
             pos.prizeManager.payWinner(user, currentPrize);
+            emit PrizePaid(_index, user, beneficiary, currentPrize, 0);
         } else if (beneficiarySplit == SPLIT_BASE) {
             pos.prizeManager.payWinner(beneficiary, currentPrize);
+            emit PrizePaid(_index, user, beneficiary, 0, currentPrize);
         } else {
             uint256 bSplit = currentPrize.mul(beneficiarySplit).div(SPLIT_BASE);
             uint256 uSplit = SPLIT_BASE.sub(bSplit);
 
             pos.prizeManager.payWinner(beneficiary, bSplit);
             pos.prizeManager.payWinner(user, uSplit);
+            emit PrizePaid(_index, user, beneficiary, uSplit, bSplit);
         }
 
         return true;
