@@ -29,6 +29,7 @@ export const useOrDeploy = async (
     const deployment = await bre.deployments.getOrNull(name);
     if (deployment) {
         // using pre-deployed contract
+        console.log(`Reusing "${name}" at ${deployment.address}`);
         return deployment.address;
     } else {
         // deploying contract
@@ -37,6 +38,7 @@ export const useOrDeploy = async (
             from: deployer,
             contract: artifact
         });
+        console.log(`Deployed "${name}" to ${deployed.address}`);
         return deployed.address;
     }
 };
