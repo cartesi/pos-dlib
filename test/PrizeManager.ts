@@ -145,7 +145,8 @@ describe("PrizeManager", async () => {
         await prizeManager.payWinner(aliceAddress, prize);
     });
 
-    it("current prize should generate prizes correctly", async () => {
+    it("current prize should generate prizes correctly", async function() {
+        this.timeout(60000);
         let balance = 500000;
         let lastPrize = 0;
 
