@@ -142,13 +142,7 @@ describe("PrizeManager", async () => {
         await mockToken.mock.balanceOf.returns(balance);
         await mockToken.mock.transfer.returns(true);
         await mockToken.mock.transferFrom.returns(true);
-
-        await expect(
-            prizeManager.payWinner(aliceAddress, prize),
-            "paywinner should emit event"
-        )
-            .to.emit(prizeManager, "WinnerPaid")
-            .withArgs(aliceAddress, prize);
+        await prizeManager.payWinner(aliceAddress, prize);
     });
 
     it("current prize should generate prizes correctly", async () => {
@@ -176,13 +170,7 @@ describe("PrizeManager", async () => {
             lastPrize = lastPrize > balance ? balance : lastPrize;
 
             await mockToken.mock.balanceOf.returns(balance);
-
-            await expect(
-                prizeManager.payWinner(aliceAddress, lastPrize),
-                "paywinner should emit event"
-            )
-                .to.emit(prizeManager, "WinnerPaid")
-                .withArgs(aliceAddress, lastPrize);
+            await prizeManager.payWinner(aliceAddress, lastPrize);
         }
     });
 });

@@ -39,8 +39,6 @@ contract PrizeManager {
     address operator;
     IERC20 ctsi;
 
-    event WinnerPaid(address _winner, uint256 _prize);
-
     /// @notice Creates contract
     /// @param _operator address of the operator
     /// @param _ctsiAddress address of token instance being used
@@ -73,8 +71,6 @@ contract PrizeManager {
         require(msg.sender == operator, "Only the operator contract can call this function");
 
         ctsi.transfer(_winner, _amount);
-
-        emit WinnerPaid(_winner, _amount);
     }
 
     /// @notice Get PrizeManager's balance
