@@ -88,7 +88,6 @@ We recommend you check the transactions on [etherscan](https://goerli.etherscan.
 Assuming you already cloned this repo to your machine, run the following commands:
 ```
 yarn
-yarn run typechain
 export PROJECT_ID=<your_infura_project_id_here>
 export MNEMONIC="your twelve words mnemonic"
 ```

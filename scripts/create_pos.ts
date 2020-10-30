@@ -22,8 +22,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { program } from "commander";
 import { BigNumber } from "ethers";
-import { PoS } from "../src/contracts/pos/PoS";
-import { CartesiToken } from "../src/contracts/token/CartesiToken";
+import { CartesiToken } from "@cartesi/token";
+import { PoS } from "../src/types/PoS";
 
 const hre = require("hardhat") as HardhatRuntimeEnvironment;
 const { deployments, ethers } = hre;

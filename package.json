@@ -39,8 +39,7 @@
   "scripts": {
     "info": "npm-scripts-info",
     "prepare": "hardhat compile",
-    "typechain": "typechain --target ethers-v5 --outDir src/contracts/pos 'artifacts/!(build-info)/**/+([a-zA-Z0-9]).json' && typechain --target ethers-v5 --outDir src/contracts/util './node_modules/@cartesi/util/artifacts/*.json' && typechain --target ethers-v5 --outDir src/contracts/token './node_modules/@cartesi/token/artifacts/*.json'",
-    "pretest": "run-s prepare typechain",
+    "pretest": "run-s prepare",
     "test": "hardhat test",
     "clean": "rimraf artifacts && rimraf cache && rimraf deployments/localhost && rimraf src/types/*",
     "deploy": "run-s deploy:development",
@@ -57,7 +56,6 @@
   },
   "scripts-info": {
     "info": "Displays information about the scripts.",
-    "typechain": "Generate TypeScript code to interact with Smart Contracts, powered by TypeChain",
     "test": "Run unit tests",
     "clean": "Clean build artifacts, including contracts deployment information",
     "deploy": "Deploy contracts to local ganache. Requires ganache running on localhost:8545",

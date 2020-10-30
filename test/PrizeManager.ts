@@ -30,8 +30,8 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { PrizeManager } from "../src/contracts/pos/PrizeManager";
-import { PrizeManagerFactory } from "../src/contracts/pos/PrizeManagerFactory";
+import { PrizeManager } from "../src/types/PrizeManager";
+import { PrizeManagerFactory } from "../src/types/PrizeManagerFactory";
 import { BigNumberish, Signer } from "ethers";
 
 use(solidity);

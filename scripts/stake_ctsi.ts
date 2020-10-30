@@ -21,7 +21,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { BigNumber } from "ethers";
-import { Staking } from "../src/contracts/pos/Staking";
+import { Staking } from "../src/types/Staking";
 
 const hre = require("hardhat") as HardhatRuntimeEnvironment;
 const { deployments, ethers } = hre;

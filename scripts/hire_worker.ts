@@ -21,7 +21,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import { WorkerManager } from "../src/contracts/util/WorkerManager";
+import { WorkerManagerImpl } from "@cartesi/util";
 
 const hre = require("hardhat") as HardhatRuntimeEnvironment;
 const { deployments, ethers } = hre;
@@ -39,7 +39,7 @@ async function main() {
     const worker = (await ethers.getContractAt(
         WorkerManagerImpl.abi,
         WorkerManagerImpl.address
-    )) as WorkerManager;
+    )) as WorkerManagerImpl;
 
     const sWorker = await worker.connect(signer);
 

@@ -6,7 +6,6 @@ deployments/localhost
 deployments/*/solcInputs/*.json
 pos/target
 node_modules
-src/contracts
 src/types
 test/*/
 .vscode

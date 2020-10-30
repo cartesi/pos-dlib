@@ -27,8 +27,8 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { Staking } from "../src/contracts/pos/Staking";
-import { StakingImplFactory } from "../src/contracts/pos/StakingImplFactory";
+import { Staking } from "../src/types/Staking";
+import { StakingImplFactory } from "../src/types/StakingImplFactory";
 import { Signer } from "ethers";
 
 const { advanceTime, advanceBlock } = require("./utils");

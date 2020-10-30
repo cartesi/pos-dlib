@@ -20,7 +20,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Staking } from "../src/contracts/pos/Staking";
+import { Staking } from "../src/types/Staking";
 
 const hre = require("hardhat") as HardhatRuntimeEnvironment;
 const { deployments, ethers, getNamedAccounts } = hre;

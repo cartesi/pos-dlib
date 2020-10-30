@@ -20,7 +20,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { WorkerAuthManagerFactory } from "../src/contracts/util/WorkerAuthManagerFactory";
+import { WorkerAuthManagerImplFactory } from "@cartesi/util";
 
 const hre = require("hardhat") as HardhatRuntimeEnvironment;
 const { deployments, ethers } = hre;
@@ -29,7 +29,7 @@ async function main() {
     const [user] = await ethers.getSigners();
     const { PoS, WorkerAuthManagerImpl } = await deployments.all();
 
-    const authManager = WorkerAuthManagerFactory.connect(
+    const authManager = WorkerAuthManagerImplFactory.connect(
         WorkerAuthManagerImpl.address,
         user
     );
