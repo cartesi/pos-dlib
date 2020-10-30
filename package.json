@@ -6,8 +6,8 @@
     "test": "test"
   },
   "dependencies": {
-    "@cartesi/token": "^1.1.0",
-    "@cartesi/util": "^0.5.0",
+    "@cartesi/token": "^1.2.0",
+    "@cartesi/util": "^0.5.1",
     "@openzeppelin/contracts": "3.2.1-solc-0.7",
     "commander": "^6.1.0"
   },
@@ -46,12 +46,12 @@
     "deploy": "run-s deploy:development",
     "deploy:testnet": "run-s deploy:rinkeby deploy:kovan deploy:goerli deploy:matic_testnet deploy:bsc_testnet",
     "deploy:development": "hardhat deploy --network localhost",
-    "deploy:ropsten": "hardhat deploy --network ropsten --export abi/ropsten.json",
     "deploy:rinkeby": "hardhat deploy --network rinkeby --export abi/rinkeby.json",
     "deploy:kovan": "hardhat deploy --network kovan --export abi/kovan.json",
     "deploy:goerli": "hardhat deploy --network goerli --export abi/goerli.json",
     "deploy:matic_testnet": "hardhat deploy --network matic_testnet --export abi/matic_testnet.json",
     "deploy:bsc_testnet": "hardhat deploy --network bsc_testnet --export abi/bsc_testnet.json",
+    "export": "Export artifacts in a simpler format",
     "prepack": "run-s clean deploy:testnet",
     "start": "hardhat node"
   },
@@ -63,12 +63,12 @@
     "deploy": "Deploy contracts to local ganache. Requires ganache running on localhost:8545",
     "deploy:testnet": "Deploy contracts to all supported testnets. Requires two environment variables: PROJECT_ID and MNEMONIC.",
     "deploy:development": "Deploy contracts to local ganache. Requires ganache running on localhost:8545",
-    "deploy:ropsten": "Deploy contracts to ropsten. Requires two environment variables: PROJECT_ID and MNEMONIC.",
     "deploy:rinkeby": "Deploy contracts to rinkeby. Requires two environment variables: PROJECT_ID and MNEMONIC.",
     "deploy:kovan": "Deploy contracts to kovan. Requires two environment variables: PROJECT_ID and MNEMONIC.",
     "deploy:goerli": "Deploy contracts to goerli. Requires two environment variables: PROJECT_ID and MNEMONIC.",
     "deploy:matic_testnet": "Deploy contracts to matic_testnet.",
-    "deploy:bsc_testnet": "Deploy contracts to bsc_testnet."
+    "deploy:bsc_testnet": "Deploy contracts to bsc_testnet.",
+    "export": "hardhat export-artifacts export/artifacts"
   },
   "repository": {
     "type": "git",

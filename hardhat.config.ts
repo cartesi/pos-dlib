@@ -19,7 +19,7 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import { HardhatUserConfig, task } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
 import "@nomiclabs/hardhat-ethers";
@@ -51,7 +51,6 @@ const config: HardhatUserConfig = {
             url: "http://localhost:8545",
             accounts: mnemonic ? { mnemonic } : undefined
         },
-        ropsten: infuraNetwork("ropsten", 3, 3283185),
         rinkeby: infuraNetwork("rinkeby", 4, 6283185),
         kovan: infuraNetwork("kovan", 42, 6283185),
         goerli: infuraNetwork("goerli", 5, 6283185),
@@ -88,10 +87,6 @@ const config: HardhatUserConfig = {
             localhost: [
                 "node_modules/@cartesi/util/deployments/localhost",
                 "node_modules/@cartesi/token/deployments/localhost"
-            ],
-            ropsten: [
-                "node_modules/@cartesi/util/deployments/ropsten",
-                "node_modules/@cartesi/token/deployments/ropsten"
             ],
             rinkeby: [
                 "node_modules/@cartesi/util/deployments/rinkeby",
