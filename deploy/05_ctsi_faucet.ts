@@ -24,13 +24,13 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { useOrDeploy } from "../src/helpers/useOrDeploy";
 
-const func: DeployFunction = async (bre: HardhatRuntimeEnvironment) => {
-    const { deployments, getNamedAccounts } = bre;
+const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+    const { deployments, getNamedAccounts } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
     const CartesiTokenAddress = await useOrDeploy(
-        bre,
+        hre,
         deployer,
         "CartesiToken"
     );

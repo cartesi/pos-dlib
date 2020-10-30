@@ -3,7 +3,7 @@
   "chainId": "4",
   "contracts": {
     "CTSIFaucet": {
-      "address": "0x41C02866f412191D5941f0eEC2315924fFE2070d",
+      "address": "0x62Bb86cB73d965a682f4d7a72aE718B6c1711d9e",
       "abi": [
         {
           "inputs": [
@@ -26,7 +26,7 @@
       ]
     },
     "Lottery": {
-      "address": "0x16Fad52E1D2D7c5228cAfe7D290A82199404243B",
+      "address": "0x60860E4E716aD39AB4D8b433f466A5e369DbBf07",
       "abi": [
         {
           "anonymous": false,
@@ -151,7 +151,102 @@
               "type": "uint256"
             }
           ],
+          "name": "getCurrentDrawStartTime",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getDesiredDrawInterval",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getDifficulty",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getDifficultyAdjustmentParameter",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
           "name": "getMicrosecondsSinceLastDraw",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getMinDifficulty",
           "outputs": [
             {
               "internalType": "uint256",
@@ -175,6 +270,25 @@
             {
               "internalType": "uint256",
               "name": "currentNonce",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getRoundCount",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
               "type": "uint256"
             }
           ],
@@ -338,7 +452,7 @@
       ]
     },
     "PoS": {
-      "address": "0xF89f92Da5a2955080d034D04968c604086C300BA",
+      "address": "0x30f41c1AE63dB919b69aE1c384b71215E0d2BB1B",
       "abi": [
         {
           "anonymous": false,
@@ -346,25 +460,25 @@
             {
               "indexed": true,
               "internalType": "uint256",
-              "name": "_index",
+              "name": "index",
               "type": "uint256"
             },
             {
               "indexed": true,
               "internalType": "address",
-              "name": "_user",
+              "name": "user",
               "type": "address"
             },
             {
               "indexed": true,
               "internalType": "address",
-              "name": "_beneficiary",
+              "name": "beneficiary",
               "type": "address"
             },
             {
               "indexed": false,
               "internalType": "uint256",
-              "name": "_split",
+              "name": "split",
               "type": "uint256"
             }
           ],
@@ -388,6 +502,49 @@
             }
           ],
           "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "index",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "worker",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "beneficiary",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "userPrize",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "beneficiaryPrize",
+              "type": "uint256"
+            }
+          ],
+          "name": "PrizePaid",
           "type": "event"
         },
         {
@@ -697,7 +854,7 @@
       ]
     },
     "PrizeManager": {
-      "address": "0x9DC4B693512F8fC47E02e9Dde56819C94d40BD31",
+      "address": "0xC491E7B185aFE90c375716006042EB3a18fE9735",
       "abi": [
         {
           "inputs": [
@@ -710,6 +867,11 @@
               "internalType": "address",
               "name": "_ctsiAddress",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_maxPrize",
+              "type": "uint256"
             },
             {
               "internalType": "uint256",
@@ -729,25 +891,6 @@
           ],
           "stateMutability": "nonpayable",
           "type": "constructor"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "_winner",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "_prize",
-              "type": "uint256"
-            }
-          ],
-          "name": "WinnerPaid",
-          "type": "event"
         },
         {
           "inputs": [],
@@ -796,7 +939,7 @@
       ]
     },
     "StakingImpl": {
-      "address": "0xa62dc47B9720e57D944f47DD9Fdea02DA30fD289",
+      "address": "0x1939e693dD70359E9B75E0E0cfa9fa27D1236C17",
       "abi": [
         {
           "inputs": [
@@ -1025,7 +1168,7 @@
       ]
     },
     "BitsManipulationLibrary": {
-      "address": "0xCE5e6197b9D7caAbC3D979B85b7AFa18BD5245b9",
+      "address": "0xAc301c9CD929bBC333BB47cf12802B5045A31820",
       "abi": [
         {
           "inputs": [
@@ -1116,7 +1259,7 @@
       ]
     },
     "CartesiMath": {
-      "address": "0x7f713126D4C7396c3dBE9EdA70C3E7166B2f1314",
+      "address": "0xBf303e2a227B806747864C60C8611a05a06Ecc42",
       "abi": [
         {
           "inputs": [],
@@ -1145,7 +1288,7 @@
       ]
     },
     "Merkle": {
-      "address": "0x006a79A0dec981839026CEd17876A67B31655aD4",
+      "address": "0x1801CA814d200E3b890Ad1A05FB2e805D99e20e5",
       "abi": [
         {
           "inputs": [
@@ -1289,7 +1432,7 @@
       ]
     },
     "WorkerAuthManagerImpl": {
-      "address": "0x0FDf61DA09a88Cc7219746E6e6c4385B85149ea0",
+      "address": "0x10D022307724eA0eC63f66048Ba376aE3a884F4A",
       "abi": [
         {
           "inputs": [
@@ -1434,7 +1577,7 @@
       ]
     },
     "WorkerManagerImpl": {
-      "address": "0xf1B38824dd69345a22f34237D899B996957CA040",
+      "address": "0xFB8dF7b171CCB1956c43a629ca7280dfeD299780",
       "abi": [
         {
           "anonymous": false,

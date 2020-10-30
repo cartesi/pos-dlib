@@ -27,12 +27,12 @@ const MINUTE = 60; // seconds in a minute
 const HOUR = 60 * MINUTE; // seconds in an hour
 const DAY = 24 * HOUR; // seconds in a day
 
-const func: DeployFunction = async (bre: HardhatRuntimeEnvironment) => {
-    const { deployments, getNamedAccounts } = bre;
+const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+    const { deployments, getNamedAccounts } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
     const CartesiTokenAddress = await useOrDeploy(
-        bre,
+        hre,
         deployer,
         "CartesiToken"
     );
@@ -40,6 +40,7 @@ const func: DeployFunction = async (bre: HardhatRuntimeEnvironment) => {
     await deploy("StakingImpl", {
         args: [CartesiTokenAddress, 2 * HOUR, 2 * HOUR],
         from: deployer,
+        deterministicDeployment: true,
         log: true
     });
 };

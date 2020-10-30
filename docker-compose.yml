@@ -2,7 +2,7 @@ version: '3'
 services:
   signer:
     image: cartesi/ethsigner:latest
-    command: "--chain-id=${CHAIN_ID:-3} --downstream-http-host=${CHAIN_NAME:-ropsten}.infura.io --downstream-http-port=443 --http-cors-origins=\"http://localhost:3000,https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${PROJECT_ID:?PROJECT_ID undefined, please set up an application at Infura}"
+    command: "--chain-id=${CHAIN_ID:-3} --downstream-http-host=${CHAIN_NAME:-goerli}.infura.io --downstream-http-port=443 --http-cors-origins=\"http://localhost:3000,https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${PROJECT_ID:?PROJECT_ID undefined, please set up an application at Infura}"
     ports:
       - 8545:8545
   
@@ -12,7 +12,7 @@ services:
     environment:
       RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,descartes=trace
       WEB3_PROVIDER_URI: http://signer:8545
-      CHAIN_NAME: ${CHAIN_NAME:-ropsten}
+      CHAIN_NAME: ${CHAIN_NAME:-goerli}
       QUERY_PORT: 3001
       ETHEREUM_HOST: signer
       ETHEREUM_PORT: 8545

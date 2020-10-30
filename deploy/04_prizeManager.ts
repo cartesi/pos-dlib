@@ -25,14 +25,14 @@ import { BigNumber } from "ethers";
 
 import { useOrDeploy } from "../src/helpers/useOrDeploy";
 
-const func: DeployFunction = async (bre: HardhatRuntimeEnvironment) => {
-    const { deployments, getNamedAccounts } = bre;
+const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+    const { deployments, getNamedAccounts } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
     const { PoS } = await deployments.all();
     const CartesiTokenAddress = await useOrDeploy(
-        bre,
+        hre,
         deployer,
         "CartesiToken"
     );
