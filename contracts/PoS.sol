@@ -28,7 +28,6 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "@cartesi/util/contracts/CartesiMath.sol";
 import "@cartesi/util/contracts/InstantiatorImpl.sol";
 import "@cartesi/util/contracts/Decorated.sol";
 import "@cartesi/util/contracts/WorkerAuthManager.sol";
@@ -37,7 +36,7 @@ import "./Staking.sol";
 import "./Lottery.sol";
 import "./PrizeManager.sol";
 
-contract PoS is Ownable, InstantiatorImpl, Decorated, CartesiMath {
+contract PoS is Ownable, InstantiatorImpl, Decorated {
     using SafeMath for uint256;
 
     uint256 constant SPLIT_BASE = 10000;

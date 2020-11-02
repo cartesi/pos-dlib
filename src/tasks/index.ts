@@ -19,26 +19,4 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { CtsiFaucetFactory } from "../src/contracts/pos/CtsiFaucetFactory";
-
-const hre = require("hardhat") as HardhatRuntimeEnvironment;
-const { deployments, ethers } = hre;
-
-async function main() {
-    const { CTSIFaucet } = await deployments.all();
-    const [signer] = await ethers.getSigners();
-    const faucet = CtsiFaucetFactory.connect(CTSIFaucet.address, signer);
-    const drip_tx = await faucet.drip({
-        value: ethers.utils.parseEther("0.3")
-    });
-
-    console.log(`drip transaction: ${drip_tx.hash}`);
-}
-
-main()
-    .then(() => process.exit(0))
-    .catch(error => {
-        console.error(error);
-        process.exit(1);
-    });
+import "./ctsi";

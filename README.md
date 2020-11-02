@@ -99,7 +99,7 @@ We provide a faucet the drops 100 fake CTSI in exchange for 0.3 testnet ETH.
 Run the following command:
 
 ```
-npx hardhat run scripts/drip.ts --network goerli
+npx hardhat ctsi:drip --network goerli
 ```
 
 ## Allowance
