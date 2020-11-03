@@ -1,6 +1,6 @@
 {
   "name": "@cartesi/pos",
-  "version": "0.1.0-beta.9",
+  "version": "0.1.0-beta.10",
   "description": "CTSI Proof of Stake",
   "directories": {
     "test": "test"
@@ -75,10 +75,14 @@
   },
   "files": [
     "abi",
-    "artifacts",
     "contracts",
-    "deployments"
+    "deployments/*/*.json",
+    "deployments/*/.chainid",
+    "dist/src/types",
+    "export"
   ],
+  "main": "./dist/src/types/index.js",
+  "types": "./dist/src/types/index.d.ts",
   "author": "Felipe Argento <felipe.argento@cartesi.io>",
   "bugs": {
     "url": "https://github.com/cartesi/pos-dlib/issues"
