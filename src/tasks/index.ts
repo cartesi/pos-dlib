@@ -20,3 +20,5 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import "./ctsi";
+import "./pos";
+import "./worker";

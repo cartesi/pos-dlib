@@ -22,7 +22,6 @@
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 import { task, types } from "hardhat/config";
 import { CartesiTokenFactory } from "@cartesi/token";
-import { CtsiFaucetFactory } from "../types/CtsiFaucetFactory";
 import { BigNumber } from "ethers";
 
 task(
@@ -42,6 +41,9 @@ task(
     "ctsi:drip",
     "Get CTSI from faucet in exchange of 0.3 ETH",
     async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+        const { CtsiFaucetFactory } = await require(
+            "../types/CtsiFaucetFactory"
+        );
         const { deployments, ethers, run } = hre;
 
         // run deploy if needed
@@ -58,12 +60,7 @@ task(
 );
 
 task("ctsi:allow", "Allow spending of CTSI")
-    .addOptionalParam(
-        "ammount",
-        "Ammount of CTSI to approve",
-        "100000000000000000000", // 100 CTSI
-        types.string
-    )
+    .addPositionalParam("amount", "Amount of CTSI")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers, run } = hre;
 
@@ -75,7 +72,7 @@ task("ctsi:allow", "Allow spending of CTSI")
         const ctsi = CartesiTokenFactory.connect(CartesiToken.address, signer);
         const approve_tx = await ctsi.approve(
             StakingImpl.address,
-            BigNumber.from(args.ammount)
+            BigNumber.from(args.amount)
         );
         console.log(`spending approve: ${approve_tx.hash}`);
     });

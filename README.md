@@ -99,7 +99,7 @@ We provide a faucet the drops 100 fake CTSI in exchange for 0.3 testnet ETH.
 Run the following command:
 
 ```
-npx hardhat ctsi:drip --network goerli
+npx hardhat --network goerli ctsi:drip
 ```
 
 ## Allowance
@@ -108,7 +108,7 @@ ERC20 requires you to allow the Staking contract to "spend" some of your CTSI.
 You must set an allowance, by running the following command:
 
 ```
-npx hardhat run scripts/approve_staking_spending.ts --network goerli
+npx hardhat --network goerli ctsi:allow 100000000000000000000
 ```
 
 This will set an allowance of 100 CTSI.
@@ -119,13 +119,13 @@ The next step is to actually stake your tokens.
 The following command will stake 100 CTSI to the Staking contract.
 
 ```
-npx hardhat run scripts/stake_ctsi.ts --network goerli
+npx hardhat --network goerli pos:stake 100000000000000000000
 ```
 
 At this point you can check your staked balance using the following command:
 
 ```
-npx hardhat run ../pos-dlib/scripts/pos.ts --network goerli
+npx hardhat --network goerli pos:show
 ```
 
 This should print out something like:
@@ -163,7 +163,7 @@ You can hire the node using the command below.
 It needs an amount of ETH to cover its gas costs. For now we are trasferring 1 ETH.
 
 ```
-npx hardhat run scripts/hire_worker.ts --network goerli
+npx hardhat --network goerli worker:hire
 ```
 
 This should kickstart your node, making it accept the job and printing something like the line below, where `0xa0ab8e67e71485792e6bd1afb51e407b0548355e` is your account address.
@@ -175,7 +175,7 @@ dispatcher_1  | [2020-09-30T20:09:53Z INFO  configuration] Worker state: Owned(0
 Finally you need to authorize the PoS contract to be called from the worker node on your behalf, by running the following command:
 
 ```
-npx hardhat run scripts/auth.ts --network goerli
+npx hardhat --network goerli worker:auth
 ```
 
 ## Unstaking and withdrawing
@@ -184,11 +184,11 @@ You should leave your node running as much as possible to you have the possibili
 If you do you can unstaking and withdraw the tokens back to your wallet, by running the following commands;
 
 ```
-npx hardhat run scripts/unstake_ctsi.ts --network goerli
+npx hardhat --network goerli pos:unstake 100000000000000000000
 ```
 
 The unstaked balance have a maturation period of 2 hours. After this you can withdraw back to your wallet by running the following command:
 
 ```
-npx hardhat run scripts/withdrawal_ctsi.ts --network goerli
+npx hardhat --network goerli pos:withdraw 100000000000000000000
 ```
