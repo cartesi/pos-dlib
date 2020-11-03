@@ -41,19 +41,19 @@ task("pos:create", "Create the main PoS contract")
     .addOptionalParam(
         "initialDiff",
         "Specify the initial difficulty parameter",
-        "100000000000000000000",
+        "100000000000000000000000000",
         types.string
     )
     .addOptionalParam(
         "diffAdjustment",
         "Specify the difficult adjustment parameter",
-        "20000",
+        "50000",
         types.string
     )
     .addOptionalParam(
         "prizePool",
         "Specify the amount of CTSI to transfer to PrizeManager",
-        "25000000000000000000",
+        "50000000000000000000000000",
         types.string
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
