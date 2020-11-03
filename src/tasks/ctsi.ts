@@ -60,7 +60,7 @@ task(
 );
 
 task("ctsi:allow", "Allow spending of CTSI")
-    .addPositionalParam("amount", "Amount of CTSI")
+    .addPositionalParam("amount", "Amount of CTSI including 18 decimal place without '.'")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers, run } = hre;
 

@@ -99,7 +99,7 @@ task("pos:create", "Create the main PoS contract")
         console.log(`Transfer to PrizeManager: ${ctsi_tx.hash}`);
     });
 
-task("pos:stake", "Stake some amount of CTSI")
+task("pos:stake", "Stake some amount of CTSI including 18 decimal place without '.'")
     .addPositionalParam("amount", "amount of CTSI to stake")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
@@ -155,11 +155,12 @@ task(
     }
 );
 
-task("pos:unstake", "Unstake some amount of CTSI")
+task("pos:unstake", "Unstake some amount of CTSI including 18 decimal place without '.'")
     .addPositionalParam("amount", "amount of CTSI")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { StakingFactory } = await require("../types/StakingFactory");
+        const m = "../types/StakingFactory";
+        const { StakingFactory } = await import(m);
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
         const staking = StakingFactory.connect(StakingImpl.address, signer);
@@ -167,7 +168,7 @@ task("pos:unstake", "Unstake some amount of CTSI")
         console.log(`unstaking_tx: ${unstaking_tx.hash}`);
     });
 
-task("pos:withdraw", "Withdraw some amount of CTSI")
+task("pos:withdraw", "Withdraw some amount of CTSI including 18 decimal place without '.'")
     .addPositionalParam("amount", "amount of CTSI")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
