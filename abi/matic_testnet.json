@@ -3,7 +3,7 @@
   "chainId": "80001",
   "contracts": {
     "CTSIFaucet": {
-      "address": "0x1c8Cb0452699228c307d3c3259A45eDDce90Df56",
+      "address": "0xdab26a2a81b75b285a110F830C0DA3BFbA3595ef",
       "abi": [
         {
           "inputs": [
@@ -26,7 +26,7 @@
       ]
     },
     "Lottery": {
-      "address": "0xE4fFA00a7FaC8C4d59fE2781e450b3Db53Fcd1cC",
+      "address": "0x8921D7C9491A9921faC4cbbFc49c37c0fe597dF5",
       "abi": [
         {
           "anonymous": false,
@@ -452,7 +452,7 @@
       ]
     },
     "PoS": {
-      "address": "0xeDCca23Ad44C7B3F928b925091ee5bcd1C814ab0",
+      "address": "0xEb8349a9484c8179E5183a6B28A7cFc5e507D8Ab",
       "abi": [
         {
           "anonymous": false,
@@ -800,25 +800,6 @@
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_num",
-              "type": "uint256"
-            }
-          ],
-          "name": "log2ApproxTimes1M",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
           "inputs": [],
           "name": "owner",
           "outputs": [
@@ -854,7 +835,7 @@
       ]
     },
     "PrizeManager": {
-      "address": "0x328a515fb142955d24283803F8547Ce076bf45eb",
+      "address": "0x51783Efd79e570157a1AAa0d50FD32Bae3017bAb",
       "abi": [
         {
           "inputs": [
@@ -1254,35 +1235,6 @@
             }
           ],
           "stateMutability": "pure",
-          "type": "function"
-        }
-      ]
-    },
-    "CartesiMath": {
-      "address": "0x393312fb8cd1a64538Ac68ac432f6DBa94e9adb4",
-      "abi": [
-        {
-          "inputs": [],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_num",
-              "type": "uint256"
-            }
-          ],
-          "name": "log2ApproxTimes1M",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
           "type": "function"
         }
       ]
@@ -1825,7 +1777,7 @@
       ]
     },
     "CartesiToken": {
-      "address": "0x52BE964c9a9fd9Ebc2295979F9F8362551413cb5",
+      "address": "0x8B3ae9F9E61Ed278c17d45517fEFb52191ab2683",
       "abi": [
         {
           "constant": true,
@@ -2273,7 +2225,7 @@
       ]
     },
     "CartesiTokenTimelock": {
-      "address": "0x9586E5cD4eca81a2617aB2f00FAaf1c8114cDA44",
+      "address": "0xD0c5b5fD1Cc6e2D04B156B2A891c39289fa1D3c1",
       "abi": [
         {
           "constant": true,
@@ -2348,7 +2300,7 @@
       ]
     },
     "MineTimelock": {
-      "address": "0x5fDd58b139CdA2f7693f5633754beC183a649434",
+      "address": "0x87916D9A2D492a416F5185dDb7936517b05219DE",
       "abi": [
         {
           "constant": true,

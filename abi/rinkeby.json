@@ -3,7 +3,7 @@
   "chainId": "4",
   "contracts": {
     "CTSIFaucet": {
-      "address": "0x62Bb86cB73d965a682f4d7a72aE718B6c1711d9e",
+      "address": "0x3440609809C7e6BE1704a4500C6819dCBcB42fe8",
       "abi": [
         {
           "inputs": [
@@ -26,7 +26,7 @@
       ]
     },
     "Lottery": {
-      "address": "0x60860E4E716aD39AB4D8b433f466A5e369DbBf07",
+      "address": "0xCa721AFFBAfd3b111cA3962774CBB82Ce79a51eA",
       "abi": [
         {
           "anonymous": false,
@@ -452,7 +452,7 @@
       ]
     },
     "PoS": {
-      "address": "0x30f41c1AE63dB919b69aE1c384b71215E0d2BB1B",
+      "address": "0x2885edBf89E949f409E8D0BF6d44Da4109C9e8a1",
       "abi": [
         {
           "anonymous": false,
@@ -800,25 +800,6 @@
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_num",
-              "type": "uint256"
-            }
-          ],
-          "name": "log2ApproxTimes1M",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
           "inputs": [],
           "name": "owner",
           "outputs": [
@@ -854,7 +835,7 @@
       ]
     },
     "PrizeManager": {
-      "address": "0xC491E7B185aFE90c375716006042EB3a18fE9735",
+      "address": "0xf24Bad6fFe04996898cD5Cf82Ddb44aAF078172F",
       "abi": [
         {
           "inputs": [
@@ -1254,35 +1235,6 @@
             }
           ],
           "stateMutability": "pure",
-          "type": "function"
-        }
-      ]
-    },
-    "CartesiMath": {
-      "address": "0xBf303e2a227B806747864C60C8611a05a06Ecc42",
-      "abi": [
-        {
-          "inputs": [],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_num",
-              "type": "uint256"
-            }
-          ],
-          "name": "log2ApproxTimes1M",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
           "type": "function"
         }
       ]
@@ -1825,7 +1777,7 @@
       ]
     },
     "CartesiToken": {
-      "address": "0x3FfB3Ed85ce713319d6F44721cD10E73018B88d0",
+      "address": "0xD3f1070B1Edb400204246D0a543DF21722FdB8C0",
       "abi": [
         {
           "constant": true,
@@ -1966,6 +1918,43 @@
               "type": "bool"
             }
           ],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "mint",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "_extraLockTime",
+              "type": "uint256"
+            }
+          ],
+          "name": "extendMintLockTime",
+          "outputs": [],
           "payable": false,
           "stateMutability": "nonpayable",
           "type": "function"
@@ -2232,48 +2221,11 @@
           ],
           "name": "Approval",
           "type": "event"
-        },
-        {
-          "constant": false,
-          "inputs": [
-            {
-              "name": "account",
-              "type": "address"
-            },
-            {
-              "name": "amount",
-              "type": "uint256"
-            }
-          ],
-          "name": "mint",
-          "outputs": [
-            {
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "payable": false,
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "constant": false,
-          "inputs": [
-            {
-              "name": "_extraLockTime",
-              "type": "uint256"
-            }
-          ],
-          "name": "extendMintLockTime",
-          "outputs": [],
-          "payable": false,
-          "stateMutability": "nonpayable",
-          "type": "function"
         }
       ]
     },
     "CartesiTokenTimelock": {
-      "address": "0xfa19C6BD7BBd08929Be2b3180Ff7d3D905587811",
+      "address": "0x5a1cEEF4f5E11797caF4903fF638b06f399ac714",
       "abi": [
         {
           "constant": true,
@@ -2348,12 +2300,35 @@
       ]
     },
     "MineTimelock": {
-      "address": "0xD34Bce6EEC685c878E20C267a4A81BA98Db0Cc6e",
+      "address": "0x37bE2C67793014CB1C1A2B71d19A7Ad817255C08",
       "abi": [
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "beneficiary",
+          "outputs": [
+            {
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
         {
           "constant": false,
           "inputs": [],
           "name": "renounceOwnership",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [],
+          "name": "release",
           "outputs": [],
           "payable": false,
           "stateMutability": "nonpayable",
@@ -2388,6 +2363,34 @@
           "type": "function"
         },
         {
+          "constant": true,
+          "inputs": [],
+          "name": "releaseTime",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "beneficiary",
+              "type": "address"
+            }
+          ],
+          "name": "changeBeneficiary",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
           "constant": false,
           "inputs": [
             {
@@ -2399,6 +2402,20 @@
           "outputs": [],
           "payable": false,
           "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "token",
+          "outputs": [
+            {
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
           "type": "function"
         },
         {
@@ -2448,71 +2465,6 @@
           ],
           "name": "OwnershipTransferred",
           "type": "event"
-        },
-        {
-          "constant": false,
-          "inputs": [
-            {
-              "name": "beneficiary",
-              "type": "address"
-            }
-          ],
-          "name": "changeBeneficiary",
-          "outputs": [],
-          "payable": false,
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "constant": true,
-          "inputs": [],
-          "name": "token",
-          "outputs": [
-            {
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "payable": false,
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "constant": true,
-          "inputs": [],
-          "name": "beneficiary",
-          "outputs": [
-            {
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "payable": false,
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "constant": true,
-          "inputs": [],
-          "name": "releaseTime",
-          "outputs": [
-            {
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "payable": false,
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "constant": false,
-          "inputs": [],
-          "name": "release",
-          "outputs": [],
-          "payable": false,
-          "stateMutability": "nonpayable",
-          "type": "function"
         }
       ]
     }

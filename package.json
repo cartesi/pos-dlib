@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@cartesi/token": "^1.2.1",
-    "@cartesi/util": "^0.5.2",
+    "@cartesi/util": "^0.6.1",
     "@openzeppelin/contracts": "3.2.1-solc-0.7",
     "commander": "^6.1.0"
   },

@@ -27,11 +27,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
-    const diff = await deployments.fetchIfDifferent("CartesiMath", {
-        from: deployer,
-    });
-    console.log(`CartesiMath differences: ${diff.differences} - ${diff.address}`);
-    
     await deploy("Lottery", {
         from: deployer,
         log: true
