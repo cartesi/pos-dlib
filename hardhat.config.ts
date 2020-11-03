@@ -26,7 +26,7 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-typechain";
 import "hardhat-deploy";
-import "./src/tasks";
+// import "./src/tasks";
 
 // read MNEMONIC from env variable
 let mnemonic = process.env.MNEMONIC;
