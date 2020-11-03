@@ -35,7 +35,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await deploy("StakingImpl", {
         args: [CartesiToken.address, 2 * HOUR, 2 * HOUR],
         from: deployer,
-        deterministicDeployment: true,
         log: true
     });
 };
