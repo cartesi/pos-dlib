@@ -23,19 +23,13 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 
-import { useOrDeploy } from "../src/helpers/useOrDeploy";
-
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
-    const { PoS } = await deployments.all();
-    const CartesiTokenAddress = await useOrDeploy(
-        hre,
-        deployer,
-        "CartesiToken"
-    );
+    const { CartesiToken, PoS } = await deployments.all();
+
     // minutes in 6 months 26280
     // rate = 0.005% = 0.00005 = 5 / 100000
     const numerator = 5;
@@ -47,7 +41,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         from: deployer,
         args: [
             PoS.address,
-            CartesiTokenAddress,
+            CartesiToken.address,
             minimumPrize,
             maxPrize,
             numerator,

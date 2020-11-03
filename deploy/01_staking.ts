@@ -21,7 +21,6 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { useOrDeploy } from "../src/helpers/useOrDeploy";
 
 const MINUTE = 60; // seconds in a minute
 const HOUR = 60 * MINUTE; // seconds in an hour
@@ -31,14 +30,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
-    const CartesiTokenAddress = await useOrDeploy(
-        hre,
-        deployer,
-        "CartesiToken"
-    );
+    const { CartesiToken } = await deployments.all();
 
     await deploy("StakingImpl", {
-        args: [CartesiTokenAddress, 2 * HOUR, 2 * HOUR],
+        args: [CartesiToken.address, 2 * HOUR, 2 * HOUR],
         from: deployer,
         deterministicDeployment: true,
         log: true

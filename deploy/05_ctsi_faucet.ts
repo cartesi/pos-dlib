@@ -22,23 +22,16 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-import { useOrDeploy } from "../src/helpers/useOrDeploy";
-
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
-
-    const CartesiTokenAddress = await useOrDeploy(
-        hre,
-        deployer,
-        "CartesiToken"
-    );
+    const { CartesiToken } = await deployments.all();
 
     await deploy("CTSIFaucet", {
         from: deployer,
         args: [
-            CartesiTokenAddress
+            CartesiToken.address
         ],
         log: true
     });
