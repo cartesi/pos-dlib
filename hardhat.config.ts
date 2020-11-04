@@ -26,6 +26,7 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-typechain";
 import "hardhat-deploy";
+import "@tenderly/hardhat-tenderly";
 import "./src/tasks";
 
 // read MNEMONIC from env variable
@@ -131,6 +132,10 @@ const config: HardhatUserConfig = {
         beneficiary: {
             default: 1
         }
+    },
+    tenderly: {
+        username: 'cartesi',
+        project: 'pos'
     }
 };
 
