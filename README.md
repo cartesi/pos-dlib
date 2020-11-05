@@ -146,7 +146,7 @@ So you have to wait this period for it to be really considered as staked.
 Finally you need to run a local node, by running the following command:
 
 ```
-docker-compose up
+docker-compose -f docker-compose-goerli.yml up
 ```
 
 The worker node starts with a new empty wallet, and keeps polling the blockchain to see if any user wants to hire him.
@@ -192,3 +192,11 @@ The unstaked balance have a maturation period of 2 hours. After this you can wit
 ```
 npx hardhat --network goerli pos:withdraw 100000000000000000000
 ```
+
+# Running on mainnet
+
+```
+docker-compose up
+```
+
+TODO: further instructions
