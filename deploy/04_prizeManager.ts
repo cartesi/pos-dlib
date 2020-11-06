@@ -42,8 +42,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         args: [
             PoS.address,
             CartesiToken.address,
-            minimumPrize,
             maxPrize,
+            minimumPrize,
             numerator,
             denominator
         ],
