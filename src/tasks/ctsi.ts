@@ -20,7 +20,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
-import { task, types } from "hardhat/config";
+import { task } from "hardhat/config";
 import { CartesiTokenFactory } from "@cartesi/token";
 import { BigNumber } from "ethers";
 
