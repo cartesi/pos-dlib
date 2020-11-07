@@ -99,6 +99,25 @@ task("pos:create", "Create the main PoS contract")
         console.log(`Transfer to PrizeManager: ${ctsi_tx.hash}`);
     });
 
+task("pos:deactivate", "Deativate a PoS instance")
+    .addPositionalParam(
+        "index",
+        "Index of instance to deactivate",
+        0,
+        types.int
+    )
+    .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+        const { deployments, ethers } = hre;
+        const { PoSFactory } = await require("../types/PoSFactory");
+        const { PoS } = await deployments.all();
+
+        const [deployer] = await ethers.getSigners();
+        const pos = PoSFactory.connect(PoS.address, deployer);
+
+        const tx = await pos.deactivate(args.index);
+        console.log(`PoS deactivated: ${tx.hash}`);
+    });
+
 task("pos:stake", "Stake some amount of CTSI including 18 decimal place without '.'")
     .addPositionalParam("amount", "amount of CTSI to stake")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
@@ -178,4 +197,19 @@ task("pos:withdraw", "Withdraw some amount of CTSI including 18 decimal place wi
         const staking = StakingFactory.connect(StakingImpl.address, signer);
         const withdraw_tx = await staking.withdraw(BigNumber.from(args.amount));
         console.log(`withdraw_tx: ${withdraw_tx.hash}`);
+    });
+
+task("pos:claimWin", "Claim lottery ticket using local node")
+    .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+        const { deployments, ethers } = hre;
+        const localProvider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+        const signer = localProvider.getSigner();
+        const address = await signer.getAddress();
+        console.log(`Claiming ticket using node ${address}`);
+
+        const { PoSFactory } = await require("../types/PoSFactory");
+        const { PoS } = await deployments.all();
+        const pos = PoSFactory.connect(PoS.address, signer);
+        const tx = await pos.claimWin(0);
+        console.log(`tx: ${tx.hash}`);
     });
