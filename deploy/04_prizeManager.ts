@@ -35,7 +35,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const numerator = 5;
     const denominator = 100000;
     const minimumPrize = BigNumber.from("1000000000000000000"); // 1 ctsi
-    const maxPrize = BigNumber.from("270000000000000000000"); // 270 ctsi
+    const maxPrize = BigNumber.from("2900000000000000000000"); // 2900 ctsi
 
     await deploy("PrizeManager", {
         from: deployer,
