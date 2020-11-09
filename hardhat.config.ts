@@ -80,9 +80,15 @@ const config: HardhatUserConfig = {
         deployments: "deployments"
     },
     external: {
-        artifacts: [
-            "node_modules/@cartesi/util/export/artifacts",
-            "node_modules/@cartesi/token/export/artifacts"
+        contracts: [
+            {
+                artifacts: "node_modules/@cartesi/token/export/artifacts",
+                deploy: "node_modules/@cartesi/token/dist/deploy"
+            },
+            {
+                artifacts: "node_modules/@cartesi/util/export/artifacts",
+                deploy: "node_modules/@cartesi/util/dist/deploy"
+            }
         ],
         deployments: {
             localhost: [
@@ -109,11 +115,7 @@ const config: HardhatUserConfig = {
                 "node_modules/@cartesi/util/deployments/bsc_testnet",
                 "node_modules/@cartesi/token/deployments/bsc_testnet"
             ]
-        },
-        deploy: [
-            "node_modules/@cartesi/token/dist/deploy",
-            "node_modules/@cartesi/util/dist/deploy"
-        ]
+        }
     },
     typechain: {
         outDir: "src/types",
