@@ -32,8 +32,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     // minutes in 6 months 26280
     // rate = 0.005% = 0.00005 = 5 / 100000
-    const numerator = 5;
-    const denominator = 100000;
+    const numerator = 77;
+    const denominator = 1000000;
     const minimumPrize = BigNumber.from("1000000000000000000"); // 1 ctsi
     const maxPrize = BigNumber.from("2900000000000000000000"); // 2900 ctsi
 
