@@ -29,7 +29,7 @@ task("pos:create", "Create the main PoS contract")
     .addOptionalParam(
         "drawInterval",
         "Specify the desired duration of each draw, in seconds",
-        30 * 60, // 30 minutes
+        10 * 60, // 10 minutes
         types.int
     )
     .addOptionalParam(
