@@ -6,9 +6,6 @@ RUN \
     apt-get install --no-install-recommends -y cmake protobuf-compiler && \
     rm -rf /var/lib/apt/lists/*
 
-# install wagyu utility for mnemonic handling
-RUN cargo install wagyu
-
 WORKDIR $BASE/pos
 
 # Compile dependencies
@@ -47,7 +44,6 @@ WORKDIR /opt/cartesi
 
 # Copy the build artifacts from the build stage
 COPY --from=build /usr/local/cargo/bin/pos $BASE/bin/pos
-COPY --from=build /usr/local/cargo/bin/wagyu /usr/local/bin
 
 # Copy onchain deployments and artifacts
 COPY deployments $BASE/share/blockchain/deployments
