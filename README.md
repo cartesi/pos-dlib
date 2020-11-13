@@ -246,8 +246,31 @@ npx hardhat --network goerli pos:withdraw 100000000000000000000
 
 # Running on mainnet
 
+You will need:
+
+- An [Infura](https://infura.io) application. Follow their [documentation](https://blog.infura.io/getting-started-with-infura-28e41844cc89/) ow how to setup a free account;
+- Install Docker and docker-compose [installed](https://docs.docker.com/get-docker/);
+
+Then run the following commands:
 ```
-docker-compose up
+export PROJECT_ID=<your_infura_project_id_here>
+curl -fsSL https://raw.githubusercontent.com/cartesi/pos-dlib/master/docker-compose.yml | docker-compose -f - up
 ```
 
-TODO: further instructions
+After running you should see something like:
+
+```
+        .
+       / \
+     /    \
+\---/---\  /----\
+\       X       \
+ \----/  \---/---\
+      \    / CARTESI
+       \ /
+        '
+Creating new wallet...
+Address: 0x498104a032B16D617E6d42E27C1339B9F4aeAc1E
+```
+
+Then browse to https://explorer.cartesi.io/staking and copy and paste the node address as seen above, and follow instructions in the application.
