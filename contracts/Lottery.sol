@@ -50,10 +50,12 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     mapping(uint256 => LotteryCtx) internal instance;
 
     event RoundClaimed(
-        address _winner,
-        uint256 _roundCount,
-        uint256 _roundDuration,
-        uint256 _difficulty
+        uint256 indexed index,
+        address indexed winner,
+        uint256 roundCount,
+        uint256 roundDuration,
+        uint256 difficulty,
+        uint256 targetInterval
     );
 
     /// @notice Instantiates a Speed Bump structure
@@ -113,10 +115,12 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
 
         if (canWin(_index, _user, _weight)) {
             emit RoundClaimed(
+                _index,
                 _user,
                 lot.roundCount,
                 getMicrosecondsSinceLastDraw(_index),
-                lot.difficulty
+                lot.difficulty,
+                lot.desiredDrawTimeInterval
             );
 
             return _roundFinished(_index, _user);
