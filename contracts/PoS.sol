@@ -90,7 +90,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     /// @param _workerAuthAddress address of worker manager contract
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
-    /// @param _desiredDrawTimeInterval how often we want to elect a winner
+    /// @param _targetInterval how often we want to elect a block producer
     /// @param _prizeManagerAddress address containing the tokens that will be distributed
     function instantiate(
         address _stakingAddress,
@@ -99,7 +99,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 _minimumDifficulty,
         uint256 _initialDifficulty,
         uint256 _difficultyAdjustmentParameter,
-        uint256 _desiredDrawTimeInterval,
+        uint256 _targetInterval,
         address _prizeManagerAddress
     ) public onlyOwner() returns (uint256) {
         instance[currentIndex].staking = Staking(_stakingAddress);
@@ -117,7 +117,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             _minimumDifficulty,
             _initialDifficulty,
             _difficultyAdjustmentParameter,
-            _desiredDrawTimeInterval,
+            _targetInterval,
             address(this)
         );
 
@@ -125,10 +125,10 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         return currentIndex++;
     }
 
-    /// @notice Claim that _user won the block
+    /// @notice Produce a block
     /// @param _index the index of the instance of pos you want to interact with
     /// @dev this function can only be called by a worker, user never calls it directly
-    function claimBlock(uint256 _index) public returns (bool) {
+    function produceBlock(uint256 _index) public returns (bool) {
         PoSCtx storage pos = instance[_index];
 
         require(
@@ -143,12 +143,12 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 beneficiarySplit = SPLIT_BASE.sub(userSplit);
 
         require(
-            pos.blockSelector.claimBlock(
+            pos.blockSelector.produceBlock(
                 pos.blockSelectorIndex,
                 user,
                 pos.staking.getStakedBalance(user)
             ),
-            "User couldnt claim round successfully"
+            "User couldnt produce a block successfully"
         );
 
         uint256 currentPrize = pos.prizeManager.getCurrentPrize();
@@ -211,7 +211,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     {
         PoSCtx storage pos = instance[_index];
         return (
-            pos.blockSelector.canClaim(
+            pos.blockSelector.canProduceBlock(
                 pos.blockSelectorIndex,
                 _user,
                 pos.staking.getStakedBalance(_user)

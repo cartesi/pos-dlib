@@ -103,37 +103,37 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         return CartesiMath.log2ApproxTimes1M(distance);
     }
 
-    /// @notice Claim that _user can create a block
+    /// @notice Produces a block
     /// @param _index the index of the instance of block selector you want to interact with
-    /// @param _user address that will win the block selector
+    /// @param _user address that has the right to produce block
     /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
-    function claimBlock(uint256 _index, address _user, uint256 _weight) public returns (bool) {
+    function produceBlock(uint256 _index, address _user, uint256 _weight) public returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
 
         require(_weight > 0, "Caller must have at least one staked token");
         require(msg.sender == bsc.posManagerAddress, "Function can only be called by pos address");
 
-        if (canClaim(_index, _user, _weight)) {
+        if (canProduceBlock(_index, _user, _weight)) {
             emit BlockProduced(
                 _index,
                 _user,
                 bsc.blockNumber,
-                getMicrosecondsSinceLastDraw(_index),
+                getMicrosecondsSinceLastBlock(_index),
                 bsc.difficulty,
                 bsc.targetInterval
             );
 
-            return _blockCreated(_index, _user);
+            return _blockProduced(_index, _user);
         }
 
         return false;
     }
 
-    /// @notice Check if address can win current round
+    /// @notice Check if address is allowed to produce block
     /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user the address that is gonna get checked
     /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
-    function canClaim(uint256 _index, address _user, uint256 _weight) public view returns (bool) {
+    function canProduceBlock(uint256 _index, address _user, uint256 _weight) public view returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
 
         // cannot claim if block selector goal hasnt been decided yet
@@ -141,7 +141,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
             return false;
         }
 
-        uint256 time = getMicrosecondsSinceLastDraw(_index);
+        uint256 time = getMicrosecondsSinceLastBlock(_index);
 
         // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
         // new goal cannot be in the past, otherwise user could "choose it"
@@ -151,10 +151,10 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         );
     }
 
-    /// @notice Block created, declare winner and adjust difficulty
+    /// @notice Block produced, declare producer and adjust difficulty
     /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user address of user that won the round
-    function _blockCreated(uint256 _index, address _user) private returns (bool) {
+    function _blockProduced(uint256 _index, address _user) private returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
         // declare winner
         bsc.blockProducer[bsc.blockNumber] = _user;
