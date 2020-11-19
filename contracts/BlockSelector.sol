@@ -211,10 +211,10 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         return _oldDiff;
     }
 
-    /// @notice Returns the block count of this instance
+    /// @notice Returns the block number of this instance
     /// @param _index the index of the instance of block selector to be interact with
-    /// @return how many blocks have been created
-    function getBlockCount(uint256 _index) public view returns (uint256) {
+    /// @return number of last block created
+    function getBlockNumber(uint256 _index) public view returns (uint256) {
         return instance[_index].blockNumber;
     }
 
