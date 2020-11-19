@@ -30,29 +30,29 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { PrizeManager } from "../src/types/PrizeManager";
-import { PrizeManagerFactory } from "../src/types/PrizeManagerFactory";
+import { RewardManager } from "../src/types/RewardManager";
+import { RewardManagerFactory } from "../src/types/RewardManagerFactory";
 import { BigNumberish, Signer } from "ethers";
 
 use(solidity);
 
-describe("PrizeManager", async () => {
+describe("RewardManager", async () => {
     let signer: Signer;
     let alice: Signer;
     let bob: Signer;
 
     let aliceAddress: string;
 
-    let prizeManager: PrizeManager;
+    let rewardManager: RewardManager;
     let mockToken: MockContract;
     let mockPoS: MockContract;
 
-    let minimumPrize = 10;
-    let maxPrize = 270;
+    let minReward = 10;
+    let maxReward = 270;
     let numerator = 5000;
     let denominator = 100000; // pays  5%
 
-    const deployPrizeManager = async ({
+    const deployRewardManager = async ({
         pos,
         ctsi,
         numerator,
@@ -60,26 +60,26 @@ describe("PrizeManager", async () => {
     }: {
         pos?: string;
         ctsi?: string;
-        minimumPrize?: BigNumberish;
-        maxPrize?: BigNumberish;
+        minReward?: BigNumberish;
+        maxReward?: BigNumberish;
         numerator?: BigNumberish;
         denominator?: BigNumberish;
-    } = {}): Promise<PrizeManager> => {
+    } = {}): Promise<RewardManager> => {
         const [signer] = await ethers.getSigners();
         const posAddress = pos || (await deployments.get("PoS")).address;
         const ctsiAddress = ctsi || (await deployments.get("CartesiToken")).address;
         const n = numerator || 5000;
         const d = denominator || 100000;
-        const prizeFactory = new PrizeManagerFactory(signer);
-        const prizeManager = await prizeFactory.deploy(
+        const rewardFactory = new RewardManagerFactory(signer);
+        const rewardManager = await rewardFactory.deploy(
             posAddress,
             ctsiAddress,
-            maxPrize,
-            minimumPrize,
+            maxReward,
+            minReward,
             n,
             d
         );
-        return prizeManager;
+        return rewardManager;
     };
 
     beforeEach(async () => {
@@ -92,8 +92,8 @@ describe("PrizeManager", async () => {
         mockPoS = await deployMockContract(signer, (await deployments.getArtifact("PoS")).abi);
     });
 
-    it("payWinner can only be called by PoS", async () => {
-        prizeManager = await deployPrizeManager({
+    it("reward function can only be called by PoS", async () => {
+        rewardManager = await deployRewardManager({
             pos: mockPoS.address,
             ctsi: mockToken.address,
             numerator,
@@ -103,16 +103,16 @@ describe("PrizeManager", async () => {
         await mockToken.mock.transfer.returns(true);
         await mockToken.mock.transferFrom.returns(true);
         await expect(
-            prizeManager.payWinner(aliceAddress, 0),
+            rewardManager.reward(aliceAddress, 0),
             "function can only be called by operator contract"
         ).to.be.revertedWith(
             "Only the operator contract can call this function"
         );
     });
 
-    it("current prize has to be bigger than zero", async () => {
+    it("current currentReward has to be bigger than zero", async () => {
         // deploy contract with signer as pos address
-        prizeManager = await deployPrizeManager({
+        rewardManager = await deployRewardManager({
             pos: await signer.getAddress(),
             ctsi: mockToken.address,
             numerator,
@@ -122,17 +122,17 @@ describe("PrizeManager", async () => {
         await mockToken.mock.balanceOf.returns(0);
         await mockToken.mock.transfer.reverts();
 
-        await expect(prizeManager.payWinner(aliceAddress, 0)).to.be.revertedWith(
+        await expect(rewardManager.reward(aliceAddress, 0)).to.be.revertedWith(
             "Mock revert"
         );
     });
 
-    it("payWinner should emit event", async () => {
+    it("reward should emit event", async () => {
         let balance = 50000;
-        let prize = (balance * numerator) / denominator;
+        let currentReward = (balance * numerator) / denominator;
 
         // deploy contract with signer as pos address
-        prizeManager = await deployPrizeManager({
+        rewardManager = await deployRewardManager({
             pos: await signer.getAddress(),
             ctsi: mockToken.address,
             numerator,
@@ -142,16 +142,16 @@ describe("PrizeManager", async () => {
         await mockToken.mock.balanceOf.returns(balance);
         await mockToken.mock.transfer.returns(true);
         await mockToken.mock.transferFrom.returns(true);
-        await prizeManager.payWinner(aliceAddress, prize);
+        await rewardManager.reward(aliceAddress, currentReward);
     });
 
-    it("current prize should generate prizes correctly", async function() {
+    it("current currentReward should generate currentRewards correctly", async function() {
         this.timeout(60000);
         let balance = 500000;
-        let lastPrize = 0;
+        let lastReward = 0;
 
         // deploy contract with signer as pos address
-        prizeManager = await deployPrizeManager({
+        rewardManager = await deployRewardManager({
             pos: await signer.getAddress(),
             ctsi: mockToken.address,
             numerator,
@@ -162,16 +162,16 @@ describe("PrizeManager", async () => {
 
         // loops until balance is zero
         while (true) {
-            balance = balance - lastPrize;
+            balance = balance - lastReward;
 
             if (balance == 0) break;
 
-            lastPrize = Math.floor((balance * numerator) / denominator);
-            lastPrize = lastPrize > minimumPrize ? lastPrize : minimumPrize;
-            lastPrize = lastPrize > balance ? balance : lastPrize;
+            lastReward = Math.floor((balance * numerator) / denominator);
+            lastReward = lastReward > minReward ? lastReward : minReward;
+            lastReward = lastReward > balance ? balance : lastReward;
 
             await mockToken.mock.balanceOf.returns(balance);
-            await prizeManager.payWinner(aliceAddress, lastPrize);
+            await rewardManager.reward(aliceAddress, lastReward);
         }
     });
 });
