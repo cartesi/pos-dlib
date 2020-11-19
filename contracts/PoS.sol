@@ -53,12 +53,12 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
     mapping(uint256 => PoSCtx) internal instance;
 
-    event PrizePaid(
+    event RewardGiven(
         uint256 indexed index,
         address indexed worker,
         address indexed user,
         address beneficiary,
-        uint256 userPrize,
+        uint256 userReward,
         uint256 beneficiaryPrize
     );
 
@@ -151,35 +151,35 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             "User couldnt produce a block successfully"
         );
 
-        uint256 currentPrize = pos.rewardManager.getCurrentReward();
+        uint256 currentReward = pos.rewardManager.getCurrentReward();
 
         if (beneficiary == address(0) || userSplit == SPLIT_BASE) {
-            pos.rewardManager.reward(user, currentPrize);
-            emit PrizePaid(
+            pos.rewardManager.reward(user, currentReward);
+            emit RewardGiven(
                 _index,
                 msg.sender,
                 user,
                 beneficiary,
-                currentPrize,
+                currentReward,
                 0
             );
         } else if (beneficiarySplit == SPLIT_BASE) {
-            pos.rewardManager.reward(beneficiary, currentPrize);
-            emit PrizePaid(
+            pos.rewardManager.reward(beneficiary, currentReward);
+            emit RewardGiven(
                 _index,
                 msg.sender,
                 user,
                 beneficiary,
                 0,
-                currentPrize
+                currentReward
             );
         } else {
-            uint256 bSplit = currentPrize.mul(beneficiarySplit).div(SPLIT_BASE);
+            uint256 bSplit = currentReward.mul(beneficiarySplit).div(SPLIT_BASE);
             uint256 uSplit = SPLIT_BASE.sub(bSplit);
 
             pos.rewardManager.reward(beneficiary, bSplit);
             pos.rewardManager.reward(user, uSplit);
-            emit PrizePaid(
+            emit RewardGiven(
                 _index,
                 msg.sender,
                 user,
