@@ -20,7 +20,7 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-/// @title PrizeManager
+/// @title RewardManager
 /// @author Felipe Argento
 
 
@@ -29,11 +29,11 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract PrizeManager {
+contract RewardManager {
     using SafeMath for uint256;
 
-    uint256 minimumPrize;
-    uint256 maxPrize;
+    uint256 minimumReward;
+    uint256 maxReward;
     uint256 distNumerator;
     uint256 distDenominator;
     address operator;
@@ -42,15 +42,15 @@ contract PrizeManager {
     /// @notice Creates contract
     /// @param _operator address of the operator
     /// @param _ctsiAddress address of token instance being used
-    /// @param _maxPrize max prize that this contract pays
-    /// @param _minimumPrize minimum prize that this contract pays
-    /// @param _distNumerator multiplier factor to define prize amount
-    /// @param _distDenominator dividing factor to define prize amount
+    /// @param _maxReward max reward that this contract pays
+    /// @param _minimumReward minimum reward that this contract pays
+    /// @param _distNumerator multiplier factor to define reward amount
+    /// @param _distDenominator dividing factor to define reward amount
     constructor(
         address _operator,
         address _ctsiAddress,
-        uint256 _maxPrize,
-        uint256 _minimumPrize,
+        uint256 _maxReward,
+        uint256 _minimumReward,
         uint256 _distNumerator,
         uint256 _distDenominator
     ) {
@@ -58,32 +58,33 @@ contract PrizeManager {
         operator = _operator;
         ctsi = IERC20(_ctsiAddress);
 
-        minimumPrize = _minimumPrize;
-        maxPrize = _maxPrize;
+        minimumReward = _minimumReward;
+        maxReward = _maxReward;
         distNumerator = _distNumerator;
         distDenominator = _distDenominator;
     }
 
-    /// @notice Transfers token to winner of Lottery
-    /// @param _winner address of round winner
+    /// @notice Rewards address
+    /// @param _address address be rewarded
+    /// @param _amount reward
     /// @dev only the pos contract can call this
-    function payWinner(address _winner, uint256 _amount) public {
+    function reward(address _address, uint256 _amount) public {
         require(msg.sender == operator, "Only the operator contract can call this function");
 
-        ctsi.transfer(_winner, _amount);
+        ctsi.transfer(_address, _amount);
     }
 
-    /// @notice Get PrizeManager's balance
+    /// @notice Get RewardManager's balance
     function getBalance() public view returns (uint256) {
         return ctsi.balanceOf(address(this));
     }
 
-    /// @notice Get prize of next Lottery round
-    function getCurrentPrize() public view returns (uint256) {
-        uint256 prize = (getBalance().mul(distNumerator)).div(distDenominator);
-        prize = prize > minimumPrize? prize : minimumPrize;
-        prize = prize > maxPrize? maxPrize : prize;
+    /// @notice Get current reward amount
+    function getCurrentReward() public view returns (uint256) {
+        uint256 cReward = (getBalance().mul(distNumerator)).div(distDenominator);
+        cReward = cReward > minimumReward? cReward : minimumReward;
+        cReward = cReward > maxReward? maxReward : cReward;
 
-        return prize > getBalance()? getBalance() : prize;
+        return cReward > getBalance()? getBalance() : cReward;
     }
 }

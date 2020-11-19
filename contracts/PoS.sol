@@ -34,7 +34,7 @@ import "@cartesi/util/contracts/WorkerAuthManager.sol";
 
 import "./Staking.sol";
 import "./BlockSelector.sol";
-import "./PrizeManager.sol";
+import "./RewardManager.sol";
 
 contract PoS is Ownable, InstantiatorImpl, Decorated {
     using SafeMath for uint256;
@@ -47,7 +47,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 blockSelectorIndex;
         BlockSelector blockSelector;
         Staking staking;
-        PrizeManager prizeManager;
+        RewardManager rewardManager;
         WorkerAuthManager workerAuth;
     }
 
@@ -91,7 +91,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
     /// @param _targetInterval how often we want to elect a block producer
-    /// @param _prizeManagerAddress address containing the tokens that will be distributed
+    /// @param _rewardManagerAddress address containing the tokens that will be distributed
     function instantiate(
         address _stakingAddress,
         address _blockSelectorAddress,
@@ -100,12 +100,12 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 _initialDifficulty,
         uint256 _difficultyAdjustmentParameter,
         uint256 _targetInterval,
-        address _prizeManagerAddress
+        address _rewardManagerAddress
     ) public onlyOwner() returns (uint256) {
         instance[currentIndex].staking = Staking(_stakingAddress);
         instance[currentIndex].blockSelector = BlockSelector(_blockSelectorAddress);
-        instance[currentIndex].prizeManager = PrizeManager(
-            _prizeManagerAddress
+        instance[currentIndex].rewardManager = RewardManager(
+            _rewardManagerAddress
         );
         instance[currentIndex].workerAuth = WorkerAuthManager(
             _workerAuthAddress
@@ -151,10 +151,10 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             "User couldnt produce a block successfully"
         );
 
-        uint256 currentPrize = pos.prizeManager.getCurrentPrize();
+        uint256 currentPrize = pos.rewardManager.getCurrentReward();
 
         if (beneficiary == address(0) || userSplit == SPLIT_BASE) {
-            pos.prizeManager.payWinner(user, currentPrize);
+            pos.rewardManager.reward(user, currentPrize);
             emit PrizePaid(
                 _index,
                 msg.sender,
@@ -164,7 +164,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
                 0
             );
         } else if (beneficiarySplit == SPLIT_BASE) {
-            pos.prizeManager.payWinner(beneficiary, currentPrize);
+            pos.rewardManager.reward(beneficiary, currentPrize);
             emit PrizePaid(
                 _index,
                 msg.sender,
@@ -177,8 +177,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             uint256 bSplit = currentPrize.mul(beneficiarySplit).div(SPLIT_BASE);
             uint256 uSplit = SPLIT_BASE.sub(bSplit);
 
-            pos.prizeManager.payWinner(beneficiary, bSplit);
-            pos.prizeManager.payWinner(user, uSplit);
+            pos.rewardManager.reward(beneficiary, bSplit);
+            pos.rewardManager.reward(user, uSplit);
             emit PrizePaid(
                 _index,
                 msg.sender,
@@ -197,8 +197,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     /// @param _user address of user
     /// @return bool if user is eligible to produce next block
     /// @return address of user that was chosen to build the block
-    /// @return current prize paid by the network for that block
-    /// @return percentage of prize that goes to the user
+    /// @return current reward paid by the network for that block
+    /// @return percentage of reward that goes to the user
     function getState(uint256 _index, address _user)
         public
         view
@@ -217,7 +217,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
                 pos.staking.getStakedBalance(_user)
             ),
             _user,
-            pos.prizeManager.getCurrentPrize(),
+            pos.rewardManager.getCurrentReward(),
             pos.splitMap[_user]
         );
     }
