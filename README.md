@@ -52,15 +52,15 @@ In order for tokens to increase the chance of a user being selected they have to
 
 - `withdraw(uint256 amount)`, to transfer mature unstaked tokens back to a user's wallet.
 
-# PrizeManager
+# RewardManager
 
-Users that get selected by the `Lottery.sol` contract, which implements the aforementioned selection process, are rewarded by the PrizeManager contract. This contract is responsible for calculating the correct prize in CTSI and also for transferring that to the selected address - which is informed by the PoS main contract.
+Users that get selected by the `BlockSelector.sol` contract, which implements the aforementioned selection process, are rewarded by the RewardManager contract. This contract is responsible for calculating the correct prize in CTSI and also for transferring that to the selected address - which is informed by the PoS main contract.
 
-The PrizeManager payout is defined by the total amount of money in it times the payout rate. Meaning that the prize paid per each draw diminishes slightly after every transfer.
+The RewardManager payout is defined by the total amount of money in it times the payout rate. Meaning that the prize paid per each draw diminishes slightly after every transfer.
 
 # PoS
 
-The PoS contract manages the interactions between the Staking, Lottery and PrizeManager. It is responsible for making sure permissioned calls are secure, instantiating the Lottery and guiding the PrizeManager on whom to transfer money to. It is also the main concern and the contract that will interact with the offchain part of this dlib.
+The PoS contract manages the interactions between the Staking, BlockSelector and RewardManager. It is responsible for making sure permissioned calls are secure, instantiating the BlockSelector and guiding the RewardManager on whom to transfer money to. It is also the main concern and the contract that will interact with the offchain part of this dlib.
 
 # Running on goerli testnet
 
