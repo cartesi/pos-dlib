@@ -33,7 +33,7 @@ import "@cartesi/util/contracts/Decorated.sol";
 import "@cartesi/util/contracts/WorkerAuthManager.sol";
 
 import "./Staking.sol";
-import "./Lottery.sol";
+import "./BlockSelector.sol";
 import "./PrizeManager.sol";
 
 contract PoS is Ownable, InstantiatorImpl, Decorated {
@@ -44,8 +44,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     struct PoSCtx {
         mapping(address => address) beneficiaryMap;
         mapping(address => uint256) splitMap;
-        uint256 lotteryIndex;
-        Lottery lottery;
+        uint256 blockSelectorIndex;
+        BlockSelector blockSelector;
         Staking staking;
         PrizeManager prizeManager;
         WorkerAuthManager workerAuth;
@@ -86,7 +86,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
     /// @notice Instantiates a Proof of Stake
     /// @param _stakingAddress address of StakingInterface
-    /// @param _lotteryAddress address of lottery contract
+    /// @param _blockSelectorAddress address of blockSelector contract
     /// @param _workerAuthAddress address of worker manager contract
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
@@ -94,7 +94,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     /// @param _prizeManagerAddress address containing the tokens that will be distributed
     function instantiate(
         address _stakingAddress,
-        address _lotteryAddress,
+        address _blockSelectorAddress,
         address _workerAuthAddress,
         uint256 _minimumDifficulty,
         uint256 _initialDifficulty,
@@ -103,7 +103,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         address _prizeManagerAddress
     ) public onlyOwner() returns (uint256) {
         instance[currentIndex].staking = Staking(_stakingAddress);
-        instance[currentIndex].lottery = Lottery(_lotteryAddress);
+        instance[currentIndex].blockSelector = BlockSelector(_blockSelectorAddress);
         instance[currentIndex].prizeManager = PrizeManager(
             _prizeManagerAddress
         );
@@ -111,8 +111,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             _workerAuthAddress
         );
 
-        instance[currentIndex].lotteryIndex = instance[currentIndex]
-            .lottery
+        instance[currentIndex].blockSelectorIndex = instance[currentIndex]
+            .blockSelector
             .instantiate(
             _minimumDifficulty,
             _initialDifficulty,
@@ -125,10 +125,10 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         return currentIndex++;
     }
 
-    /// @notice Claim that _user won the round
+    /// @notice Claim that _user won the block
     /// @param _index the index of the instance of pos you want to interact with
     /// @dev this function can only be called by a worker, user never calls it directly
-    function claimWin(uint256 _index) public returns (bool) {
+    function claimBlock(uint256 _index) public returns (bool) {
         PoSCtx storage pos = instance[_index];
 
         require(
@@ -143,8 +143,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 beneficiarySplit = SPLIT_BASE.sub(userSplit);
 
         require(
-            pos.lottery.claimRound(
-                pos.lotteryIndex,
+            pos.blockSelector.claimBlock(
+                pos.blockSelectorIndex,
                 user,
                 pos.staking.getStakedBalance(user)
             ),
@@ -211,8 +211,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     {
         PoSCtx storage pos = instance[_index];
         return (
-            pos.lottery.canWin(
-                pos.lotteryIndex,
+            pos.blockSelector.canClaim(
+                pos.blockSelectorIndex,
                 _user,
                 pos.staking.getStakedBalance(_user)
             ),
@@ -246,8 +246,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         a = new address[](1);
         i = new uint256[](1);
 
-        a[0] = address(pos.lottery);
-        i[0] = pos.lotteryIndex;
+        a[0] = address(pos.blockSelector);
+        i[0] = pos.blockSelectorIndex;
         return (a, i);
     }
 }
