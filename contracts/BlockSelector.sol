@@ -35,7 +35,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
 
     struct BlockSelectorCtx {
         mapping(uint256 => address) blockProducer; // block index to block producer
-        uint256 blockNumber; // how many blocks have been created
+        uint256 blockCount; // how many blocks have been created
         uint256 lastBlockTimestamp; // timestamp of when current selection started
         uint256 difficulty; // difficulty parameter defines how big the interval will be
         uint256 minDifficulty; // lower bound for difficulty
@@ -117,7 +117,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
             emit BlockProduced(
                 _index,
                 _user,
-                bsc.blockNumber,
+                bsc.blockCount,
                 getMicrosecondsSinceLastBlock(_index),
                 bsc.difficulty,
                 bsc.targetInterval
@@ -157,7 +157,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     function _blockProduced(uint256 _index, address _user) private returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
         // declare winner
-        bsc.blockProducer[bsc.blockNumber] = _user;
+        bsc.blockProducer[bsc.blockCount] = _user;
 
         // adjust difficulty
         bsc.difficulty = getNewDifficulty(
@@ -177,7 +177,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     function _reset(uint256 _index) private {
         BlockSelectorCtx storage bsc = instance[_index];
 
-        bsc.blockNumber++;
+        bsc.blockCount++;
         bsc.currentGoalBlockNumber = block.number + 1;
         bsc.lastBlockTimestamp = block.timestamp;
     }
@@ -211,11 +211,11 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         return _oldDiff;
     }
 
-    /// @notice Returns the block number of this instance
+    /// @notice Returns the number of blocks
     /// @param _index the index of the instance of block selector to be interact with
-    /// @return number of last block created
-    function getBlockNumber(uint256 _index) public view returns (uint256) {
-        return instance[_index].blockNumber;
+    /// @return number of blocks
+    function getBlockCount(uint256 _index) public view returns (uint256) {
+        return instance[_index].blockCount;
     }
 
     /// @notice Returns last block timestamp
