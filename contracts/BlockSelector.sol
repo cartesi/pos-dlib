@@ -20,7 +20,7 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-/// @title Lottery
+/// @title Block Selector
 
 pragma solidity ^0.7.0;
 
@@ -30,29 +30,29 @@ import "@cartesi/util/contracts/CartesiMath.sol";
 import "@cartesi/util/contracts/InstantiatorImpl.sol";
 import "@cartesi/util/contracts/Decorated.sol";
 
-contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
+contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     using SafeMath for uint256;
 
-    struct LotteryCtx {
-        mapping(uint256 => address) roundWinner; // each rounds winner
-        uint256 roundCount; // how many draw rounds happened
-        uint256 currentDrawStartTime; // timestamp of when current draw started
+    struct BlockSelectorCtx {
+        mapping(uint256 => address) blockProducer; // block index to block producer
+        uint256 blockCount; // how many blocks have been created
+        uint256 blockSelectionTimestamp; // timestamp of when current selection started
         uint256 difficulty; // difficulty parameter defines how big the interval will be
         uint256 minDifficulty; // lower bound for difficulty
-        uint256 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired draw time, number * 1000000
-        uint256 desiredDrawTimeInterval; // desired draw time interval, used to tune difficulty
-        uint256 currentGoalBlockNumber; // block number which will decide current draw's goal
+        uint256 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired interval, number * 1000000
+        uint256 targetInterval; // desired block selection interval, used to tune difficulty
+        uint256 currentGoalBlockNumber; // main chain block number which will decide current random target
 
         address posManagerAddress;
 
     }
 
-    mapping(uint256 => LotteryCtx) internal instance;
+    mapping(uint256 => BlockSelectorCtx) internal instance;
 
-    event RoundClaimed(
+    event BlockProduced(
         uint256 indexed index,
         address indexed winner,
-        uint256 roundCount,
+        uint256 blockCount,
         uint256 roundDuration,
         uint256 difficulty,
         uint256 targetInterval
@@ -62,37 +62,37 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     /// @param _minDifficulty lower bound for difficulty parameter
     /// @param _initialDifficulty starting difficulty
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
-    /// according to the difference between time passed and desired draw time interval.
-    /// @param _desiredDrawTimeInterval how often we want to elect a winner
+    /// according to the difference between time passed and target interval.
+    /// @param _targetInterval how often we want to elect a winner
     /// @param _posManagerAddress address of ProofOfStake that will use this instance
     function instantiate(
         uint256 _minDifficulty,
         uint256 _initialDifficulty,
         uint256 _difficultyAdjustmentParameter,
-        uint256 _desiredDrawTimeInterval,
+        uint256 _targetInterval,
         address _posManagerAddress
     ) public returns (uint256)
     {
         require(
-            _desiredDrawTimeInterval > 30,
-            "Desired draw time interval has to be bigger than 30 seconds"
+            _targetInterval > 30,
+            "Target interval has to be bigger than 30 seconds"
         );
 
         instance[currentIndex].minDifficulty = _minDifficulty;
         instance[currentIndex].difficulty = _initialDifficulty;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
-        instance[currentIndex].desiredDrawTimeInterval = _desiredDrawTimeInterval;
+        instance[currentIndex].targetInterval = _targetInterval;
         instance[currentIndex].posManagerAddress = _posManagerAddress;
 
         instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
-        instance[currentIndex].currentDrawStartTime = block.timestamp; // first draw starts when the instance is created
+        instance[currentIndex].blockSelectionTimestamp = block.timestamp; // first selection starts when the instance is created
 
         active[currentIndex] = true;
         return currentIndex++;
     }
 
     /// @notice Calculates the log of the random number between the goal and callers address
-    /// @param _index the index of the instance of lottery you want to interact with
+    /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user address to calculate log of random
     /// @return log of random number between goal and callers address * 1M
     function getLogOfRandom(uint256 _index, address _user) internal view returns (uint256) {
@@ -104,40 +104,40 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     }
 
     /// @notice Claim that _user won the round
-    /// @param _index the index of the instance of lottery you want to interact with
-    /// @param _user address that will win the lottery
+    /// @param _index the index of the instance of block selector you want to interact with
+    /// @param _user address that will win the block selector
     /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
-    function claimRound(uint256 _index, address _user, uint256 _weight) public returns (bool) {
-        LotteryCtx storage lot = instance[_index];
+    function claimBlock(uint256 _index, address _user, uint256 _weight) public returns (bool) {
+        BlockSelectorCtx storage bsc = instance[_index];
 
         require(_weight > 0, "Caller must have at least one staked token");
-        require(msg.sender == lot.posManagerAddress, "Function can only be called by pos address");
+        require(msg.sender == bsc.posManagerAddress, "Function can only be called by pos address");
 
-        if (canWin(_index, _user, _weight)) {
-            emit RoundClaimed(
+        if (canClaim(_index, _user, _weight)) {
+            emit BlockProduced(
                 _index,
                 _user,
-                lot.roundCount,
+                bsc.blockCount,
                 getMicrosecondsSinceLastDraw(_index),
-                lot.difficulty,
-                lot.desiredDrawTimeInterval
+                bsc.difficulty,
+                bsc.targetInterval
             );
 
-            return _roundFinished(_index, _user);
+            return _blockCreated(_index, _user);
         }
 
         return false;
     }
 
     /// @notice Check if address can win current round
-    /// @param _index the index of the instance of lottery you want to interact with
+    /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user the address that is gonna get checked
     /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
-    function canWin(uint256 _index, address _user, uint256 _weight) public view returns (bool) {
-        LotteryCtx storage lot = instance[_index];
+    function canClaim(uint256 _index, address _user, uint256 _weight) public view returns (bool) {
+        BlockSelectorCtx storage bsc = instance[_index];
 
-        // cannot win if lottery goal hasnt been decided yet
-        if (block.number <= lot.currentGoalBlockNumber) {
+        // cannot win if block selector goal hasnt been decided yet
+        if (block.number <= bsc.currentGoalBlockNumber) {
             return false;
         }
 
@@ -146,26 +146,26 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
         // new goal cannot be in the past, otherwise user could "choose it"
         return (
-            (block.number).sub(lot.currentGoalBlockNumber) > 220 ||
-            (_weight.mul(time)) > lot.difficulty.mul((256000000 - getLogOfRandom(_index, _user)))
+            (block.number).sub(bsc.currentGoalBlockNumber) > 220 ||
+            (_weight.mul(time)) > bsc.difficulty.mul((256000000 - getLogOfRandom(_index, _user)))
         );
     }
 
-    /// @notice Finish Round, declare winner and ajust difficulty
-    /// @param _index the index of the instance of lottery you want to interact with
+    /// @notice Block created, declare winner and ajust difficulty
+    /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user address of user that won the round
-    function _roundFinished(uint256 _index, address _user) private returns (bool) {
-        LotteryCtx storage lot = instance[_index];
+    function _blockCreated(uint256 _index, address _user) private returns (bool) {
+        BlockSelectorCtx storage bsc = instance[_index];
         // declare winner
-        lot.roundWinner[lot.roundCount] = _user;
+        bsc.blockProducer[bsc.blockCount] = _user;
 
         // adjust difficulty
-        lot.difficulty = getNewDifficulty(
-            lot.minDifficulty,
-            lot.difficulty,
-            (block.timestamp).sub(lot.currentDrawStartTime),
-            lot.desiredDrawTimeInterval,
-            lot.difficultyAdjustmentParameter
+        bsc.difficulty = getNewDifficulty(
+            bsc.minDifficulty,
+            bsc.difficulty,
+            (block.timestamp).sub(bsc.blockSelectionTimestamp),
+            bsc.targetInterval,
+            bsc.difficultyAdjustmentParameter
         );
 
         _reset(_index);
@@ -173,13 +173,13 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     }
 
     /// @notice Reset instance, advancing round and choosing new goal
-    /// @param _index the index of the instance of lottery you want to interact with
+    /// @param _index the index of the instance of block selector you want to interact with
     function _reset(uint256 _index) private {
-        LotteryCtx storage lot = instance[_index];
+        BlockSelectorCtx storage bsc = instance[_index];
 
-        lot.roundCount++;
-        lot.currentGoalBlockNumber = block.number + 1;
-        lot.currentDrawStartTime = block.timestamp;
+        bsc.blockCount++;
+        bsc.currentGoalBlockNumber = block.number + 1;
+        bsc.blockSelectionTimestamp = block.timestamp;
     }
 
     /// @notice Calculates new difficulty parameter
@@ -212,35 +212,35 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
     }
 
     /// @notice Returns the round count of this instance
-    /// @param _index the index of the instance of lottery to be interact with
+    /// @param _index the index of the instance of block selector to be interact with
     /// @return how many rounds have happened
     function getRoundCount(uint256 _index) public view returns (uint256) {
-        return instance[_index].roundCount;
+        return instance[_index].blockCount;
     }
 
-    /// @notice Returns current draw time
-    /// @param _index the index of the instance of lottery to be interact with
-    /// @return timestamp of when current draw was instantiated
+    /// @notice Returns current selection time
+    /// @param _index the index of the instance of block selector to be interact with
+    /// @return timestamp of when current selection was instantiated
     function getCurrentDrawStartTime(uint256 _index) public view returns (uint256) {
-        return instance[_index].currentDrawStartTime;
+        return instance[_index].blockSelectionTimestamp;
     }
 
     /// @notice Returns current difficulty
-    /// @param _index the index of the instance of lottery to be interact with
-    /// @return difficulty of current draw
+    /// @param _index the index of the instance of block selector to be interact with
+    /// @return difficulty of current selection
     function getDifficulty(uint256 _index) public view returns (uint256) {
         return instance[_index].difficulty;
     }
 
     /// @notice Returns min difficulty
-    /// @param _index the index of the instance of lottery to be interact with
+    /// @param _index the index of the instance of block selector to be interact with
     /// @return min difficulty of instance
     function getMinDifficulty(uint256 _index) public view returns (uint256) {
         return instance[_index].minDifficulty;
     }
 
     /// @notice Returns difficulty adjustment parameter
-    /// @param _index the index of the instance of lottery to be interact with
+    /// @param _index the index of the instance of block selector to be interact with
     /// @return difficulty adjustment parameter
     function getDifficultyAdjustmentParameter(
         uint256 _index
@@ -252,32 +252,32 @@ contract Lottery is InstantiatorImpl, Decorated, CartesiMath {
         return instance[_index].difficultyAdjustmentParameter;
     }
 
-    /// @notice Returns desired draw interval
-    /// @param _index the index of the instance of lottery to be interact with
-    /// @return desired draw interval of this instance
+    /// @notice Returns desired selection interval
+    /// @param _index the index of the instance of block selector to be interact with
+    /// @return desired selection interval of this instance
     function getDesiredDrawInterval(uint256 _index) public view returns (uint256) {
-        return instance[_index].desiredDrawTimeInterval;
+        return instance[_index].targetInterval;
     }
 
-    /// @notice Returns time since last draw started, in microseconds
-    /// @param _index the index of the instance of lottery to be interact with
-    /// @return microseconds passed since last draw started
+    /// @notice Returns time since last selection started, in microseconds
+    /// @param _index the index of the instance of block selector to be interact with
+    /// @return microseconds passed since last selection started
     function getMicrosecondsSinceLastDraw(uint256 _index) public view returns (uint256) {
-        LotteryCtx storage lot = instance[_index];
+        BlockSelectorCtx storage bsc = instance[_index];
 
-        // time since draw started times 1e6 (microseconds)
-        return ((block.timestamp).sub(lot.currentDrawStartTime)).mul(1000000);
+        // time since selection started times 1e6 (microseconds)
+        return ((block.timestamp).sub(bsc.blockSelectionTimestamp)).mul(1000000);
     }
 
     function getState(uint256 _index, address _user)
     public view returns (uint256[5] memory _uintValues) {
-        LotteryCtx storage i = instance[_index];
+        BlockSelectorCtx storage i = instance[_index];
 
         uint256[5] memory uintValues = [
             block.number,
             i.currentGoalBlockNumber,
             i.difficulty,
-            ((block.timestamp).sub(i.currentDrawStartTime)).mul(1000000), // time passed
+            ((block.timestamp).sub(i.blockSelectionTimestamp)).mul(1000000), // time passed
             getLogOfRandom(_index, _user)
         ];
 
