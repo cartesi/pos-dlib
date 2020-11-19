@@ -35,8 +35,8 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
 
     struct BlockSelectorCtx {
         mapping(uint256 => address) blockProducer; // block index to block producer
-        uint256 blockCount; // how many blocks have been created
-        uint256 blockSelectionTimestamp; // timestamp of when current selection started
+        uint256 blockNumber; // how many blocks have been created
+        uint256 lastBlockTimestamp; // timestamp of when current selection started
         uint256 difficulty; // difficulty parameter defines how big the interval will be
         uint256 minDifficulty; // lower bound for difficulty
         uint256 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired interval, number * 1000000
@@ -52,7 +52,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     event BlockProduced(
         uint256 indexed index,
         address indexed winner,
-        uint256 blockCount,
+        uint256 blockNumber,
         uint256 roundDuration,
         uint256 difficulty,
         uint256 targetInterval
@@ -63,7 +63,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @param _initialDifficulty starting difficulty
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and target interval.
-    /// @param _targetInterval how often we want to elect a winner
+    /// @param _targetInterval how often we want produce blocks
     /// @param _posManagerAddress address of ProofOfStake that will use this instance
     function instantiate(
         uint256 _minDifficulty,
@@ -85,7 +85,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         instance[currentIndex].posManagerAddress = _posManagerAddress;
 
         instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
-        instance[currentIndex].blockSelectionTimestamp = block.timestamp; // first selection starts when the instance is created
+        instance[currentIndex].lastBlockTimestamp = block.timestamp; // first selection starts when the instance is created
 
         active[currentIndex] = true;
         return currentIndex++;
@@ -103,7 +103,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         return CartesiMath.log2ApproxTimes1M(distance);
     }
 
-    /// @notice Claim that _user won the round
+    /// @notice Claim that _user can create a block
     /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user address that will win the block selector
     /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
@@ -117,7 +117,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
             emit BlockProduced(
                 _index,
                 _user,
-                bsc.blockCount,
+                bsc.blockNumber,
                 getMicrosecondsSinceLastDraw(_index),
                 bsc.difficulty,
                 bsc.targetInterval
@@ -136,7 +136,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     function canClaim(uint256 _index, address _user, uint256 _weight) public view returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
 
-        // cannot win if block selector goal hasnt been decided yet
+        // cannot claim if block selector goal hasnt been decided yet
         if (block.number <= bsc.currentGoalBlockNumber) {
             return false;
         }
@@ -151,19 +151,19 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         );
     }
 
-    /// @notice Block created, declare winner and ajust difficulty
+    /// @notice Block created, declare winner and adjust difficulty
     /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user address of user that won the round
     function _blockCreated(uint256 _index, address _user) private returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
         // declare winner
-        bsc.blockProducer[bsc.blockCount] = _user;
+        bsc.blockProducer[bsc.blockNumber] = _user;
 
         // adjust difficulty
         bsc.difficulty = getNewDifficulty(
             bsc.minDifficulty,
             bsc.difficulty,
-            (block.timestamp).sub(bsc.blockSelectionTimestamp),
+            (block.timestamp).sub(bsc.lastBlockTimestamp),
             bsc.targetInterval,
             bsc.difficultyAdjustmentParameter
         );
@@ -177,32 +177,32 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     function _reset(uint256 _index) private {
         BlockSelectorCtx storage bsc = instance[_index];
 
-        bsc.blockCount++;
+        bsc.blockNumber++;
         bsc.currentGoalBlockNumber = block.number + 1;
-        bsc.blockSelectionTimestamp = block.timestamp;
+        bsc.lastBlockTimestamp = block.timestamp;
     }
 
     /// @notice Calculates new difficulty parameter
     /// @param _minDiff minimum difficulty of instance
     /// @param _oldDiff is the difficulty of previous round
     /// @param _timePassed is how long the previous round took
-    /// @param _desiredDrawTime is how long a round is supposed to take
+    /// @param _targetInterval is how long a round is supposed to take
     /// @param _adjustmentParam is how fast the difficulty gets adjusted,
     ///         should be number * 1000000
     function getNewDifficulty(
         uint256 _minDiff,
         uint256 _oldDiff,
         uint256 _timePassed,
-        uint256 _desiredDrawTime,
+        uint256 _targetInterval,
         uint256 _adjustmentParam
     )
     internal
     pure
     returns (uint256)
     {
-        if (_timePassed < _desiredDrawTime) {
+        if (_timePassed < _targetInterval) {
             return _oldDiff.add(_oldDiff.mul(_adjustmentParam).div(1000000) + 1);
-        } else if (_timePassed > _desiredDrawTime) {
+        } else if (_timePassed > _targetInterval) {
             uint256 newDiff = _oldDiff.sub(_oldDiff.mul(_adjustmentParam).div(1000000) + 1);
 
             return newDiff > _minDiff ? newDiff : _minDiff;
@@ -211,18 +211,18 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         return _oldDiff;
     }
 
-    /// @notice Returns the round count of this instance
+    /// @notice Returns the block count of this instance
     /// @param _index the index of the instance of block selector to be interact with
-    /// @return how many rounds have happened
-    function getRoundCount(uint256 _index) public view returns (uint256) {
-        return instance[_index].blockCount;
+    /// @return how many blocks have been created
+    function getBlockCount(uint256 _index) public view returns (uint256) {
+        return instance[_index].blockNumber;
     }
 
-    /// @notice Returns current selection time
+    /// @notice Returns last block timestamp
     /// @param _index the index of the instance of block selector to be interact with
-    /// @return timestamp of when current selection was instantiated
-    function getCurrentDrawStartTime(uint256 _index) public view returns (uint256) {
-        return instance[_index].blockSelectionTimestamp;
+    /// @return timestamp of when last block was created
+    function getLastBlockTimestamp(uint256 _index) public view returns (uint256) {
+        return instance[_index].lastBlockTimestamp;
     }
 
     /// @notice Returns current difficulty
@@ -252,21 +252,21 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         return instance[_index].difficultyAdjustmentParameter;
     }
 
-    /// @notice Returns desired selection interval
+    /// @notice Returns target interval
     /// @param _index the index of the instance of block selector to be interact with
-    /// @return desired selection interval of this instance
-    function getDesiredDrawInterval(uint256 _index) public view returns (uint256) {
+    /// @return target interval
+    function getTargetInterval(uint256 _index) public view returns (uint256) {
         return instance[_index].targetInterval;
     }
 
     /// @notice Returns time since last selection started, in microseconds
     /// @param _index the index of the instance of block selector to be interact with
     /// @return microseconds passed since last selection started
-    function getMicrosecondsSinceLastDraw(uint256 _index) public view returns (uint256) {
+    function getMicrosecondsSinceLastBlock(uint256 _index) public view returns (uint256) {
         BlockSelectorCtx storage bsc = instance[_index];
 
         // time since selection started times 1e6 (microseconds)
-        return ((block.timestamp).sub(bsc.blockSelectionTimestamp)).mul(1000000);
+        return ((block.timestamp).sub(bsc.lastBlockTimestamp)).mul(1000000);
     }
 
     function getState(uint256 _index, address _user)
@@ -277,7 +277,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
             block.number,
             i.currentGoalBlockNumber,
             i.difficulty,
-            ((block.timestamp).sub(i.blockSelectionTimestamp)).mul(1000000), // time passed
+            ((block.timestamp).sub(i.lastBlockTimestamp)).mul(1000000), // time passed
             getLogOfRandom(_index, _user)
         ];
 
