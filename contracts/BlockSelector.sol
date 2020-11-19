@@ -136,7 +136,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     function canProduceBlock(uint256 _index, address _user, uint256 _weight) public view returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
 
-        // cannot claim if block selector goal hasnt been decided yet
+        // cannot produce if block selector goal hasnt been decided yet
         if (block.number <= bsc.currentGoalBlockNumber) {
             return false;
         }
