@@ -53,7 +53,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
     mapping(uint256 => PoSCtx) internal instance;
 
-    event RewardGiven(
+    event Rewarded(
         uint256 indexed index,
         address indexed worker,
         address indexed user,
@@ -155,7 +155,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
         if (beneficiary == address(0) || userSplit == SPLIT_BASE) {
             pos.rewardManager.reward(user, currentReward);
-            emit RewardGiven(
+            emit Rewarded(
                 _index,
                 msg.sender,
                 user,
@@ -165,7 +165,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             );
         } else if (beneficiarySplit == SPLIT_BASE) {
             pos.rewardManager.reward(beneficiary, currentReward);
-            emit RewardGiven(
+            emit Rewarded(
                 _index,
                 msg.sender,
                 user,
@@ -179,7 +179,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
             pos.rewardManager.reward(beneficiary, bSplit);
             pos.rewardManager.reward(user, uSplit);
-            emit RewardGiven(
+            emit Rewarded(
                 _index,
                 msg.sender,
                 user,
