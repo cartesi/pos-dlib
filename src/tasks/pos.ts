@@ -27,8 +27,8 @@ import { formatUnits } from "ethers/lib/utils";
 
 task("pos:create", "Create the main PoS contract")
     .addOptionalParam(
-        "drawInterval",
-        "Specify the desired duration of each draw, in seconds",
+        "targetInterval",
+        "Specify the desired duration of each interval, in seconds",
         10 * 60, // 10 minutes
         types.int
     )
@@ -51,8 +51,8 @@ task("pos:create", "Create the main PoS contract")
         types.string
     )
     .addOptionalParam(
-        "prizePool",
-        "Specify the amount of CTSI to transfer to PrizeManager",
+        "rewardPool",
+        "Specify the amount of CTSI to transfer to RewardManager",
         "50000000000000000000000000",
         types.string
     )
@@ -60,9 +60,9 @@ task("pos:create", "Create the main PoS contract")
         const { deployments, ethers } = hre;
         const { PoSFactory } = await require("../types/PoSFactory");
         const {
-            Lottery,
+            BlockSelector,
             PoS,
-            PrizeManager,
+            RewardManager,
             StakingImpl,
             WorkerAuthManagerImpl,
             CartesiToken,
@@ -70,7 +70,7 @@ task("pos:create", "Create the main PoS contract")
 
         const [deployer] = await ethers.getSigners();
 
-        const drawInterval = args.drawInterval;
+        const targetInterval = args.targetInterval;
         const minimumDiff = BigNumber.from(args.minimumDiff);
         const initialDiff = BigNumber.from(args.initialDiff);
         const diffAdjustment = BigNumber.from(args.diffAdjustment);
@@ -82,21 +82,21 @@ task("pos:create", "Create the main PoS contract")
 
         const pos_tx = await pos.instantiate(
             StakingImpl.address,
-            Lottery.address,
+            BlockSelector.address,
             WorkerAuthManagerImpl.address,
             minimumDiff,
             initialDiff,
             diffAdjustment,
-            drawInterval,
-            PrizeManager.address
+            targetInterval,
+            RewardManager.address
         );
         console.log(`PoS created: ${pos_tx.hash}`);
 
         const ctsi_tx = await ctsi.transfer(
-            PrizeManager.address,
-            BigNumber.from(args.prizePool)
+            RewardManager.address,
+            BigNumber.from(args.rewardPool)
         );
-        console.log(`Transfer to PrizeManager: ${ctsi_tx.hash}`);
+        console.log(`Transfer to RewardManager: ${ctsi_tx.hash}`);
     });
 
 task("pos:deactivate", "Deativate a PoS instance")
@@ -199,17 +199,17 @@ task("pos:withdraw", "Withdraw some amount of CTSI including 18 decimal place wi
         console.log(`withdraw_tx: ${withdraw_tx.hash}`);
     });
 
-task("pos:claimWin", "Claim lottery ticket using local node")
+task("pos:produceBlock", "Produce a block using local node")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
         const localProvider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
         const signer = localProvider.getSigner();
         const address = await signer.getAddress();
-        console.log(`Claiming ticket using node ${address}`);
+        console.log(`Producing a block using node ${address}`);
 
         const { PoSFactory } = await require("../types/PoSFactory");
         const { PoS } = await deployments.all();
         const pos = PoSFactory.connect(PoS.address, signer);
-        const tx = await pos.claimWin(0);
+        const tx = await pos.produceBlock(0);
         console.log(`tx: ${tx.hash}`);
     });
