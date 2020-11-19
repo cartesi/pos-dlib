@@ -59,7 +59,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         address indexed user,
         address beneficiary,
         uint256 userReward,
-        uint256 beneficiaryPrize
+        uint256 beneficiaryReward
     );
 
     event BeneficiaryAdded(
