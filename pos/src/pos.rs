@@ -36,26 +36,26 @@ pub struct PoS();
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
 pub struct PoSCtxParsed(
-    pub BoolField, //canWin
-    pub AddressField, //winnerAddress
-    pub U256Field, //currentPrize
+    pub BoolField, //canProduce
+    pub AddressField, //BlockProducerAddress
+    pub U256Field, //currentReward
     pub U256Field, //user split
 );
 
 #[derive(Serialize, Debug)]
 pub struct PoSCtx {
-    pub can_win: bool,
-    pub winner_address: Address,
-    pub current_prize: U256,
+    pub can_produce: bool,
+    pub block_producer_address: Address,
+    pub current_reward: U256,
     pub user_split: U256,
 }
 
 impl From<PoSCtxParsed> for PoSCtx {
     fn from(parsed: PoSCtxParsed) -> PoSCtx {
         PoSCtx {
-            can_win: parsed.0.value,
-            winner_address: parsed.1.value,
-            current_prize: parsed.2.value,
+            can_produce: parsed.0.value,
+            block_producer_address: parsed.1.value,
+            current_reward: parsed.2.value,
             user_split: parsed.3.value,
         }
     }
@@ -69,7 +69,7 @@ impl DApp<()> for PoS {
         _post_payload: &Option<String>,
         _param: &(),
     ) -> Result<Reaction> {
-        // get context (state) of the lottery instance
+        // get context (state) of the block selector instance
         let parsed: PoSCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
                 format!(
@@ -86,21 +86,20 @@ impl DApp<()> for PoS {
 
         // TODO: Move this to a parameter, it varies according to user/worker
         // behavior and base layer tx cost
-        //let required_prize = 0;
+        //let required_reward = 0;
         //let base_split = 10000;
 
-        // TODO: check if cast to u_64() is problematic
         // TODO: Add ability to estimate transaction price and receive a
-        // minimum required prize
+        // minimum required reward
 
-        //let current_reward = ctx.current_prize.as_u64() * ctx.user_split.as_u64() / base_split;
-        //if ctx.can_win && current_reward >= required_prize {
-        if ctx.can_win {
-            info!("Claiming victory for PoS (index: {})", instance.index);
+        //let current_reward = ctx.current_reward.as_u64() * ctx.user_split.as_u64() / base_split;
+        //if ctx.can_produce && current_reward >= required_prize {
+        if ctx.can_produce {
+            info!("Producing block for PoS (index: {})", instance.index);
             let request = TransactionRequest {
                 concern: instance.concern.clone(),
                 value: U256::from(0),
-                function: "claimWin".into(),
+                function: "produceBlock".into(),
                 data: vec![
                     Token::Uint(instance.index),
                 ],
