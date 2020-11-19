@@ -34,16 +34,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     // rate = 0.005% = 0.00005 = 5 / 100000
     const numerator = 77;
     const denominator = 1000000;
-    const minimumPrize = BigNumber.from("1000000000000000000"); // 1 ctsi
+    const minPrize = BigNumber.from("1000000000000000000"); // 1 ctsi
     const maxPrize = BigNumber.from("2900000000000000000000"); // 2900 ctsi
 
-    await deploy("PrizeManager", {
+    await deploy("RewardManager", {
         from: deployer,
         args: [
             PoS.address,
             CartesiToken.address,
             maxPrize,
-            minimumPrize,
+            minPrize,
             numerator,
             denominator
         ],
@@ -52,5 +52,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 };
 
 export default func;
-export const tags = ["PrizeManager"];
+export const tags = ["RewardManager"];
 export const dependencies = ["PoS"];
