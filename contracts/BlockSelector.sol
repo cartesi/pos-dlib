@@ -51,14 +51,14 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
 
     event BlockProduced(
         uint256 indexed index,
-        address indexed winner,
+        address indexed producer,
         uint256 blockNumber,
         uint256 roundDuration,
         uint256 difficulty,
         uint256 targetInterval
     );
 
-    /// @notice Instantiates a Speed Bump structure
+    /// @notice Instantiates a BlockSelector structure
     /// @param _minDifficulty lower bound for difficulty parameter
     /// @param _initialDifficulty starting difficulty
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
@@ -106,11 +106,11 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @notice Produces a block
     /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user address that has the right to produce block
-    /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
+    /// @param _weight number that will weight the random number, will be the number of staked tokens
     function produceBlock(uint256 _index, address _user, uint256 _weight) public returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
 
-        require(_weight > 0, "Caller must have at least one staked token");
+        require(_weight > 0, "Caller can't have zero staked tokens");
         require(msg.sender == bsc.posManagerAddress, "Function can only be called by pos address");
 
         if (canProduceBlock(_index, _user, _weight)) {
@@ -156,7 +156,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @param _user address of user that won the round
     function _blockProduced(uint256 _index, address _user) private returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
-        // declare winner
+        // declare producer
         bsc.blockProducer[bsc.blockCount] = _user;
 
         // adjust difficulty
