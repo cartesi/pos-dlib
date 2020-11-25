@@ -37,7 +37,7 @@ pub struct PoS();
 #[derive(Serialize, Deserialize)]
 pub struct PoSCtxParsed(
     pub BoolField, //canProduce
-    pub AddressField, //BlockProducerAddress
+    pub AddressField, //BlockSelectorAddress
     pub U256Field, //currentReward
     pub U256Field, //user split
 );
@@ -45,7 +45,7 @@ pub struct PoSCtxParsed(
 #[derive(Serialize, Debug)]
 pub struct PoSCtx {
     pub can_produce: bool,
-    pub block_producer_address: Address,
+    pub block_selector_address: Address,
     pub current_reward: U256,
     pub user_split: U256,
 }
@@ -54,7 +54,7 @@ impl From<PoSCtxParsed> for PoSCtx {
     fn from(parsed: PoSCtxParsed) -> PoSCtx {
         PoSCtx {
             can_produce: parsed.0.value,
-            block_producer_address: parsed.1.value,
+            block_selector_address: parsed.1.value,
             current_reward: parsed.2.value,
             user_split: parsed.3.value,
         }

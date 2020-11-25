@@ -1,13 +1,13 @@
 version: '3'
 services:
   signer:
-    image: cartesi/ethsigner:0.1.0
+    image: cartesi/ethsigner:0.1.1
     command: "--chain-id=5 --downstream-http-host=goerli.infura.io --downstream-http-port=443 --http-cors-origins=\"http://localhost:3000,https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${PROJECT_ID:?PROJECT_ID undefined, please set up an application at Infura}"
     ports:
       - 8545:8545
   
   dispatcher:
-    image: cartesi/pos:0.1.0-beta.14
+    image: cartesi/pos:0.1.0-beta.15
     restart: always
     environment:
       RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,descartes=trace

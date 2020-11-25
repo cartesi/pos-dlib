@@ -1,7 +1,7 @@
 version: '3'
 services:
   signer:
-    image: cartesi/ethsigner:0.1.0
+    image: cartesi/ethsigner:0.1.1
     command: "--chain-id=31337 --downstream-http-host=host.docker.internal --http-cors-origins=\"*\" --downstream-http-port=7545 --http-listen-port=8545"
     expose:
       - 8545
