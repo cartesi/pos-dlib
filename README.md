@@ -160,7 +160,7 @@ dispatcher_1  | [2020-09-30T16:28:20Z INFO  configuration] Worker state: Availab
 You must hire this node so it can actually starts working for you, and also authorize the Staking contract to accepts calls from your worker node on your behalf.
 
 You can hire the node using the command below.
-It needs an amount of ETH to cover its gas costs. For now we are trasferring 1 ETH.
+It needs an amount of ETH to cover its gas costs. For now we are trasferring 0.5 ETH.
 
 ```
 npx hardhat --network goerli worker:hire
@@ -170,12 +170,6 @@ This should kickstart your node, making it accept the job and printing something
 
 ```
 dispatcher_1  | [2020-09-30T20:09:53Z INFO  configuration] Worker state: Owned(0xa0ab8e67e71485792e6bd1afb51e407b0548355e)
-```
-
-Finally you need to authorize the PoS contract to be called from the worker node on your behalf, by running the following command:
-
-```
-npx hardhat --network goerli worker:auth
 ```
 
 ## Unstaking and withdrawing

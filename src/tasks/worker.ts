@@ -23,7 +23,7 @@ import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 import { WorkerManagerAuthManagerImplFactory } from "@cartesi/util";
 import { task, types } from "hardhat/config";
 
-task("worker:hire", "Hire a worker")
+task("worker:hire", "Hire and authorize a worker")
     .addOptionalParam(
         "accountIndex",
         "Account index from MNEMONIC to use",
@@ -38,7 +38,7 @@ task("worker:hire", "Hire a worker")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { WorkerManagerAuthManagerImpl } = await deployments.all();
+        const { PoS, WorkerManagerAuthManagerImpl } = await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
         const worker = WorkerManagerAuthManagerImplFactory.connect(
@@ -60,56 +60,9 @@ task("worker:hire", "Hire a worker")
             `Hiring worker ${workerAddress} using account ${signer.address}`
         );
         // user hires worker
-        const hire_transaction = await worker.hire(workerAddress, {
-            value: ethers.utils.parseEther("1"),
+        const tx = await worker.hireAndAuthorize(workerAddress, PoS.address, {
+            value: ethers.utils.parseEther("0.5"),
         });
 
-        console.log(`hire_transaction: ${hire_transaction.hash}`);
-    });
-
-task("worker:auth", "Authorize PoS to be called by a worker")
-    .addOptionalParam(
-        "accountIndex",
-        "Account index from MNEMONIC to use",
-        0,
-        types.int
-    )
-    .addOptionalPositionalParam(
-        "address",
-        "Worker node address",
-        undefined,
-        types.string
-    )
-    .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
-        const { deployments, ethers } = hre;
-        const signers = await ethers.getSigners();
-        const signer = signers[args.accountIndex];
-        const { PoS, WorkerManagerAuthManagerImpl } = await deployments.all();
-
-        const authManager = WorkerManagerAuthManagerImplFactory.connect(
-            WorkerManagerAuthManagerImpl.address,
-            signer
-        );
-
-        let workerAddress = args.address;
-        if (!workerAddress) {
-            // get worker address from local node
-            const localProvider = new ethers.providers.JsonRpcProvider(
-                "http://localhost:8545"
-            );
-            const addresses = await localProvider.listAccounts();
-            workerAddress = addresses[0];
-        }
-
-        // user authorizes PoS dapp
-        console.log(
-            `Authorizing ${
-                PoS.address
-            } to accept calls from ${workerAddress} on behalf of ${await signer.getAddress()}`
-        );
-        const authorize_transaction = await authManager.authorize(
-            workerAddress,
-            PoS.address
-        );
-        console.log(`authorize_transaction: ${authorize_transaction.hash}`);
+        console.log(`transaction: ${tx.hash}`);
     });
