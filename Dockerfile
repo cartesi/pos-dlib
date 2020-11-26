@@ -50,7 +50,6 @@ COPY --from=build /usr/local/cargo/bin/pos $BASE/bin/pos
 COPY --from=build /usr/local/cargo/bin/wagyu /usr/local/bin
 
 # Copy onchain deployments and artifacts
-COPY artifacts $BASE/share/blockchain/artifacts
 COPY deployments $BASE/share/blockchain/deployments
 COPY node_modules/@cartesi $BASE/share/blockchain/node_modules/@cartesi
 
