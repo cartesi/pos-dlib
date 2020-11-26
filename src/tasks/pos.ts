@@ -64,7 +64,7 @@ task("pos:create", "Create the main PoS contract")
             PoS,
             RewardManager,
             StakingImpl,
-            WorkerAuthManagerImpl,
+            WorkerManagerAuthManagerImpl,
             CartesiToken,
         } = await deployments.all();
 
@@ -83,7 +83,7 @@ task("pos:create", "Create the main PoS contract")
         const pos_tx = await pos.instantiate(
             StakingImpl.address,
             BlockSelector.address,
-            WorkerAuthManagerImpl.address,
+            WorkerManagerAuthManagerImpl.address,
             minimumDiff,
             initialDiff,
             diffAdjustment,

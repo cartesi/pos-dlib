@@ -20,10 +20,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
-import {
-    WorkerManagerImplFactory,
-    WorkerAuthManagerImplFactory,
-} from "@cartesi/util";
+import { WorkerManagerAuthManagerImplFactory } from "@cartesi/util";
 import { task, types } from "hardhat/config";
 
 task("worker:hire", "Hire a worker")
@@ -41,11 +38,11 @@ task("worker:hire", "Hire a worker")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { WorkerManagerImpl } = await deployments.all();
+        const { WorkerManagerAuthManagerImpl } = await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
-        const worker = await WorkerManagerImplFactory.connect(
-            WorkerManagerImpl.address,
+        const worker = WorkerManagerAuthManagerImplFactory.connect(
+            WorkerManagerAuthManagerImpl.address,
             signer
         );
 
@@ -87,10 +84,10 @@ task("worker:auth", "Authorize PoS to be called by a worker")
         const { deployments, ethers } = hre;
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
-        const { PoS, WorkerAuthManagerImpl } = await deployments.all();
+        const { PoS, WorkerManagerAuthManagerImpl } = await deployments.all();
 
-        const authManager = WorkerAuthManagerImplFactory.connect(
-            WorkerAuthManagerImpl.address,
+        const authManager = WorkerManagerAuthManagerImplFactory.connect(
+            WorkerManagerAuthManagerImpl.address,
             signer
         );
 

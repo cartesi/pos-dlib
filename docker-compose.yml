@@ -7,7 +7,7 @@ services:
       - 8545:8545
   
   dispatcher:
-    image: cartesi/pos:0.1.0-beta.15
+    image: cartesi/pos:0.1.0
     restart: always
     environment:
       RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,descartes=trace
