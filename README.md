@@ -90,7 +90,7 @@ The contract suggests payments according to this rule:
 reward = (contract_balance * distNumerator) / distDenominator;
 
 If reward is bigger than `maxReward`, the contract pays `maxReward`.
-If reward is smaller than `minReward`, the contract pays the `minReward`. If either of those are smaller than the contract's balance, it pays it's balance.
+If reward is smaller than `minReward`, the contract pays the `minReward`. Finally, If the reward is bigger than the contract's balance, it pays the balance.
 
 The function `reward` can only be called by an `operator`, defined during the contract's deployment. The operator is supposed to be a smart contract (the pos contract), not an EOA.
 
