@@ -106,7 +106,7 @@ The PoS contract is the main concern when dealing with the Noether architecture,
 
 The contract instantiates a `BlockSelector` instance in order to control the weigthed random selection of addresses and uses the `RewardManager` contract to manage the transfer of rewards.
 
-The worker, representing a user, will constantly check off-chain if the address they are representing has been selected and, if so, they'll call the `produceBlock()` function on their behalf.
+The worker, representing a user, will constantly check off-chain if the address they are representing has been selected and, if so, they'll call the `produceBlock()` function of PoS on their behalf.
 The `produceBlock()` checks if the `msg.sender` is an authorized representant of the selected address and, if they are, rewards the owner of that worker according to the `rewardManager` current reward definition.
 A user has the right to add a beneficiary, which often will be the worker representing them, if they're not running that worker themselves. A beneficiary is defined by the function `addBeneficiary`, which receives a `split` variable. The `split` defines the percentage of each reward dedicated to the user that will go to the beneficiary, according to the math: `reward * split / SPLIT_BASE`, where `SPLIT_BASE` is equal to `10000`.
 
