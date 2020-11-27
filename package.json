@@ -1,6 +1,6 @@
 {
   "name": "@cartesi/pos",
-  "version": "0.1.0-beta.16",
+  "version": "0.1.0-beta.17",
   "description": "CTSI Proof of Stake",
   "directories": {
     "test": "test"
@@ -22,6 +22,7 @@
     "@types/mocha": "^8.0.3",
     "@types/node": "^14.14.2",
     "chai": "^4.2.0",
+    "copyfiles": "^2.4.0",
     "ethereum-waffle": "^3.1.2",
     "ethers": "^5.0.19",
     "hardhat": "^2.0.2",
@@ -39,6 +40,7 @@
   "scripts": {
     "build": "hardhat compile && tsc",
     "clean": "rimraf artifacts && rimraf cache && rimraf deployments/localhost && rimraf src/types/*",
+    "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist/src",
     "deploy": "run-s deploy:development",
     "deploy:testnet": "run-s deploy:rinkeby deploy:kovan deploy:goerli deploy:matic_testnet deploy:bsc_testnet",
     "deploy:development": "hardhat deploy --network localhost",
@@ -50,13 +52,14 @@
     "export": "hardhat export-artifacts export/artifacts",
     "info": "npm-scripts-info",
     "prepack": "run-s clean deploy:testnet",
-    "prepare": "run-s build export",
+    "prepare": "run-s build copy-dts export",
     "pretest": "run-s prepare",
     "test": "hardhat test",
     "start": "hardhat node"
   },
   "scripts-info": {
     "build": "Build contracts and typescript code",
+    "copy-dts": "Copy TypeChain type definition files to typescript output dir",
     "clean": "Clean build artifacts, including contracts deployment information",
     "deploy": "Deploy contracts to local ganache. Requires ganache running on localhost:8545",
     "deploy:testnet": "Deploy contracts to all supported testnets. Requires two environment variables: PROJECT_ID and MNEMONIC.",
