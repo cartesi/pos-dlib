@@ -87,7 +87,7 @@ The new difficulty is defined by the `getNewDifficulty` method, which takes into
 Users that get selected by the `BlockSelector.sol` contract, which implements the aforementioned selection process, are rewarded by the RewardManager contract. This contract is responsible for calculating the correct prize in CTSI and also for transferring that to the selected address - which is informed by the PoS main contract.
 
 The contract suggests payments according to this rule:
-reward = (contract_balance * distNumerator) / disDenominator;
+reward = (contract_balance * distNumerator) / distDenominator;
 
 If reward is bigger than `maxReward`, the contract pays `maxReward`.
 If reward is smaller than `minReward`, the contract pays the `minReward`. If either of those are smaller than the contract's balance, it pays it's balance.
