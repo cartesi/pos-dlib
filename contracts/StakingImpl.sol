@@ -91,8 +91,8 @@ contract StakingImpl is Staking {
         m.timestamp = block.timestamp;
 
         emit Stake(
-            m.amount,
             msg.sender,
+            m.amount,
             block.timestamp.add(timeToStake)
         );
     }
@@ -116,8 +116,8 @@ contract StakingImpl is Staking {
         r.timestamp = block.timestamp;
 
         emit Unstake(
-            r.amount,
             msg.sender,
+            r.amount,
             block.timestamp.add(timeToRelease)
         );
     }
@@ -139,7 +139,7 @@ contract StakingImpl is Staking {
         // to: msg.sender
         // value: bet total withdraw value on toWithdraw
         ctsi.transfer(msg.sender, _amount);
-        emit Withdraw(_amount, msg.sender);
+        emit Withdraw(msg.sender, _amount);
     }
 
     // getters

@@ -67,31 +67,31 @@ interface Staking {
 
     // events
     /// @notice CTSI tokens were deposited, they count as stake after _maturationDate
-    /// @param _amount amount deposited for staking
-    /// @param _address address of msg.sender
-    /// @param _maturationDate date when the stake can be finalized
+    /// @param user address of msg.sender
+    /// @param amount amount deposited for staking
+    /// @param maturationDate date when the stake can be finalized
     event Stake(
-        uint256 indexed _amount,
-        address indexed _address,
-        uint256 indexed _maturationDate
+        address indexed user,
+        uint256 amount,
+        uint256 maturationDate
     );
 
     /// @notice Unstake tokens, moving them to releasing structure
-    /// @param _amount amount of tokens to be released
-    /// @param _address address of msg.sender
-    /// @param _maturationDate date when the tokens can be withdrew
+    /// @param user address of msg.sender
+    /// @param amount amount of tokens to be released
+    /// @param maturationDate date when the tokens can be withdrew
     event Unstake(
-        uint256 indexed _amount,
-        address indexed _address,
-        uint256 indexed _maturationDate
+        address indexed user,
+        uint256 amount,
+        uint256 maturationDate
     );
 
     /// @notice Withdraw process was finalized
-    /// @param _amount amount of tokens withdrawn
-    /// @param _address address of msg.sender
+    /// @param user address of msg.sender
+    /// @param amount amount of tokens withdrawn
     event Withdraw(
-        uint256 indexed _amount,
-        address indexed _address
+        address indexed user,
+        uint256 amount
     );
 }
 
