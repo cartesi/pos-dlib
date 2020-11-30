@@ -175,7 +175,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             );
         } else {
             uint256 bSplit = currentReward.mul(beneficiarySplit).div(SPLIT_BASE);
-            uint256 uSplit = SPLIT_BASE.sub(bSplit);
+            uint256 uSplit = currentReward.sub(bSplit);
 
             pos.rewardManager.reward(beneficiary, bSplit);
             pos.rewardManager.reward(user, uSplit);
