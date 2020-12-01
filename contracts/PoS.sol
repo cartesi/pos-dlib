@@ -102,16 +102,22 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 _targetInterval,
         address _rewardManagerAddress
     ) public onlyOwner() returns (uint256) {
-        instance[currentIndex].staking = Staking(_stakingAddress);
-        instance[currentIndex].blockSelector = BlockSelector(_blockSelectorAddress);
-        instance[currentIndex].rewardManager = RewardManager(
+        // index is incremented at the beggining to stop reentrancy possibilities
+        // TODO: study using ReentrancyGuard contract
+        currentIndex++;
+
+        instance[currentIndex - 1].staking = Staking(_stakingAddress);
+        instance[currentIndex - 1].blockSelector = BlockSelector(_blockSelectorAddress);
+        instance[currentIndex - 1].rewardManager = RewardManager(
             _rewardManagerAddress
         );
-        instance[currentIndex].workerAuth = WorkerAuthManager(
+        instance[currentIndex - 1].workerAuth = WorkerAuthManager(
             _workerAuthAddress
         );
 
-        instance[currentIndex].blockSelectorIndex = instance[currentIndex]
+        active[currentIndex - 1] = true;
+
+        instance[currentIndex - 1].blockSelectorIndex = instance[currentIndex -1]
             .blockSelector
             .instantiate(
             _minimumDifficulty,
@@ -121,8 +127,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             address(this)
         );
 
-        active[currentIndex] = true;
-        return currentIndex++;
+        return currentIndex - 1;
     }
 
     /// @notice Produce a block
