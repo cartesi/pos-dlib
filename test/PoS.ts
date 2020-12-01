@@ -104,7 +104,7 @@ describe("PoS", async () => {
             initialDiff,
             diffAjdust,
             targetInterval,
-            mockRM.address
+            NULL_ADDRESS
         );
 
         expect(
@@ -222,7 +222,7 @@ describe("PoS", async () => {
                 mockReward/2, //50/50 beneficiary, user should receive half reward
                 mockReward/2 //beneficiary should receive half reward
             );
-        
+
         // add beneficiary with 33/660 split
         await expect(
             pos.addBeneficiary(0, ADDRESS_1, Math.floor(SPLIT_BASE / 3)),
