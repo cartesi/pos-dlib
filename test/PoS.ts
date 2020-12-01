@@ -53,10 +53,12 @@ describe("PoS", async () => {
     beforeEach(async () => {
         [signer] = await ethers.getSigners();
 
-        const Staking= await deployments.getArtifact("Staking");
+        const Staking = await deployments.getArtifact("Staking");
         const BlockSelector = await deployments.getArtifact("BlockSelector");
         const RewardManager = await deployments.getArtifact("RewardManager");
-        const WorkerAuthManager = await deployments.getArtifact("WorkerAuthManager");
+        const WorkerAuthManager = await deployments.getArtifact(
+            "WorkerAuthManager"
+        );
 
         mockSI = await deployMockContract(signer, Staking.abi);
         mockBS = await deployMockContract(signer, BlockSelector.abi);
@@ -116,6 +118,37 @@ describe("PoS", async () => {
             await pos.isActive(1),
             "second instance should be active after instantiate call"
         ).to.equal(true);
+    });
+
+    it("pos instances should have a unique reward manager address", async () => {
+        await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
+
+        await pos.instantiate(
+            mockSI.address,
+            mockBS.address,
+            mockWM.address,
+            minDiff,
+            initialDiff,
+            diffAjdust,
+            targetInterval,
+            mockRM.address
+        );
+
+        await expect(
+            pos.instantiate(
+                mockSI.address,
+                mockBS.address,
+                mockWM.address,
+                minDiff,
+                initialDiff,
+                diffAjdust,
+                targetInterval,
+                mockRM.address
+            ),
+            "reward manager has to be unique for each instance"
+        ).to.be.revertedWith(
+            "This RewardManager address has been used by another instance"
+        );
     });
 
     it("addBeneficiary revert cases", async () => {
@@ -202,14 +235,9 @@ describe("PoS", async () => {
             "adding beneficiary correctly should emit event"
         )
             .to.emit(pos, "BeneficiaryAdded")
-            .withArgs(
-                0,
-                await signer.getAddress(),
-                ADDRESS_1,
-                SPLIT_BASE / 2
-            );
+            .withArgs(0, await signer.getAddress(), ADDRESS_1, SPLIT_BASE / 2);
 
-            await expect(
+        await expect(
             pos.produceBlock(0),
             "block produced should emit rewarded events with correct args"
         )
@@ -219,11 +247,11 @@ describe("PoS", async () => {
                 await signer.getAddress(),
                 await signer.getAddress(),
                 ADDRESS_1,
-                mockReward/2, //50/50 beneficiary, user should receive half reward
-                mockReward/2 //beneficiary should receive half reward
+                mockReward / 2, //50/50 beneficiary, user should receive half reward
+                mockReward / 2 //beneficiary should receive half reward
             );
 
-        // add beneficiary with 33/660 split
+        // add beneficiary with 33/66 split
         await expect(
             pos.addBeneficiary(0, ADDRESS_1, Math.floor(SPLIT_BASE / 3)),
             "adding beneficiary correctly should emit event"
@@ -236,7 +264,7 @@ describe("PoS", async () => {
                 Math.floor(SPLIT_BASE / 3)
             );
 
-            await expect(
+        await expect(
             pos.produceBlock(0),
             "block produced should emit rewarded events with correct args"
         )
@@ -246,7 +274,7 @@ describe("PoS", async () => {
                 await signer.getAddress(),
                 await signer.getAddress(),
                 ADDRESS_1,
-                66670,//Math.floor(mockReward * 2/3), //66/33 beneficiary
+                66670, //Math.floor(mockReward * 2/3), //66/33 beneficiary
                 33330 //Math.floor(mockReward / 3)
             );
 
@@ -262,7 +290,7 @@ describe("PoS", async () => {
                 Math.floor(SPLIT_BASE / 4)
             );
 
-            await expect(
+        await expect(
             pos.produceBlock(0),
             "block produced should emit rewarded events with correct args"
         )
@@ -272,7 +300,7 @@ describe("PoS", async () => {
                 await signer.getAddress(),
                 await signer.getAddress(),
                 ADDRESS_1,
-                Math.floor(mockReward * 3/4), //75/25 beneficiary
+                Math.floor((mockReward * 3) / 4), //75/25 beneficiary
                 Math.floor(mockReward / 4)
             );
 
@@ -281,14 +309,9 @@ describe("PoS", async () => {
             "adding beneficiary correctly should emit event"
         )
             .to.emit(pos, "BeneficiaryAdded")
-            .withArgs(
-                0,
-                await signer.getAddress(),
-                ADDRESS_1,
-                SPLIT_BASE
-            );
+            .withArgs(0, await signer.getAddress(), ADDRESS_1, SPLIT_BASE);
 
-            await expect(
+        await expect(
             pos.produceBlock(0),
             "block produced should emit rewarded events with correct args"
         )
@@ -301,6 +324,5 @@ describe("PoS", async () => {
                 0, //100/0 beneficiary
                 mockReward
             );
-
     });
 });
