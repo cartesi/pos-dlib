@@ -41,6 +41,9 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
     uint256 constant SPLIT_BASE = 10000;
 
+    mapping(address => bool) usedRM; // RewardManagers have to be unique to each
+                                     // instance.
+
     struct PoSCtx {
         mapping(address => address) beneficiaryMap;
         mapping(address => uint256) splitMap;
@@ -102,6 +105,13 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 _targetInterval,
         address _rewardManagerAddress
     ) public onlyOwner() returns (uint256) {
+
+        require(
+            !usedRM[_rewardManagerAddress],
+            "This RewardManager address has been used by another instance"
+        );
+        usedRM[_rewardManagerAddress] = true;
+
         // index is incremented at the beggining to stop reentrancy possibilities
         // TODO: study using ReentrancyGuard contract
         currentIndex++;
