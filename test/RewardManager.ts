@@ -20,6 +20,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 import { expect, use } from "chai";
+import { deployments, ethers } from "hardhat";
 import {
     deployments,
     ethers,
@@ -31,7 +32,7 @@ import {
 import { solidity } from "ethereum-waffle";
 
 import { RewardManager } from "../src/types/RewardManager";
-import { RewardManagerFactory } from "../src/types/RewardManagerFactory";
+import { RewardManager__factory } from "../src/types/factories/RewardManager__factory";
 import { BigNumberish, Signer } from "ethers";
 
 use(solidity);
@@ -65,10 +66,11 @@ describe("RewardManager", async () => {
     } = {}): Promise<RewardManager> => {
         const [signer] = await ethers.getSigners();
         const posAddress = pos || (await deployments.get("PoS")).address;
-        const ctsiAddress = ctsi || (await deployments.get("CartesiToken")).address;
+        const ctsiAddress =
+            ctsi || (await deployments.get("CartesiToken")).address;
         const n = numerator || 5000;
         const d = denominator || 100000;
-        const rewardFactory = new RewardManagerFactory(signer);
+        const rewardFactory = new RewardManager__factory(signer);
         const rewardManager = await rewardFactory.deploy(
             posAddress,
             ctsiAddress,
@@ -87,6 +89,10 @@ describe("RewardManager", async () => {
         aliceAddress = await alice.getAddress();
         const CartesiToken = await deployments.getArtifact("CartesiToken");
         mockToken = await deployMockContract(signer, CartesiToken.abi);
+        mockPoS = await deployMockContract(
+            signer,
+            (await deployments.getArtifact("PoS")).abi
+        );
     });
 
     it("reward function can only be called by PoS", async () => {
@@ -142,7 +148,7 @@ describe("RewardManager", async () => {
         await rewardManager.reward(aliceAddress, currentReward);
     });
 
-    it("current currentReward should generate currentRewards correctly", async function() {
+    it("current currentReward should generate currentRewards correctly", async function () {
         this.timeout(60000);
         let balance = 25000;//12500000;
         let lastReward = 0;

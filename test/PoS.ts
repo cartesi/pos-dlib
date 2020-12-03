@@ -28,7 +28,7 @@ import {
 import { solidity } from "ethereum-waffle";
 
 import { PoS } from "../src/types/PoS";
-import { PoSFactory } from "../src/types/PoSFactory";
+import { PoS__factory } from "../src/types/factories/PoS__factory";
 import { Signer } from "ethers";
 
 use(solidity);
@@ -65,7 +65,7 @@ describe("PoS", async () => {
         mockRM = await deployMockContract(signer, RewardManager.abi);
         mockWM = await deployMockContract(signer, WorkerAuthManager.abi);
 
-        const posFactory = new PoSFactory(signer);
+        const posFactory = new PoS__factory(signer);
         pos = await posFactory.deploy();
     });
 

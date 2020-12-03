@@ -28,7 +28,7 @@ import {
 import { solidity } from "ethereum-waffle";
 
 import { Staking } from "../src/types/Staking";
-import { StakingImplFactory } from "../src/types/StakingImplFactory";
+import { StakingImpl__factory } from "../src/types/factories/StakingImpl__factory";
 import { Signer } from "ethers";
 
 const { advanceTime, advanceBlock } = require("./utils");
@@ -52,7 +52,7 @@ describe("Staking", async () => {
         const [signer] = await ethers.getSigners();
         const ctsiAddress =
             ctsi || (await deployments.get("CartesiToken")).address;
-        const stakingFactory = new StakingImplFactory(signer);
+        const stakingFactory = new StakingImpl__factory(signer);
         const staking = await stakingFactory.deploy(
             ctsiAddress,
             5 * DAY,

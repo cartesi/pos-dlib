@@ -1,28 +1,19 @@
-// Copyright (C) 2020 Cartesi Pte. Ltd.
+// Copyright 2020 Cartesi Pte. Ltd.
 
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public License as published by the Free Software
-// Foundation, either version 3 of the License, or (at your option) any later
-// version.
+// SPDX-License-Identifier: Apache-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at http://www.apache.org/licenses/LICENSE-2.0
 
-// This program is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-// PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-// Note: This component currently has dependencies that are licensed under the GNU
-// GPL, version 3, and so you should treat this component as a whole as being under
-// the GPL version 3. But all Cartesi-written code in this component is licensed
-// under the Apache License, version 2, or a compatible permissive license, and can
-// be used independently under the Apache v2 license. After this component is
-// rewritten, the entire component will be released under the Apache v2 license.
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 import { task, types } from "hardhat/config";
 import { BigNumber } from "ethers";
-import { CartesiTokenFactory } from "@cartesi/token";
+import { CartesiToken__factory } from "@cartesi/token";
 import { formatUnits } from "ethers/lib/utils";
 
 task("pos:create", "Create the main PoS contract")
@@ -58,7 +49,7 @@ task("pos:create", "Create the main PoS contract")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoSFactory } = await require("../types/PoSFactory");
+        const { PoS__factory } = await require("../types/factories/PoS__factory");
         const {
             BlockSelector,
             PoS,
@@ -74,8 +65,8 @@ task("pos:create", "Create the main PoS contract")
         const minimumDiff = BigNumber.from(args.minimumDiff);
         const initialDiff = BigNumber.from(args.initialDiff);
         const diffAdjustment = BigNumber.from(args.diffAdjustment);
-        const pos = PoSFactory.connect(PoS.address, deployer);
-        const ctsi = CartesiTokenFactory.connect(
+        const pos = PoS__factory.connect(PoS.address, deployer);
+        const ctsi = CartesiToken__factory.connect(
             CartesiToken.address,
             deployer
         );
@@ -108,24 +99,27 @@ task("pos:deactivate", "Deativate a PoS instance")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoSFactory } = await require("../types/PoSFactory");
+        const { PoS__factory } = await require("../types/factories/PoS__factory");
         const { PoS } = await deployments.all();
 
         const [deployer] = await ethers.getSigners();
-        const pos = PoSFactory.connect(PoS.address, deployer);
+        const pos = PoS__factory.connect(PoS.address, deployer);
 
         const tx = await pos.deactivate(args.index);
         console.log(`PoS deactivated: ${tx.hash}`);
     });
 
-task("pos:stake", "Stake some amount of CTSI including 18 decimal place without '.'")
+task(
+    "pos:stake",
+    "Stake some amount of CTSI including 18 decimal place without '.'"
+)
     .addPositionalParam("amount", "amount of CTSI to stake")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { StakingFactory } = await require("../types/StakingFactory");
+        const { StakingImpl__factory } = await require("../types/factories/StakingImpl__factory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
-        const staking = StakingFactory.connect(StakingImpl.address, signer);
+        const staking = StakingImpl__factory.connect(StakingImpl.address, signer);
         const staking_tx = await staking.stake(BigNumber.from(args.amount));
         console.log(`staking_tx: ${staking_tx.hash}`);
     });
@@ -135,7 +129,7 @@ task(
     "Show staking information",
     async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers, getNamedAccounts } = hre;
-        const { StakingFactory } = await require("../types/StakingFactory");
+        const { StakingFactory } = await require("../types/factories/StakingImpl__factory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
         const staking = StakingFactory.connect(StakingImpl.address, signer);
@@ -174,7 +168,10 @@ task(
     }
 );
 
-task("pos:unstake", "Unstake some amount of CTSI including 18 decimal place without '.'")
+task(
+    "pos:unstake",
+    "Unstake some amount of CTSI including 18 decimal place without '.'"
+)
     .addPositionalParam("amount", "amount of CTSI")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
@@ -187,29 +184,35 @@ task("pos:unstake", "Unstake some amount of CTSI including 18 decimal place with
         console.log(`unstaking_tx: ${unstaking_tx.hash}`);
     });
 
-task("pos:withdraw", "Withdraw some amount of CTSI including 18 decimal place without '.'")
+task(
+    "pos:withdraw",
+    "Withdraw some amount of CTSI including 18 decimal place without '.'"
+)
     .addPositionalParam("amount", "amount of CTSI")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { StakingFactory } = await require("../types/StakingFactory");
+        const { StakingImpl__factory } = await require("../types/factories/StakingImpl__factory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
-        const staking = StakingFactory.connect(StakingImpl.address, signer);
+        const staking = StakingImpl__factory.connect(StakingImpl.address, signer);
         const withdraw_tx = await staking.withdraw(BigNumber.from(args.amount));
         console.log(`withdraw_tx: ${withdraw_tx.hash}`);
     });
 
-task("pos:produceBlock", "Produce a block using local node")
-    .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+task("pos:produceBlock", "Produce a block using local node").setAction(
+    async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const localProvider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+        const localProvider = new ethers.providers.JsonRpcProvider(
+            "http://localhost:8545"
+        );
         const signer = localProvider.getSigner();
         const address = await signer.getAddress();
         console.log(`Producing a block using node ${address}`);
 
-        const { PoSFactory } = await require("../types/PoSFactory");
+        const { PoS__factory } = await require("../types/factories/PoS__factory");
         const { PoS } = await deployments.all();
-        const pos = PoSFactory.connect(PoS.address, signer);
+        const pos = PoS__factory.connect(PoS.address, signer);
         const tx = await pos.produceBlock(0);
         console.log(`tx: ${tx.hash}`);
-    });
+    }
+);
