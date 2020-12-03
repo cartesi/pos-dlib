@@ -87,6 +87,7 @@
   "main": "./dist/src/types/index.js",
   "types": "./dist/src/types/index.d.ts",
   "author": "Felipe Argento <felipe.argento@cartesi.io>",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/cartesi/pos-dlib/issues"
   },
