@@ -146,7 +146,7 @@
   "storageLayout": {
     "storage": [
       {
-        "astId": 2823,
+        "astId": 2851,
         "contract": "contracts/RewardManager.sol:RewardManager",
         "label": "minReward",
         "offset": 0,
@@ -154,7 +154,7 @@
         "type": "t_uint256"
       },
       {
-        "astId": 2825,
+        "astId": 2853,
         "contract": "contracts/RewardManager.sol:RewardManager",
         "label": "maxReward",
         "offset": 0,
@@ -162,7 +162,7 @@
         "type": "t_uint256"
       },
       {
-        "astId": 2827,
+        "astId": 2855,
         "contract": "contracts/RewardManager.sol:RewardManager",
         "label": "distNumerator",
         "offset": 0,
@@ -170,7 +170,7 @@
         "type": "t_uint256"
       },
       {
-        "astId": 2829,
+        "astId": 2857,
         "contract": "contracts/RewardManager.sol:RewardManager",
         "label": "distDenominator",
         "offset": 0,
@@ -178,7 +178,7 @@
         "type": "t_uint256"
       },
       {
-        "astId": 2831,
+        "astId": 2859,
         "contract": "contracts/RewardManager.sol:RewardManager",
         "label": "operator",
         "offset": 0,
@@ -186,7 +186,7 @@
         "type": "t_address"
       },
       {
-        "astId": 2833,
+        "astId": 2861,
         "contract": "contracts/RewardManager.sol:RewardManager",
         "label": "ctsi",
         "offset": 0,

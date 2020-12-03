@@ -22,10 +22,6 @@
 import { expect, use } from "chai";
 import { deployments, ethers } from "hardhat";
 import {
-    deployments,
-    ethers,
-} from "hardhat";
-import {
     deployMockContract,
     MockContract,
 } from "@ethereum-waffle/mock-contract";
@@ -89,10 +85,6 @@ describe("RewardManager", async () => {
         aliceAddress = await alice.getAddress();
         const CartesiToken = await deployments.getArtifact("CartesiToken");
         mockToken = await deployMockContract(signer, CartesiToken.abi);
-        mockPoS = await deployMockContract(
-            signer,
-            (await deployments.getArtifact("PoS")).abi
-        );
     });
 
     it("reward function can only be called by PoS", async () => {
@@ -150,7 +142,7 @@ describe("RewardManager", async () => {
 
     it("current currentReward should generate currentRewards correctly", async function () {
         this.timeout(60000);
-        let balance = 25000;//12500000;
+        let balance = 25000; //12500000;
         let lastReward = 0;
 
         // deploy contract with signer as pos address
@@ -178,7 +170,9 @@ describe("RewardManager", async () => {
             lastReward = Math.floor((balance * numerator) / denominator);
             lastReward = lastReward > minReward ? lastReward : minReward;
             lastReward = lastReward > maxReward ? maxReward : lastReward;
-            lastReward = Math.floor(lastReward > balance ? balance : lastReward);
+            lastReward = Math.floor(
+                lastReward > balance ? balance : lastReward
+            );
 
             await mockToken.mock.balanceOf.returns(balance);
             expect(

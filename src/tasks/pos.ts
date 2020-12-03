@@ -90,10 +90,10 @@ task("pos:create", "Create the main PoS contract")
         console.log(`Transfer to RewardManager: ${ctsi_tx.hash}`);
     });
 
-task("pos:deactivate", "Deativate a PoS instance")
+task("pos:terminate", "Deativate a PoS instance")
     .addPositionalParam(
         "index",
-        "Index of instance to deactivate",
+        "Index of instance to terminate",
         0,
         types.int
     )
@@ -105,8 +105,8 @@ task("pos:deactivate", "Deativate a PoS instance")
         const [deployer] = await ethers.getSigners();
         const pos = PoS__factory.connect(PoS.address, deployer);
 
-        const tx = await pos.deactivate(args.index);
-        console.log(`PoS deactivated: ${tx.hash}`);
+        const tx = await pos.terminate(args.index);
+        console.log(`PoS terminated: ${tx.hash}`);
     });
 
 task(

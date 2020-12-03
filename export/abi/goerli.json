@@ -451,7 +451,7 @@
       ]
     },
     "PoS": {
-      "address": "0x8684e8143698d52056f15DbA448E542B8f4f677D",
+      "address": "0xe551220B5D473da1e0478FbAD9FaC1f437639Ada",
       "abi": [
         {
           "anonymous": false,
@@ -808,6 +808,19 @@
         {
           "inputs": [
             {
+              "internalType": "uint256",
+              "name": "index",
+              "type": "uint256"
+            }
+          ],
+          "name": "terminate",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
               "internalType": "address",
               "name": "newOwner",
               "type": "address"
@@ -821,7 +834,7 @@
       ]
     },
     "RewardManager": {
-      "address": "0xB655fafF2C7d47C4c37C11aC607059b120d54147",
+      "address": "0x93b0561F7064ADcBd0D7E3dB2B457fbf350BB6a2",
       "abi": [
         {
           "inputs": [

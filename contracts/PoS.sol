@@ -31,8 +31,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
     uint256 constant SPLIT_BASE = 10000;
 
-    mapping(address => bool) usedRM; // RewardManagers have to be unique to each
-                                     // instance.
+    mapping(address => bool) usedRM; // RewardManagers have to be unique to each instance.
 
     struct PoSCtx {
         mapping(address => address) beneficiaryMap;
@@ -95,7 +94,6 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 _targetInterval,
         address _rewardManagerAddress
     ) public onlyOwner() returns (uint256) {
-
         require(
             !usedRM[_rewardManagerAddress],
             "This RewardManager address has been used by another instance"
@@ -107,7 +105,9 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         currentIndex++;
 
         instance[currentIndex - 1].staking = Staking(_stakingAddress);
-        instance[currentIndex - 1].blockSelector = BlockSelector(_blockSelectorAddress);
+        instance[currentIndex - 1].blockSelector = BlockSelector(
+            _blockSelectorAddress
+        );
         instance[currentIndex - 1].rewardManager = RewardManager(
             _rewardManagerAddress
         );
@@ -117,7 +117,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
         active[currentIndex - 1] = true;
 
-        instance[currentIndex - 1].blockSelectorIndex = instance[currentIndex -1]
+        instance[currentIndex - 1].blockSelectorIndex = instance[currentIndex -
+            1]
             .blockSelector
             .instantiate(
             _minimumDifficulty,
@@ -179,7 +180,9 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
                 currentReward
             );
         } else {
-            uint256 bSplit = currentReward.mul(beneficiarySplit).div(SPLIT_BASE);
+            uint256 bSplit = currentReward.mul(beneficiarySplit).div(
+                SPLIT_BASE
+            );
             uint256 uSplit = currentReward.sub(bSplit);
 
             pos.rewardManager.reward(beneficiary, bSplit);
@@ -254,5 +257,9 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         a[0] = address(pos.blockSelector);
         i[0] = pos.blockSelectorIndex;
         return (a, i);
+    }
+
+    function terminate(uint256 index) public onlyOwner() {
+        deactivate(index);
     }
 }
