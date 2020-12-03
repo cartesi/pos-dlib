@@ -10,7 +10,7 @@ jobs:
           token: ${{ secrets.CI_TOKEN }}
       - uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '15'
 
       - name: Set up Docker Buildx
         id: buildx
