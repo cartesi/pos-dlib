@@ -69,6 +69,19 @@ describe("Staking", async () => {
         staking = await deployStaking({ ctsi: mockToken.address });
     });
 
+    it("stake should revert if transferFrom reverts", async () => {
+        let toBeDeposited = 5;
+
+        // mock transfer from as true
+         mockToken.mock.transferFrom.revertsWithReason("ERC20: transfer amount exceeds balance");
+
+        await expect(
+            staking.stake(toBeDeposited),
+            "should revert if transfeFrom reverts"
+        ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+
+    });
+
     it("deposit stake should emit event", async () => {
         let toBeDeposited = 5;
 
