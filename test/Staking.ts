@@ -23,7 +23,7 @@ import { expect, use } from "chai";
 import { deployments, ethers } from "hardhat";
 import {
     deployMockContract,
-    MockContract
+    MockContract,
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
@@ -45,7 +45,7 @@ describe("Staking", async () => {
     let mockToken: MockContract;
 
     const deployStaking = async ({
-        ctsi
+        ctsi,
     }: {
         ctsi?: string;
     } = {}): Promise<Staking> => {
@@ -138,6 +138,84 @@ describe("Staking", async () => {
             await staking.getStakedBalance(await signer.getAddress()),
             "staked balance should match finalized deposit"
         ).to.equal(2 * toBeDeposited);
+    });
+
+    it("stake() priority should be tokens from release pool", async () => {
+        let toBeDeposited = 5;
+        let toBeReleased = 2;
+        // mock transfer from as true
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
+
+        await advanceTime(signer.provider, MATURATION);
+        await advanceBlock(signer.provider);
+
+        await staking.unstake(toBeDeposited);
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "releasing balance should be toBeDeposited"
+        ).to.equal(toBeDeposited);
+
+        expect(
+            await staking.getMaturingBalance(await signer.getAddress()),
+            "maturing balance should be 0"
+        ).to.equal(0);
+
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited);
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "releasing balance should be 0"
+        ).to.equal(0);
+
+        expect(
+            await staking.getMaturingBalance(await signer.getAddress()),
+            "maturing balance should be toBeDeposited"
+        ).to.equal(toBeDeposited);
+
+        await advanceTime(signer.provider, MATURATION);
+        await advanceBlock(signer.provider);
+
+        await staking.unstake(toBeDeposited);
+
+        await mockToken.mock.transferFrom.returns(true);
+        await staking.stake(toBeDeposited - toBeReleased);
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "releasing balance should be toBeDeposited - toBeReleased"
+        ).to.equal(toBeReleased);
+
+        expect(
+            await staking.getMaturingBalance(await signer.getAddress()),
+            "maturing balance should be toBeDeposited"
+        ).to.equal(toBeDeposited - toBeReleased);
+
+        await advanceTime(signer.provider, MATURATION);
+        await advanceBlock(signer.provider);
+
+        expect(
+            await staking.getStakedBalance(await signer.getAddress()),
+            "staked balance should include all 3 deposits"
+        ).to.equal(toBeDeposited - toBeReleased);
+
+        await mockToken.mock.transfer.returns(true);
+        await expect(
+            staking.withdraw(toBeReleased),
+            "Deposting stake should emit event"
+        ).to.emit(staking, "Withdraw");
+
+        expect(
+            await staking.getReleasingBalance(await signer.getAddress()),
+            "releasing balance should be 0"
+        ).to.equal(0);
+
+        expect(
+            await staking.getMaturingBalance(await signer.getAddress()),
+            "maturing balance should be 0"
+        ).to.equal(0);
     });
 
     it("multiple deposit should mature at once", async () => {
@@ -318,7 +396,7 @@ describe("Staking", async () => {
 
         expect(
             await staking.getMaturingBalance(await signer.getAddress()),
-            "maturing balance should be toBeDeposit after new deposit"
+            "maturing balance should be toBeDeposited after new deposit"
         ).to.equal(toBeDeposited);
     });
 
@@ -373,7 +451,7 @@ describe("Staking", async () => {
 
         expect(
             await staking.getReleasingBalance(await signer.getAddress()),
-            "realeasing balance should be toBeDeposit after first withdraw"
+            "realeasing balance should be toBeDeposited after first withdraw"
         ).to.equal(toBeDeposited);
 
         await mockToken.mock.transfer.returns(true);
