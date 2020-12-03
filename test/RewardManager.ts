@@ -39,18 +39,16 @@ use(solidity);
 describe("RewardManager", async () => {
     let signer: Signer;
     let alice: Signer;
-    let bob: Signer;
 
     let aliceAddress: string;
 
     let rewardManager: RewardManager;
     let mockToken: MockContract;
-    let mockPoS: MockContract;
 
-    let minReward = 10;
-    let maxReward = 270;
-    let numerator = 5000;
-    let denominator = 100000; // pays  5%
+    let minReward = 500;
+    let maxReward = 1200;
+    let numerator = 5;
+    let denominator = 100;
 
     const deployRewardManager = async ({
         pos,
@@ -85,16 +83,15 @@ describe("RewardManager", async () => {
     beforeEach(async () => {
         //await deployments.fixture();
 
-        [signer, alice, bob] = await ethers.getSigners();
+        [signer, alice] = await ethers.getSigners();
         aliceAddress = await alice.getAddress();
         const CartesiToken = await deployments.getArtifact("CartesiToken");
         mockToken = await deployMockContract(signer, CartesiToken.abi);
-        mockPoS = await deployMockContract(signer, (await deployments.getArtifact("PoS")).abi);
     });
 
     it("reward function can only be called by PoS", async () => {
         rewardManager = await deployRewardManager({
-            pos: mockPoS.address,
+            pos: mockToken.address, // not signer's address
             ctsi: mockToken.address,
             numerator,
             denominator,
@@ -147,7 +144,7 @@ describe("RewardManager", async () => {
 
     it("current currentReward should generate currentRewards correctly", async function() {
         this.timeout(60000);
-        let balance = 500000;
+        let balance = 25000;//12500000;
         let lastReward = 0;
 
         // deploy contract with signer as pos address
@@ -162,16 +159,29 @@ describe("RewardManager", async () => {
 
         // loops until balance is zero
         while (true) {
-            balance = balance - lastReward;
+            balance = Math.floor(balance - lastReward);
+
+            await mockToken.mock.balanceOf.returns(balance);
+            expect(
+                await rewardManager.getBalance(),
+                "current reward has to be correct"
+            ).to.equal(balance);
 
             if (balance == 0) break;
 
             lastReward = Math.floor((balance * numerator) / denominator);
             lastReward = lastReward > minReward ? lastReward : minReward;
-            lastReward = lastReward > balance ? balance : lastReward;
+            lastReward = lastReward > maxReward ? maxReward : lastReward;
+            lastReward = Math.floor(lastReward > balance ? balance : lastReward);
 
             await mockToken.mock.balanceOf.returns(balance);
-            await rewardManager.reward(aliceAddress, lastReward);
+            expect(
+                await rewardManager.getCurrentReward(),
+                "current reward has to be correct"
+            ).to.equal(lastReward);
+
+            await mockToken.mock.balanceOf.returns(balance);
+            //await rewardManager.reward(aliceAddress, lastReward);
         }
     });
 });
