@@ -38,7 +38,7 @@
     "typescript": "^4.1.2"
   },
   "scripts": {
-    "build": "hardhat compile && tsc",
+    "build": "hardhat compile && tsc -v && tsc",
     "clean": "rimraf artifacts && rimraf cache && rimraf deployments/localhost && rimraf src/types/*",
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist/src",
     "deploy": "run-s deploy:development",
