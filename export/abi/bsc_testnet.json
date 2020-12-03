@@ -1,9 +1,9 @@
 {
-  "name": "rinkeby",
-  "chainId": "4",
+  "name": "bsc_testnet",
+  "chainId": "97",
   "contracts": {
     "BlockSelector": {
-      "address": "0x7E40AF0D5332E021598F28ceDf9aeA0Ded49C4b5",
+      "address": "0x384bB710B69A36f25Db500f8F2f9Ea2848058ad5",
       "abi": [
         {
           "anonymous": false,
@@ -88,19 +88,6 @@
             }
           ],
           "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_index",
-              "type": "uint256"
-            }
-          ],
-          "name": "deactivate",
-          "outputs": [],
-          "stateMutability": "nonpayable",
           "type": "function"
         },
         {
@@ -441,7 +428,7 @@
       ]
     },
     "CTSIFaucet": {
-      "address": "0x3440609809C7e6BE1704a4500C6819dCBcB42fe8",
+      "address": "0xaA4605C2efb92D66A81fF16d09ecCaff1E93244e",
       "abi": [
         {
           "inputs": [
@@ -464,7 +451,7 @@
       ]
     },
     "PoS": {
-      "address": "0xa5E388D70A4C2e1876CcF17E6c51aeE16dD343c6",
+      "address": "0xD0dfc6988bcF4Fc8675e9350637f4A135bB936D3",
       "abi": [
         {
           "anonymous": false,
@@ -593,19 +580,6 @@
             }
           ],
           "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_index",
-              "type": "uint256"
-            }
-          ],
-          "name": "deactivate",
-          "outputs": [],
-          "stateMutability": "nonpayable",
           "type": "function"
         },
         {
@@ -847,7 +821,7 @@
       ]
     },
     "RewardManager": {
-      "address": "0xE30F4265274DFaD8118FAd2F7315dd95166E9e91",
+      "address": "0xe5573Cf4703fe9c7b1abD9bcD0AB73fCfCeCb29C",
       "abi": [
         {
           "inputs": [
@@ -932,7 +906,7 @@
       ]
     },
     "StakingImpl": {
-      "address": "0x1D5d29d56ef09cD0a9531Ab826410a9bfD58c83a",
+      "address": "0xf9B5b2cA73293cEA855305E9bD6C7300227F4080",
       "abi": [
         {
           "inputs": [
@@ -960,20 +934,20 @@
           "inputs": [
             {
               "indexed": true,
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
-            },
-            {
-              "indexed": true,
               "internalType": "address",
-              "name": "_address",
+              "name": "user",
               "type": "address"
             },
             {
-              "indexed": true,
+              "indexed": false,
               "internalType": "uint256",
-              "name": "_maturationDate",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "maturationDate",
               "type": "uint256"
             }
           ],
@@ -985,20 +959,20 @@
           "inputs": [
             {
               "indexed": true,
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
-            },
-            {
-              "indexed": true,
               "internalType": "address",
-              "name": "_address",
+              "name": "user",
               "type": "address"
             },
             {
-              "indexed": true,
+              "indexed": false,
               "internalType": "uint256",
-              "name": "_maturationDate",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "maturationDate",
               "type": "uint256"
             }
           ],
@@ -1010,15 +984,15 @@
           "inputs": [
             {
               "indexed": true,
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
             },
             {
-              "indexed": true,
-              "internalType": "address",
-              "name": "_address",
-              "type": "address"
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
             }
           ],
           "name": "Withdraw",
@@ -1161,7 +1135,7 @@
       ]
     },
     "BitsManipulationLibrary": {
-      "address": "0xAc301c9CD929bBC333BB47cf12802B5045A31820",
+      "address": "0xc411FDBCac6537051A4339FD30823467D573bE64",
       "abi": [
         {
           "inputs": [
@@ -1252,7 +1226,7 @@
       ]
     },
     "Merkle": {
-      "address": "0x1801CA814d200E3b890Ad1A05FB2e805D99e20e5",
+      "address": "0xD47860593fe40b3D0E04460e54bFE0b84E1E6922",
       "abi": [
         {
           "inputs": [
@@ -1396,7 +1370,7 @@
       ]
     },
     "WorkerAuthManagerImpl": {
-      "address": "0x10D022307724eA0eC63f66048Ba376aE3a884F4A",
+      "address": "0x85C1929cC1794dd7c25d16d095a09318Cc57d174",
       "abi": [
         {
           "inputs": [
@@ -1541,7 +1515,7 @@
       ]
     },
     "WorkerManagerAuthManagerImpl": {
-      "address": "0x3f4DB36BB955ea8192018C1a0d4588b2ae455077",
+      "address": "0x4b637E2957C96BA8892A6C51259F35C803Dd913F",
       "abi": [
         {
           "anonymous": false,
@@ -1917,7 +1891,7 @@
       ]
     },
     "WorkerManagerImpl": {
-      "address": "0xFB8dF7b171CCB1956c43a629ca7280dfeD299780",
+      "address": "0x767F4294434be981447B6d23f9565d02A6858fF2",
       "abi": [
         {
           "anonymous": false,
@@ -2165,7 +2139,7 @@
       ]
     },
     "CartesiToken": {
-      "address": "0xD3f1070B1Edb400204246D0a543DF21722FdB8C0",
+      "address": "0xeDCca23Ad44C7B3F928b925091ee5bcd1C814ab0",
       "abi": [
         {
           "constant": true,
@@ -2613,7 +2587,7 @@
       ]
     },
     "CartesiTokenTimelock": {
-      "address": "0x5a1cEEF4f5E11797caF4903fF638b06f399ac714",
+      "address": "0x8B3ae9F9E61Ed278c17d45517fEFb52191ab2683",
       "abi": [
         {
           "constant": true,
@@ -2688,7 +2662,7 @@
       ]
     },
     "MineTimelock": {
-      "address": "0x37bE2C67793014CB1C1A2B71d19A7Ad817255C08",
+      "address": "0xaE7524E4602B8e2081A435B2c0c0c8bB595b2df2",
       "abi": [
         {
           "constant": true,

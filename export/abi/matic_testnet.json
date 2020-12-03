@@ -3,7 +3,7 @@
   "chainId": "80001",
   "contracts": {
     "BlockSelector": {
-      "address": "0xD0a929D6854f12c5a9a08626e4864087924D1025",
+      "address": "0xaA4605C2efb92D66A81fF16d09ecCaff1E93244e",
       "abi": [
         {
           "anonymous": false,
@@ -88,19 +88,6 @@
             }
           ],
           "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_index",
-              "type": "uint256"
-            }
-          ],
-          "name": "deactivate",
-          "outputs": [],
-          "stateMutability": "nonpayable",
           "type": "function"
         },
         {
@@ -441,7 +428,7 @@
       ]
     },
     "CTSIFaucet": {
-      "address": "0xdab26a2a81b75b285a110F830C0DA3BFbA3595ef",
+      "address": "0xCb199A11D9ace8493C55A238AD9AdDa633947824",
       "abi": [
         {
           "inputs": [
@@ -464,7 +451,7 @@
       ]
     },
     "PoS": {
-      "address": "0x7D529214ba0b73Db90Cc49540efb816Bf40009ae",
+      "address": "0x2B58A366a8fe2bE06628B1F7E379A921A4c3C6cC",
       "abi": [
         {
           "anonymous": false,
@@ -593,19 +580,6 @@
             }
           ],
           "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_index",
-              "type": "uint256"
-            }
-          ],
-          "name": "deactivate",
-          "outputs": [],
-          "stateMutability": "nonpayable",
           "type": "function"
         },
         {
@@ -847,7 +821,7 @@
       ]
     },
     "RewardManager": {
-      "address": "0x0cF2Fd88D2FFc85ec0Edbfe1AffFD8618757534C",
+      "address": "0x86D8a35a49e64D61Fe8c0eBE3c0145a0f865c02c",
       "abi": [
         {
           "inputs": [
@@ -932,7 +906,7 @@
       ]
     },
     "StakingImpl": {
-      "address": "0x29aBc78EB1E9Dc762A682902cFaBC330A7A5c08F",
+      "address": "0xe5573Cf4703fe9c7b1abD9bcD0AB73fCfCeCb29C",
       "abi": [
         {
           "inputs": [
@@ -960,20 +934,20 @@
           "inputs": [
             {
               "indexed": true,
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
-            },
-            {
-              "indexed": true,
               "internalType": "address",
-              "name": "_address",
+              "name": "user",
               "type": "address"
             },
             {
-              "indexed": true,
+              "indexed": false,
               "internalType": "uint256",
-              "name": "_maturationDate",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "maturationDate",
               "type": "uint256"
             }
           ],
@@ -985,20 +959,20 @@
           "inputs": [
             {
               "indexed": true,
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
-            },
-            {
-              "indexed": true,
               "internalType": "address",
-              "name": "_address",
+              "name": "user",
               "type": "address"
             },
             {
-              "indexed": true,
+              "indexed": false,
               "internalType": "uint256",
-              "name": "_maturationDate",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "maturationDate",
               "type": "uint256"
             }
           ],
@@ -1010,15 +984,15 @@
           "inputs": [
             {
               "indexed": true,
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
             },
             {
-              "indexed": true,
-              "internalType": "address",
-              "name": "_address",
-              "type": "address"
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
             }
           ],
           "name": "Withdraw",
