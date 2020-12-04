@@ -43,7 +43,7 @@ describe("PoS", async () => {
     let mockWM: MockContract; //mock worker manager
     let minDiff = 1000000000;
     let initialDiff = 100;
-    let diffAjdust = 50000;
+    let diffAdjust = 50000;
     let targetInterval = 60 * 10; //10 minutes
 
     const NULL_ADDRESS = "0x0000000000000000000000000000000000000000"; //address(0)
@@ -83,7 +83,7 @@ describe("PoS", async () => {
             mockWM.address,
             minDiff,
             initialDiff,
-            diffAjdust,
+            diffAdjust,
             targetInterval,
             mockRM.address
         );
@@ -104,7 +104,7 @@ describe("PoS", async () => {
             mockWM.address,
             minDiff,
             initialDiff,
-            diffAjdust,
+            diffAdjust,
             targetInterval,
             NULL_ADDRESS
         );
@@ -120,6 +120,44 @@ describe("PoS", async () => {
         ).to.equal(true);
     });
 
+    it("terminate", async () => {
+        await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
+
+        // simulate a non-empty reward
+        await mockRM.mock.getCurrentReward.returns(1);
+
+        await pos.instantiate(
+            mockSI.address,
+            mockBS.address,
+            mockWM.address,
+            minDiff,
+            initialDiff,
+            diffAdjust,
+            targetInterval,
+            mockRM.address
+        );
+
+        expect(
+            await pos.isActive(0),
+            "first instance should be active after instantiate call"
+        ).to.equal(true);
+
+        await expect(
+            pos.terminate(0),
+            "non-empty RewardManager"
+        ).to.be.revertedWith("RewardManager still holds funds");
+
+        // empty RewardManager
+        await mockRM.mock.getCurrentReward.returns(0);
+
+        await pos.terminate(0);
+
+        expect(
+            await pos.isActive(0),
+            "first instance should not be active after terminate call"
+        ).to.equal(false);
+    });
+
     it("pos instances should have a unique reward manager address", async () => {
         await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
 
@@ -129,7 +167,7 @@ describe("PoS", async () => {
             mockWM.address,
             minDiff,
             initialDiff,
-            diffAjdust,
+            diffAdjust,
             targetInterval,
             mockRM.address
         );
@@ -141,7 +179,7 @@ describe("PoS", async () => {
                 mockWM.address,
                 minDiff,
                 initialDiff,
-                diffAjdust,
+                diffAdjust,
                 targetInterval,
                 mockRM.address
             ),
@@ -160,7 +198,7 @@ describe("PoS", async () => {
             mockWM.address,
             minDiff,
             initialDiff,
-            diffAjdust,
+            diffAdjust,
             targetInterval,
             mockRM.address
         );
@@ -202,7 +240,7 @@ describe("PoS", async () => {
             mockWM.address,
             minDiff,
             initialDiff,
-            diffAjdust,
+            diffAdjust,
             targetInterval,
             mockRM.address
         );

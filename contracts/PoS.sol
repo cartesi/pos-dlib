@@ -259,7 +259,12 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         return (a, i);
     }
 
-    function terminate(uint256 index) public onlyOwner() {
-        deactivate(index);
+    function terminate(uint256 _index) public onlyOwner() {
+        PoSCtx storage pos = instance[_index];
+        require(
+            pos.rewardManager.getCurrentReward() == 0,
+            "RewardManager still holds funds"
+        );
+        deactivate(_index);
     }
 }
