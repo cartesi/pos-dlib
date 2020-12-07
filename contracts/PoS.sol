@@ -211,6 +211,50 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         return true;
     }
 
+    /// @notice Get reward manager address
+    /// @param _index index of instance
+    /// @return address of instance's RewardManager
+    function getRewardManagerAddress(uint256 _index)
+        public
+        view
+        returns (address)
+    {
+        return address(instance[_index].rewardManager);
+    }
+
+    /// @notice Get block selector address
+    /// @param _index index of instance
+    /// @return address of instance's block selector
+    function getBlockSelectorAddress(uint256 _index)
+        public
+        view
+        returns (address)
+    {
+        return address(instance[_index].blockSelector);
+    }
+
+    /// @notice Get block selector index
+    /// @param _index index of instance
+    /// @return index of instance's block selector
+    function getBlockSelectorIndex(uint256 _index)
+        public
+        view
+        returns (uint256)
+    {
+        return instance[_index].blockSelectorIndex;
+    }
+
+    /// @notice Get staking address
+    /// @param _index index of instance
+    /// @return address of instance's staking contract
+    function getStakingAddress(uint256 _index)
+        public
+        view
+        returns (address)
+    {
+        return address(instance[_index].staking);
+    }
+
     /// @notice Get state of a particular instance
     /// @param _index index of instance
     /// @param _user address of user
