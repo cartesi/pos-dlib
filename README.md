@@ -246,18 +246,15 @@ npx hardhat --network goerli pos:withdraw 100000000000000000000
 
 # Running on mainnet
 
-You will need:
+You will need to install Docker and docker-compose by [following their instructions](https://docs.docker.com/get-docker/).
 
-- An [Infura](https://infura.io) application. Follow their [documentation](https://blog.infura.io/getting-started-with-infura-28e41844cc89/) ow how to setup a free account;
-- Install Docker and docker-compose [installed](https://docs.docker.com/get-docker/);
+Then open a console and run the following command:
 
-Then run the following commands:
 ```
-export PROJECT_ID=<your_infura_project_id_here>
 curl -fsSL https://raw.githubusercontent.com/cartesi/pos-dlib/master/docker-compose.yml | docker-compose -f - up
 ```
 
-After running you should see something like:
+After running you should see in the console something like the information below:
 
 ```
         .

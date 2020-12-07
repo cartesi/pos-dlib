@@ -2,7 +2,7 @@ version: '3'
 services:
   signer:
     image: cartesi/ethsigner:0.1.1
-    command: "--chain-id=1 --downstream-http-host=mainnet.infura.io --downstream-http-port=443 --http-cors-origins=\"http://localhost:3000,https://explorer.cartesi.io\" --downstream-http-tls-enabled --downstream-http-path=/v3/${PROJECT_ID:?PROJECT_ID undefined, please set up an application at Infura}"
+    command: "--chain-id=1 --downstream-http-host=eth.cartesi.io --downstream-http-port=443 --http-cors-origins=\"http://localhost:3000,https://explorer.cartesi.io\" --downstream-http-tls-enabled"
     ports:
       - 8545:8545
   
