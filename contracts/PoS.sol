@@ -112,6 +112,13 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             _blockSelectorAddress
         );
 
+        instance[currentIndex - 1].workerAuth = WorkerAuthManager(
+            _workerAuthAddress
+        );
+
+        active[currentIndex - 1] = true;
+
+        // there is no reentrancy because the bytecode is included in this contract
         instance[currentIndex - 1].rewardManager = new RewardManager(
             address(this),
             _ctsiAddress,
@@ -120,12 +127,6 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             _distNumerator,
             _distDenominator
         );
-
-        instance[currentIndex - 1].workerAuth = WorkerAuthManager(
-            _workerAuthAddress
-        );
-
-        active[currentIndex - 1] = true;
 
         instance[currentIndex - 1].blockSelectorIndex = instance[currentIndex -
             1]
