@@ -42,18 +42,37 @@ task("pos:create", "Create the main PoS contract")
         types.string
     )
     .addOptionalParam(
-        "rewardPool",
-        "Specify the amount of CTSI to transfer to RewardManager",
-        "50000000000000000000000000",
+        "maxReward",
+        "Maximum reward of a block",
+        "2900000000000000000000", // 2900 CTSI
+        types.string
+    )
+    .addOptionalParam(
+        "minReward",
+        "Minimum reward of a block",
+        "1000000000000000000", // 1 CTSI
+        types.string
+    )
+    .addOptionalParam(
+        "distNumerator",
+        "Multiplier factor to define reward amount", // default to 0.0077%
+        "77",
+        types.string
+    )
+    .addOptionalParam(
+        "distDenominator",
+        "Dividing factor to define reward amount", // default to 0.0077%
+        "1000000",
         types.string
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoS__factory } = await require("../types/factories/PoS__factory");
+        const {
+            PoS__factory,
+        } = await require("../types/factories/PoS__factory");
         const {
             BlockSelector,
             PoS,
-            RewardManager,
             StakingImpl,
             WorkerManagerAuthManagerImpl,
             CartesiToken,
@@ -65,11 +84,11 @@ task("pos:create", "Create the main PoS contract")
         const minimumDiff = BigNumber.from(args.minimumDiff);
         const initialDiff = BigNumber.from(args.initialDiff);
         const diffAdjustment = BigNumber.from(args.diffAdjustment);
+        const maxReward = BigNumber.from(args.maxReward);
+        const minReward = BigNumber.from(args.minReward);
+        const distNumerator = BigNumber.from(args.distNumerator);
+        const distDenominator = BigNumber.from(args.distDenominator);
         const pos = PoS__factory.connect(PoS.address, deployer);
-        const ctsi = CartesiToken__factory.connect(
-            CartesiToken.address,
-            deployer
-        );
 
         const pos_tx = await pos.instantiate(
             StakingImpl.address,
@@ -79,27 +98,29 @@ task("pos:create", "Create the main PoS contract")
             initialDiff,
             diffAdjustment,
             targetInterval,
-            RewardManager.address
+            CartesiToken.address,
+            maxReward,
+            minReward,
+            distNumerator,
+            distDenominator
         );
         console.log(`PoS created: ${pos_tx.hash}`);
 
-        const ctsi_tx = await ctsi.transfer(
-            RewardManager.address,
-            BigNumber.from(args.rewardPool)
+        await pos_tx.wait(1);
+        const index = await pos.currentIndex();
+        const rm_address = await pos.getRewardManagerAddress(index.sub(1));
+        console.log(
+            `You need to transfer CTSI to RewardManager at ${rm_address}`
         );
-        console.log(`Transfer to RewardManager: ${ctsi_tx.hash}`);
     });
 
 task("pos:terminate", "Deativate a PoS instance")
-    .addPositionalParam(
-        "index",
-        "Index of instance to terminate",
-        0,
-        types.int
-    )
+    .addPositionalParam("index", "Index of instance to terminate", 0, types.int)
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoS__factory } = await require("../types/factories/PoS__factory");
+        const {
+            PoS__factory,
+        } = await require("../types/factories/PoS__factory");
         const { PoS } = await deployments.all();
 
         const [deployer] = await ethers.getSigners();
@@ -116,10 +137,15 @@ task(
     .addPositionalParam("amount", "amount of CTSI to stake")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { StakingImpl__factory } = await require("../types/factories/StakingImpl__factory");
+        const {
+            StakingImpl__factory,
+        } = await require("../types/factories/StakingImpl__factory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
-        const staking = StakingImpl__factory.connect(StakingImpl.address, signer);
+        const staking = StakingImpl__factory.connect(
+            StakingImpl.address,
+            signer
+        );
         const staking_tx = await staking.stake(BigNumber.from(args.amount));
         console.log(`staking_tx: ${staking_tx.hash}`);
     });
@@ -129,10 +155,12 @@ task(
     "Show staking information",
     async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers, getNamedAccounts } = hre;
-        const { StakingFactory } = await require("../types/factories/StakingImpl__factory");
+        const {
+            StakingImpl__factory,
+        } = await require("../types/factories/StakingImpl__factory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
-        const staking = StakingFactory.connect(StakingImpl.address, signer);
+        const staking = StakingImpl__factory.connect(StakingImpl.address, signer);
 
         const { alice } = await getNamedAccounts();
         const PoS = await deployments.get("PoS");
@@ -191,10 +219,15 @@ task(
     .addPositionalParam("amount", "amount of CTSI")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { StakingImpl__factory } = await require("../types/factories/StakingImpl__factory");
+        const {
+            StakingImpl__factory,
+        } = await require("../types/factories/StakingImpl__factory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
-        const staking = StakingImpl__factory.connect(StakingImpl.address, signer);
+        const staking = StakingImpl__factory.connect(
+            StakingImpl.address,
+            signer
+        );
         const withdraw_tx = await staking.withdraw(BigNumber.from(args.amount));
         console.log(`withdraw_tx: ${withdraw_tx.hash}`);
     });
@@ -209,7 +242,9 @@ task("pos:produceBlock", "Produce a block using local node").setAction(
         const address = await signer.getAddress();
         console.log(`Producing a block using node ${address}`);
 
-        const { PoS__factory } = await require("../types/factories/PoS__factory");
+        const {
+            PoS__factory,
+        } = await require("../types/factories/PoS__factory");
         const { PoS } = await deployments.all();
         const pos = PoS__factory.connect(PoS.address, signer);
         const tx = await pos.produceBlock(0);
