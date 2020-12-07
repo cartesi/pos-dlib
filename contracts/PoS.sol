@@ -31,8 +31,6 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
     uint256 constant SPLIT_BASE = 10000;
 
-    mapping(address => bool) usedRM; // RewardManagers have to be unique to each instance.
-
     struct PoSCtx {
         mapping(address => address) beneficiaryMap;
         mapping(address => uint256) splitMap;
@@ -83,7 +81,11 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and desired draw time interval.
     /// @param _targetInterval how often we want to elect a block producer
-    /// @param _rewardManagerAddress address containing the tokens that will be distributed
+    /// @param _ctsiAddress address of token instance being used
+    /// @param _maxReward maximum reward that this contract pays
+    /// @param _minReward minimum reward that this contract pays
+    /// @param _distNumerator multiplier factor to define reward amount
+    /// @param _distDenominator dividing factor to define reward amount
     function instantiate(
         address _stakingAddress,
         address _blockSelectorAddress,
@@ -92,13 +94,14 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 _initialDifficulty,
         uint256 _difficultyAdjustmentParameter,
         uint256 _targetInterval,
-        address _rewardManagerAddress
+
+        // RewardManager constructor parameters
+        address _ctsiAddress,
+        uint256 _maxReward,
+        uint256 _minReward,
+        uint256 _distNumerator,
+        uint256 _distDenominator
     ) public onlyOwner() returns (uint256) {
-        require(
-            !usedRM[_rewardManagerAddress],
-            "This RewardManager address has been used by another instance"
-        );
-        usedRM[_rewardManagerAddress] = true;
 
         // index is incremented at the beggining to stop reentrancy possibilities
         // TODO: study using ReentrancyGuard contract
@@ -108,9 +111,16 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         instance[currentIndex - 1].blockSelector = BlockSelector(
             _blockSelectorAddress
         );
-        instance[currentIndex - 1].rewardManager = RewardManager(
-            _rewardManagerAddress
+
+        instance[currentIndex - 1].rewardManager = new RewardManager(
+            address(this),
+            _ctsiAddress,
+            _maxReward,
+            _minReward,
+            _distNumerator,
+            _distDenominator
         );
+
         instance[currentIndex - 1].workerAuth = WorkerAuthManager(
             _workerAuthAddress
         );
