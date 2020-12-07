@@ -46,6 +46,12 @@ describe("PoS", async () => {
     let diffAdjust = 50000;
     let targetInterval = 60 * 10; //10 minutes
 
+    // RewardManager constructor parameters
+    let minReward = 500;
+    let maxReward = 1200;
+    let numerator = 5;
+    let denominator = 100;
+
     const NULL_ADDRESS = "0x0000000000000000000000000000000000000000"; //address(0)
     const ADDRESS_1 = "0x1111111111111111111111111111111111111111"; //address(1)
     const SPLIT_BASE = 10000;
@@ -85,7 +91,12 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            mockRM.address
+            NULL_ADDRESS,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
+
         );
 
         expect(
@@ -106,7 +117,11 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            NULL_ADDRESS
+            NULL_ADDRESS,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
         );
 
         expect(
@@ -134,7 +149,11 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            mockRM.address
+            NULL_ADDRESS,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
         );
 
         expect(
@@ -158,36 +177,6 @@ describe("PoS", async () => {
         ).to.equal(false);
     });
 
-    it("pos instances should have a unique reward manager address", async () => {
-        await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
-
-        await pos.instantiate(
-            mockSI.address,
-            mockBS.address,
-            mockWM.address,
-            minDiff,
-            initialDiff,
-            diffAdjust,
-            targetInterval,
-            mockRM.address
-        );
-
-        await expect(
-            pos.instantiate(
-                mockSI.address,
-                mockBS.address,
-                mockWM.address,
-                minDiff,
-                initialDiff,
-                diffAdjust,
-                targetInterval,
-                mockRM.address
-            ),
-            "reward manager has to be unique for each instance"
-        ).to.be.revertedWith(
-            "This RewardManager address has been used by another instance"
-        );
-    });
 
     it("addBeneficiary revert cases", async () => {
         await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
@@ -200,7 +189,11 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            mockRM.address
+            NULL_ADDRESS,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
         );
 
         await expect(
@@ -242,7 +235,11 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            mockRM.address
+            NULL_ADDRESS,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
         );
 
         await mockWM.mock.isAuthorized.returns(true); // mock authorization
