@@ -451,7 +451,7 @@
       ]
     },
     "PoS": {
-      "address": "0x136Fd27466746fa95532c0185C5f28E9bbBf8725",
+      "address": "0x451B611D38140993ec16a82E48aC720EBd0AB35C",
       "abi": [
         {
           "anonymous": false,
@@ -590,12 +590,88 @@
               "type": "uint256"
             }
           ],
+          "name": "getBlockSelectorAddress",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getBlockSelectorIndex",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
           "name": "getNonce",
           "outputs": [
             {
               "internalType": "uint256",
               "name": "currentNonce",
               "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getRewardManagerAddress",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getStakingAddress",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
             }
           ],
           "stateMutability": "view",
@@ -708,8 +784,28 @@
             },
             {
               "internalType": "address",
-              "name": "_rewardManagerAddress",
+              "name": "_ctsiAddress",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_maxReward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_minReward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_distNumerator",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_distDenominator",
+              "type": "uint256"
             }
           ],
           "name": "instantiate",
@@ -809,7 +905,7 @@
           "inputs": [
             {
               "internalType": "uint256",
-              "name": "index",
+              "name": "_index",
               "type": "uint256"
             }
           ],
@@ -827,91 +923,6 @@
             }
           ],
           "name": "transferOwnership",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        }
-      ]
-    },
-    "RewardManager": {
-      "address": "0x512bB037CD40E3e486d0E5cA87b6A6F8b8A7d14c",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_operator",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "_ctsiAddress",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_maxReward",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_minReward",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_distNumerator",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_distDenominator",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "name": "getBalance",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getCurrentReward",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_address",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_amount",
-              "type": "uint256"
-            }
-          ],
-          "name": "reward",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
