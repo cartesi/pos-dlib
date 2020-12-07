@@ -109,6 +109,7 @@ impl DApp<()> for PoS {
             };
             return Ok(Reaction::Transaction(request));
         } else {
+            info!("Reaction Idle (canProduce: {}, currentReward: {})", ctx.can_produce.as_u64(), ctx.current_reward.as_u64());
             //return idle
             return Ok(Reaction::Idle);
         }
