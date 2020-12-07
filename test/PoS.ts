@@ -41,6 +41,7 @@ describe("PoS", async () => {
     let mockBS: MockContract; //mock block selector
     let mockRM: MockContract; //mock reward manager
     let mockWM: MockContract; //mock worker manager
+    let mockCTSI: MockContract; //mock ctsi
     let minDiff = 1000000000;
     let initialDiff = 100;
     let diffAdjust = 50000;
@@ -48,7 +49,7 @@ describe("PoS", async () => {
 
     // RewardManager constructor parameters
     let minReward = 500;
-    let maxReward = 1200;
+    let maxReward = 120000;
     let numerator = 5;
     let denominator = 100;
 
@@ -62,6 +63,7 @@ describe("PoS", async () => {
         const Staking = await deployments.getArtifact("Staking");
         const BlockSelector = await deployments.getArtifact("BlockSelector");
         const RewardManager = await deployments.getArtifact("RewardManager");
+        const CTSI = await deployments.getArtifact("CartesiToken");
         const WorkerAuthManager = await deployments.getArtifact(
             "WorkerAuthManager"
         );
@@ -70,6 +72,7 @@ describe("PoS", async () => {
         mockBS = await deployMockContract(signer, BlockSelector.abi);
         mockRM = await deployMockContract(signer, RewardManager.abi);
         mockWM = await deployMockContract(signer, WorkerAuthManager.abi);
+        mockCTSI = await deployMockContract(signer, CTSI.abi);
 
         const posFactory = new PoS__factory(signer);
         pos = await posFactory.deploy();
@@ -91,7 +94,7 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            NULL_ADDRESS,
+            mockCTSI.address,
             maxReward,
             minReward,
             numerator,
@@ -117,7 +120,7 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            NULL_ADDRESS,
+            mockCTSI.address,
             maxReward,
             minReward,
             numerator,
@@ -139,7 +142,7 @@ describe("PoS", async () => {
         await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
 
         // simulate a non-empty reward
-        await mockRM.mock.getCurrentReward.returns(1);
+        await mockCTSI.mock.balanceOf.returns(1);
 
         await pos.instantiate(
             mockSI.address,
@@ -149,7 +152,7 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            NULL_ADDRESS,
+            mockCTSI.address,
             maxReward,
             minReward,
             numerator,
@@ -167,7 +170,7 @@ describe("PoS", async () => {
         ).to.be.revertedWith("RewardManager still holds funds");
 
         // empty RewardManager
-        await mockRM.mock.getCurrentReward.returns(0);
+        await mockCTSI.mock.balanceOf.returns(0);
 
         await pos.terminate(0);
 
@@ -189,7 +192,7 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            NULL_ADDRESS,
+            mockCTSI.address,
             maxReward,
             minReward,
             numerator,
@@ -235,7 +238,7 @@ describe("PoS", async () => {
             initialDiff,
             diffAdjust,
             targetInterval,
-            NULL_ADDRESS,
+            mockCTSI.address,
             maxReward,
             minReward,
             numerator,
@@ -246,7 +249,8 @@ describe("PoS", async () => {
         await mockWM.mock.getOwner.returns(await signer.getAddress()); // mock owner
         await mockBS.mock.produceBlock.returns(true); // mock produce block
         await mockSI.mock.getStakedBalance.returns(1); // mock staked balance
-        await mockRM.mock.getCurrentReward.returns(mockReward); // mock current reward == 100k
+        await mockCTSI.mock.balanceOf.returns(mockReward * denominator / numerator); // mock current reward == 100k
+        await mockCTSI.mock.transfer.returns(true); // mock current reward == 100k
         await mockRM.mock.reward.returns(); // mock current reward == 100k
         await mockRM.mock.reward.returns(); // mock current reward == 100k
 
