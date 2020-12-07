@@ -87,3 +87,45 @@ task("worker:acceptJob", "Accept a job (FOR TESTING ONLY")
         const tx = await worker.acceptJob();
         console.log(`transaction: ${tx.hash}`);
     });
+
+task("worker:authorize", "Authorize a worker")
+    .addOptionalParam(
+        "accountIndex",
+        "Account index from MNEMONIC to use",
+        0,
+        types.int
+    )
+    .addOptionalPositionalParam(
+        "address",
+        "Worker node address",
+        undefined,
+        types.string
+    )
+    .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+        const { deployments, ethers } = hre;
+        const { PoS, WorkerManagerAuthManagerImpl } = await deployments.all();
+        const signers = await ethers.getSigners();
+        const signer = signers[args.accountIndex];
+        const worker = WorkerManagerAuthManagerImpl__factory.connect(
+            WorkerManagerAuthManagerImpl.address,
+            signer
+        );
+
+        let workerAddress = args.address;
+        if (!workerAddress) {
+            // get worker address from local node
+            const localProvider = new ethers.providers.JsonRpcProvider(
+                "http://localhost:8545"
+            );
+            const addresses = await localProvider.listAccounts();
+            workerAddress = addresses[0];
+        }
+
+        console.log(
+            `Authorizing PoS ${PoS.address} to accepts calls from worker ${workerAddress} on behalf of ${signer.address}`
+        );
+        // authorize PoS
+        const tx = await worker.authorize(workerAddress, PoS.address);
+
+        console.log(`transaction: ${tx.hash}`);
+    });
