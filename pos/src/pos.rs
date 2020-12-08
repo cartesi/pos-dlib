@@ -94,7 +94,7 @@ impl DApp<()> for PoS {
 
         //let current_reward = ctx.current_reward.as_u64() * ctx.user_split.as_u64() / base_split;
         //if ctx.can_produce && current_reward >= required_prize {
-        if ctx.can_produce && ctx.current_reward.as_u64() > 0 {
+        if ctx.can_produce && !ctx.current_reward.is_zero() {
             info!("Producing block for PoS (index: {})", instance.index);
             let request = TransactionRequest {
                 concern: instance.concern.clone(),
@@ -109,7 +109,7 @@ impl DApp<()> for PoS {
             };
             return Ok(Reaction::Transaction(request));
         } else {
-            info!("Reaction Idle (canProduce: {}, currentReward: {})", ctx.can_produce, ctx.current_reward.as_u64());
+            info!("Reaction Idle (canProduce: {}, currentReward: {})", ctx.can_produce, ctx.current_reward);
             //return idle
             return Ok(Reaction::Idle);
         }
