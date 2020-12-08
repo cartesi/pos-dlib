@@ -158,12 +158,12 @@ task("pos:show", "Show staking information")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { StakingImpl__factory } = await require(
-            "../types/factories/StakingImpl__factory"
-        );
-        const { PoS__factory } = await require(
-            "../types/factories/PoS__factory"
-        );
+        const {
+            StakingImpl__factory,
+        } = await require("../types/factories/StakingImpl__factory");
+        const {
+            PoS__factory,
+        } = await require("../types/factories/PoS__factory");
         const { PoS, StakingImpl } = await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
@@ -202,11 +202,13 @@ task("pos:show", "Show staking information")
         const states = [];
         for (let i = 0; i < count.toNumber(); i++) {
             const state = await pos.getState(i, address);
+            const rewardManagerAddress = await pos.getRewardManagerAddress(i);
             states.push({
                 canProduceBlock: state[0],
                 user: state[1],
                 currentReward: state[2].toString(),
                 split: state[3].toString(),
+                rewardManagerAddress,
             });
         }
         console.log(states);
