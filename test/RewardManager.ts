@@ -52,6 +52,7 @@ describe("RewardManager", async () => {
         ctsi,
         numerator,
         denominator,
+        isConstant
     }: {
         pos?: string;
         ctsi?: string;
@@ -59,6 +60,7 @@ describe("RewardManager", async () => {
         maxReward?: BigNumberish;
         numerator?: BigNumberish;
         denominator?: BigNumberish;
+        isConstant?: boolean;
     } = {}): Promise<RewardManager> => {
         const [signer] = await ethers.getSigners();
         const posAddress = pos || (await deployments.get("PoS")).address;
@@ -67,14 +69,27 @@ describe("RewardManager", async () => {
         const n = numerator || 5000;
         const d = denominator || 100000;
         const rewardFactory = new RewardManager__factory(signer);
-        const rewardManager = await rewardFactory.deploy(
-            posAddress,
-            ctsiAddress,
-            maxReward,
-            minReward,
-            n,
-            d
-        );
+        let rewardManager;
+        if (isConstant) {
+            rewardManager = await rewardFactory.deploy(
+                posAddress,
+                ctsiAddress,
+                maxReward,
+                minReward,
+                d,
+                d
+            );
+        } else {
+            rewardManager = await rewardFactory.deploy(
+                    posAddress,
+                    ctsiAddress,
+                    maxReward,
+                    minReward,
+                    n,
+                    d
+                );
+
+        }
         return rewardManager;
     };
 
@@ -138,6 +153,37 @@ describe("RewardManager", async () => {
         await mockToken.mock.transfer.returns(true);
         await mockToken.mock.transferFrom.returns(true);
         await rewardManager.reward(aliceAddress, currentReward);
+    });
+
+    it("numerator == denominator should generate constant reward of max prize", async function () {
+        let balance = 25000; //12500000;
+        let lastReward = 0;
+        let isConstant = true; //is constant
+        // deploy contract with signer as pos address
+        rewardManager = await deployRewardManager({
+            pos: await signer.getAddress(),
+            ctsi: mockToken.address,
+            numerator,
+            denominator,
+            isConstant, //constant
+        });
+        await mockToken.mock.transfer.returns(true);
+        await mockToken.mock.transferFrom.returns(true);
+        // loops until balance is zero
+        while (true) {
+            balance = Math.floor(balance - maxReward);
+
+            if (balance < maxReward) break;
+
+            await mockToken.mock.balanceOf.returns(balance);
+            expect(
+                await rewardManager.getCurrentReward(),
+                "current reward has to be correct"
+            ).to.equal(maxReward);
+            await mockToken.mock.balanceOf.returns(balance - maxReward);
+
+        }
+
     });
 
     it("current currentReward should generate currentRewards correctly", async function () {
