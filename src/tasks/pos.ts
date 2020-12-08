@@ -13,7 +13,6 @@
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 import { task, types } from "hardhat/config";
 import { BigNumber } from "ethers";
-import { CartesiToken__factory } from "@cartesi/token";
 import { formatUnits } from "ethers/lib/utils";
 
 task("pos:create", "Create the main PoS contract")
@@ -150,34 +149,41 @@ task(
         console.log(`staking_tx: ${staking_tx.hash}`);
     });
 
-task(
-    "pos:show",
-    "Show staking information",
-    async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
-        const { deployments, ethers, getNamedAccounts } = hre;
-        const {
-            StakingImpl__factory,
-        } = await require("../types/factories/StakingImpl__factory");
-        const { StakingImpl } = await deployments.all();
-        const [signer] = await ethers.getSigners();
-        const staking = StakingImpl__factory.connect(StakingImpl.address, signer);
-
-        const { alice } = await getNamedAccounts();
-        const PoS = await deployments.get("PoS");
+task("pos:show", "Show staking information")
+    .addOptionalParam(
+        "accountIndex",
+        "Account index from MNEMONIC to use",
+        0,
+        types.int
+    )
+    .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+        const { deployments, ethers } = hre;
+        const { StakingImpl__factory } = await require(
+            "../types/factories/StakingImpl__factory"
+        );
+        const { PoS__factory } = await require(
+            "../types/factories/PoS__factory"
+        );
+        const { PoS, StakingImpl } = await deployments.all();
+        const signers = await ethers.getSigners();
+        const signer = signers[args.accountIndex];
+        const address = signer.address;
+        const staking = StakingImpl__factory.connect(
+            StakingImpl.address,
+            signer
+        );
+        const pos = PoS__factory.connect(PoS.address, signer);
 
         console.log(`PoS address: ${PoS.address}`);
-        const staked = await staking.getStakedBalance(alice);
-        const maturing = await staking.getMaturingBalance(alice);
-        const unstaked = await staking.getReleasingBalance(alice);
-        const maturingTimestamp = await staking.getMaturingTimestamp(alice);
-        const unstakeTimestamp = await staking.getReleasingTimestamp(alice);
+        const staked = await staking.getStakedBalance(address);
+        const maturing = await staking.getMaturingBalance(address);
+        const unstaked = await staking.getReleasingBalance(address);
+        const maturingTimestamp = await staking.getMaturingTimestamp(address);
+        const unstakeTimestamp = await staking.getReleasingTimestamp(address);
 
-        console.log(
-            `Staked balance of ${alice}: ${formatUnits(staked, 18)} CTSI`
-        );
-        console.log(
-            `Maturing balance of ${alice}: ${formatUnits(maturing, 18)} CTSI`
-        );
+        console.log(`Account: ${address}`);
+        console.log(`Staked: ${formatUnits(staked, 18)} CTSI`);
+        console.log(`Maturing: ${formatUnits(maturing, 18)} CTSI`);
         if (maturing.gt(0)) {
             console.log(
                 `Maturation date: ${new Date(
@@ -185,16 +191,26 @@ task(
                 )}`
             );
         }
-        console.log(
-            `Unstaked balance of ${alice}: ${formatUnits(unstaked, 18)} CTSI`
-        );
+        console.log(`Unstaked: ${formatUnits(unstaked, 18)} CTSI`);
         if (unstaked.gt(0)) {
             console.log(
                 `Release date: ${new Date(unstakeTimestamp.toNumber() * 1000)}`
             );
         }
-    }
-);
+
+        const count = await pos.currentIndex();
+        const states = [];
+        for (let i = 0; i < count.toNumber(); i++) {
+            const state = await pos.getState(i, address);
+            states.push({
+                canProduceBlock: state[0],
+                user: state[1],
+                currentReward: state[2].toString(),
+                split: state[3].toString(),
+            });
+        }
+        console.log(states);
+    });
 
 task(
     "pos:unstake",
@@ -203,8 +219,7 @@ task(
     .addPositionalParam("amount", "amount of CTSI")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const m = "../types/StakingFactory";
-        const { StakingFactory } = await import(m);
+        const { StakingFactory } = await require("../types/StakingFactory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
         const staking = StakingFactory.connect(StakingImpl.address, signer);
