@@ -6,7 +6,7 @@
     "test": "test"
   },
   "dependencies": {
-    "@cartesi/token": "^1.2.4",
+    "@cartesi/token": "^1.2.5",
     "@cartesi/util": "^1.0.0",
     "@openzeppelin/contracts": "3.2.1-solc-0.7",
     "commander": "^6.1.0"
