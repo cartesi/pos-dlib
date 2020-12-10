@@ -44,11 +44,12 @@ describe("BlockSelector", async () => {
     let targetInterval = 60 * 10; //10 minutes
 
     beforeEach(async () => {
-        //await deployments.fixture();
+        await deployments.fixture();
 
         [signer, alice] = await ethers.getSigners();
-        const blockSelectorFactory = new BlockSelector__factory(signer);
-        blockSelector = await blockSelectorFactory.deploy();
+
+        const bsAddress = (await deployments.get("BlockSelector")).address;
+        blockSelector = BlockSelector__factory.connect(bsAddress, signer);
     });
 
     it("instantiate should activate the instance", async () => {
