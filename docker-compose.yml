@@ -5,7 +5,7 @@ services:
     command: "--chain-id=1 --downstream-http-host=eth.cartesi.io --downstream-http-port=443 --http-cors-origins=\"http://localhost:3000,https://explorer.cartesi.io\" --downstream-http-tls-enabled"
 
   dispatcher:
-    image: cartesi/pos:0.1.0-beta.21
+    image: cartesi/pos:0.1.0-beta.22
     restart: always
     environment:
       RUST_LOG: dispatcher=error,transaction=error,configuration=error,utils=error,state=error,worker=error,pos=info
