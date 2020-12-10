@@ -29,7 +29,7 @@ import { solidity } from "ethereum-waffle";
 
 import { PoS } from "../src/types/PoS";
 import { PoS__factory } from "../src/types/factories/PoS__factory";
-import { Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 
 use(solidity);
 
@@ -99,7 +99,6 @@ describe("PoS", async () => {
             minReward,
             numerator,
             denominator
-
         );
 
         expect(
@@ -180,7 +179,6 @@ describe("PoS", async () => {
         ).to.equal(false);
     });
 
-
     it("addBeneficiary revert cases", async () => {
         await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
 
@@ -249,7 +247,9 @@ describe("PoS", async () => {
         await mockWM.mock.getOwner.returns(await signer.getAddress()); // mock owner
         await mockBS.mock.produceBlock.returns(true); // mock produce block
         await mockSI.mock.getStakedBalance.returns(1); // mock staked balance
-        await mockCTSI.mock.balanceOf.returns(mockReward * denominator / numerator); // mock current reward == 100k
+        await mockCTSI.mock.balanceOf.returns(
+            (mockReward * denominator) / numerator
+        ); // mock current reward == 100k
         await mockCTSI.mock.transfer.returns(true); // mock current reward == 100k
         await mockRM.mock.reward.returns(); // mock current reward == 100k
         await mockRM.mock.reward.returns(); // mock current reward == 100k
@@ -363,5 +363,124 @@ describe("PoS", async () => {
                 0, //100/0 beneficiary
                 mockReward
             );
+    });
+
+    it("user should be concerned only if their ctsi balance > 0", async () => {
+        let mockReward = 100000;
+        await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
+        await mockSI.mock.getStakedBalance.returns(0); // mock zero staked balance
+
+        await pos.instantiate(
+            mockSI.address,
+            mockBS.address,
+            mockWM.address,
+            minDiff,
+            initialDiff,
+            diffAdjust,
+            targetInterval,
+            mockCTSI.address,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
+        );
+
+        expect(
+            await pos.isConcerned(0, await signer.getAddress()),
+            "user shouldnt be concerned, has zero balance"
+        ).to.equal(false);
+
+        await mockSI.mock.getStakedBalance.returns(1); // mock zero staked balance
+
+        expect(
+            await pos.isConcerned(0, await signer.getAddress()),
+            "user should be concerned, balance > 0"
+        ).to.equal(true);
+    });
+
+    it("subinstance should return block selector address and index", async () => {
+        await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
+
+        await pos.instantiate(
+            mockSI.address,
+            mockBS.address,
+            mockWM.address,
+            minDiff,
+            initialDiff,
+            diffAdjust,
+            targetInterval,
+            mockCTSI.address,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
+        );
+
+        var subInstance = await pos.getSubInstances(0, NULL_ADDRESS);
+
+        expect(subInstance[0][0]).to.equal(mockBS.address);
+        expect(subInstance[1][0]).to.equal(await pos.getBlockSelectorIndex(0));
+    });
+
+    it("getters should return the correct values", async () => {
+        await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
+
+        await pos.instantiate(
+            mockSI.address,
+            mockBS.address,
+            mockWM.address,
+            minDiff,
+            initialDiff,
+            diffAdjust,
+            targetInterval,
+            mockCTSI.address,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
+        );
+        var bsAddress = await pos.getBlockSelectorAddress(0);
+        var siAddress = await pos.getStakingAddress(0);
+
+        expect(bsAddress).to.equal(mockBS.address);
+        expect(siAddress).to.equal(mockSI.address);
+    });
+
+    it("Reward Manager address should be unique per instance", async () => {
+        await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
+
+        await pos.instantiate(
+            mockSI.address,
+            mockBS.address,
+            mockWM.address,
+            minDiff,
+            initialDiff,
+            diffAdjust,
+            targetInterval,
+            mockCTSI.address,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
+        );
+
+        await pos.instantiate(
+            mockSI.address,
+            mockBS.address,
+            mockWM.address,
+            minDiff,
+            initialDiff,
+            diffAdjust,
+            targetInterval,
+            mockCTSI.address,
+            maxReward,
+            minReward,
+            numerator,
+            denominator
+        );
+
+        expect(await pos.getRewardManagerAddress(0)).to.not.equal(
+            await pos.getRewardManagerAddress(1)
+        );
     });
 });
