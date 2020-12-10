@@ -26,7 +26,7 @@ import { solidity, MockProvider } from "ethereum-waffle";
 
 import { BlockSelector } from "../src/types/BlockSelector";
 import { BlockSelector__factory } from "../src/types/factories/BlockSelector__factory";
-import { BigNumberish, Signer } from "ethers";
+import { BigNumber, BigNumberish, Signer } from "ethers";
 
 const { advanceTime, advanceBlock } = require("./utils");
 
@@ -111,9 +111,7 @@ describe("BlockSelector", async () => {
         await expect(
             blockSelector.produceBlock(0, await signer.getAddress(), 0),
             "weight should be bigger than zero"
-        ).to.be.revertedWith(
-            "Caller can't have zero staked tokens"
-        );
+        ).to.be.revertedWith("Caller can't have zero staked tokens");
     });
 
     it("produce block can only be called by operator address", async () => {
@@ -132,9 +130,7 @@ describe("BlockSelector", async () => {
         await expect(
             blockSelector.produceBlock(0, await signer.getAddress(), 50),
             "function wasn't called by operator address"
-        ).to.be.revertedWith(
-            "Function can only be called by pos address"
-        );
+        ).to.be.revertedWith("Function can only be called by pos address");
     });
     it("instantiate should revert if target interval is too small", async () => {
         await expect(
@@ -252,8 +248,6 @@ describe("BlockSelector", async () => {
             mediumWeightCount,
             "medium weight count should be less than high weight count"
         ).to.below(highWeightCount);
-
-
     });
 
     // TODO: this test should also make sure that the diff is changing by adjustment param
@@ -268,7 +262,7 @@ describe("BlockSelector", async () => {
             address
         );
 
-        let diff = (await blockSelector.getDifficulty(0)).toNumber();
+        let diff: BigNumberish = await blockSelector.getDifficulty(0);
 
         // advance blocks so the target is set
         await advanceBlock(signer.provider);
@@ -282,24 +276,24 @@ describe("BlockSelector", async () => {
         // weight is very high to ensure block gets produced
         await blockSelector.produceBlock(0, address, highWeight);
 
-        diff = (await blockSelector.getDifficulty(0)).toNumber();
-        
+        diff = await blockSelector.getDifficulty(0);
+
         expect(
             diff,
             "difficulty should increase if block was produced too quickly"
-        ).to.greaterThan(initialDiff);
+        ).to.be.above(initialDiff);
 
         await advanceTime(signer.provider, 31 * 60); // advance 31 minutes
         await advanceBlock(signer.provider);
 
         await blockSelector.produceBlock(0, address, highWeight);
 
-        diff = (await blockSelector.getDifficulty(0)).toNumber();
+        diff = await blockSelector.getDifficulty(0);
 
         expect(
             diff,
             "difficulty should decrease if block took more than 30 mins to be produced"
-        ).to.below(initialDiff);
+        ).to.be.below(initialDiff);
 
         await advanceTime(signer.provider, 5 * 60); // advance 5 minutes
         await advanceBlock(signer.provider);
@@ -316,19 +310,17 @@ describe("BlockSelector", async () => {
 
         await blockSelector.produceBlock(0, address, highWeight);
 
-        diff = (await blockSelector.getDifficulty(0)).toNumber();
+        diff = await blockSelector.getDifficulty(0);
 
         expect(
             diff,
             "difficulty should increase after multiple blocks that were produced quickly"
-        ).to.above(initialDiff);
-
+        ).to.be.above(initialDiff);
     });
 
     it("producing block resets selection", async () => {
         let mediumWeight = 5000000;
         let address = await signer.getAddress();
-
 
         await blockSelector.instantiate(
             minDiff,
@@ -358,5 +350,4 @@ describe("BlockSelector", async () => {
             "selection was reset, block shouldnt be produced"
         ).to.equal(false);
     });
-
 });
