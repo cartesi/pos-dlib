@@ -24,6 +24,7 @@ import { HttpNetworkUserConfig } from "hardhat/types";
 
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
+import "solidity-coverage";
 import "hardhat-typechain";
 import "hardhat-deploy";
 import "@tenderly/hardhat-tenderly";
