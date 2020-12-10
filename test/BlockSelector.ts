@@ -21,12 +21,11 @@
 
 import { expect, use } from "chai";
 import { deployments, ethers } from "hardhat";
-import { MockContract } from "@ethereum-waffle/mock-contract";
 import { solidity, MockProvider } from "ethereum-waffle";
 
 import { BlockSelector } from "../src/types/BlockSelector";
 import { BlockSelector__factory } from "../src/types/factories/BlockSelector__factory";
-import { BigNumber, BigNumberish, Signer } from "ethers";
+import { BigNumberish, Signer } from "ethers";
 
 const { advanceTime, advanceBlock } = require("./utils");
 

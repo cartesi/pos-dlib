@@ -29,7 +29,7 @@ import { solidity } from "ethereum-waffle";
 
 import { PoS } from "../src/types/PoS";
 import { PoS__factory } from "../src/types/factories/PoS__factory";
-import { BigNumber, Signer } from "ethers";
+import { Signer } from "ethers";
 
 use(solidity);
 
@@ -366,7 +366,6 @@ describe("PoS", async () => {
     });
 
     it("user should be concerned only if their ctsi balance > 0", async () => {
-        let mockReward = 100000;
         await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
         await mockSI.mock.getStakedBalance.returns(0); // mock zero staked balance
 
