@@ -19,12 +19,12 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-use super::dispatcher::{Archive, DApp, Reaction};
 use super::dispatcher::{AddressField, BoolField, U256Field};
+use super::dispatcher::{Archive, DApp, Reaction};
 use super::error::Result;
 use super::error::*;
 use super::ethabi::Token;
-use super::ethereum_types::{U256, Address};
+use super::ethereum_types::{Address, U256};
 use super::transaction;
 use super::transaction::TransactionRequest;
 
@@ -36,10 +36,10 @@ pub struct PoS();
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
 pub struct PoSCtxParsed(
-    pub BoolField, //canProduce
+    pub BoolField,    //canProduce
     pub AddressField, //BlockSelectorAddress
-    pub U256Field, //currentReward
-    pub U256Field, //user split
+    pub U256Field,    //currentReward
+    pub U256Field,    //user split
 );
 
 #[derive(Serialize, Debug)]
@@ -70,19 +70,14 @@ impl DApp<()> for PoS {
         _param: &(),
     ) -> Result<Reaction> {
         // get context (state) of the block selector instance
-        let parsed: PoSCtxParsed =
-            serde_json::from_str(&instance.json_data).chain_err(|| {
-                format!(
-                    "Could not parse PoS instance json_data: {}",
-                    &instance.json_data
-                )
-            })?;
+        let parsed: PoSCtxParsed = serde_json::from_str(&instance.json_data).chain_err(|| {
+            format!(
+                "Could not parse PoS instance json_data: {}",
+                &instance.json_data
+            )
+        })?;
         let ctx: PoSCtx = parsed.into();
-        trace!(
-            "Context for PoS (index {}) {:?}",
-            instance.index,
-            ctx
-        );
+        trace!("Context for PoS (index {}) {:?}", instance.index, ctx);
 
         // TODO: Move this to a parameter, it varies according to user/worker
         // behavior and base layer tx cost
@@ -100,16 +95,17 @@ impl DApp<()> for PoS {
                 concern: instance.concern.clone(),
                 value: U256::from(0),
                 function: "produceBlock".into(),
-                data: vec![
-                    Token::Uint(instance.index),
-                ],
+                data: vec![Token::Uint(instance.index)],
                 gas: None,
                 strategy: transaction::Strategy::Simplest,
                 contract_name: None, // Name not needed, is concern
             };
             return Ok(Reaction::Transaction(request));
         } else {
-            info!("Reaction Idle (canProduce: {}, currentReward: {})", ctx.can_produce, ctx.current_reward);
+            info!(
+                "Reaction Idle (canProduce: {}, currentReward: {})",
+                ctx.can_produce, ctx.current_reward
+            );
             //return idle
             return Ok(Reaction::Idle);
         }
@@ -121,13 +117,12 @@ impl DApp<()> for PoS {
         _param: &(),
     ) -> Result<state::Instance> {
         // get context (state) of the pos instance
-        let parsed: PoSCtxParsed =
-            serde_json::from_str(&instance.json_data).chain_err(|| {
-                format!(
-                    "Could not parse lottery instance json_data: {}",
-                    &instance.json_data
-                )
-            })?;
+        let parsed: PoSCtxParsed = serde_json::from_str(&instance.json_data).chain_err(|| {
+            format!(
+                "Could not parse lottery instance json_data: {}",
+                &instance.json_data
+            )
+        })?;
         let ctx: PoSCtx = parsed.into();
         let json_data = serde_json::to_string(&ctx).unwrap();
 

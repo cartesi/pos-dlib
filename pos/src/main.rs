@@ -25,12 +25,12 @@
 
 extern crate dispatcher;
 extern crate env_logger;
-extern crate utils;
 extern crate pos;
+extern crate utils;
 
 use dispatcher::Dispatcher;
-use utils::print_error;
 use pos::PoS;
+use utils::print_error;
 
 fn main() {
     env_logger::init();
