@@ -103,8 +103,8 @@ impl DApp<()> for PoS {
             return Ok(Reaction::Transaction(request));
         } else {
             info!(
-                "Reaction Idle (canProduce: {}, currentReward: {})",
-                ctx.can_produce, ctx.current_reward
+                "Reaction Idle (index: {}, canProduce: {}, currentReward: {})",
+                instance.index, ctx.can_produce, ctx.current_reward
             );
             //return idle
             return Ok(Reaction::Idle);
