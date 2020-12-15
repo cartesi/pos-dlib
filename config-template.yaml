@@ -12,5 +12,5 @@ services: []
 testing: true
 url: ${WEB3_PROVIDER_URI}
 warn_delay: 30
-polling_interval: 15
+polling_interval: 45
 web3_timeout: 10
