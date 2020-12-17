@@ -11,9 +11,10 @@
 // specific language governing permissions and limitations under the License.
 
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
-import { task } from "hardhat/config";
+import { task, types } from "hardhat/config";
 import { CartesiToken__factory } from "@cartesi/token";
 import { BigNumber } from "ethers";
+import { formatUnits } from "@ethersproject/units";
 
 task(
     "ctsi:balance",
@@ -75,4 +76,33 @@ task("ctsi:allow", "Allow spending of CTSI")
             BigNumber.from(args.amount)
         );
         console.log(`spending approve: ${approve_tx.hash}`);
+    });
+
+task("ctsi:transfer", "Transfer CTSI from an address to another")
+    .addPositionalParam(
+        "recipient",
+        "Recipient address",
+        undefined,
+        types.string,
+        false
+    )
+    .addPositionalParam(
+        "amount",
+        "Amount of CTSI including 18 decimal place without '.'"
+    )
+    .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+        const { deployments, ethers, run } = hre;
+        const { CartesiToken } = await deployments.all();
+        const [signer] = await ethers.getSigners();
+        const ctsi = CartesiToken__factory.connect(
+            CartesiToken.address,
+            signer
+        );
+
+        const tx = await ctsi.transfer(args.recipient, args.amount);
+        console.log(
+            `transfering ${formatUnits(args.amount, 18)} CTSI to ${
+                args.recipient
+            }: ${tx.hash}`
+        );
     });
