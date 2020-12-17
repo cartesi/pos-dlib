@@ -23,8 +23,8 @@ task("worker:hire", "Hire and authorize a worker")
     )
     .addOptionalPositionalParam(
         "address",
-        "Worker node address",
-        undefined,
+        "Worker node address or account index from localhost provider",
+        "0",
         types.string
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
@@ -37,14 +37,15 @@ task("worker:hire", "Hire and authorize a worker")
             signer
         );
 
-        let workerAddress = args.address;
-        if (!workerAddress) {
+        let workerAddress = args.address as string;
+        if (!workerAddress.startsWith("0x")) {
             // get worker address from local node
             const localProvider = new ethers.providers.JsonRpcProvider(
                 "http://localhost:8545"
             );
             const addresses = await localProvider.listAccounts();
-            workerAddress = addresses[0];
+            const index = parseInt(workerAddress);
+            workerAddress = addresses[index];
         }
 
         console.log(
