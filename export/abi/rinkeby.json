@@ -3,7 +3,7 @@
   "chainId": "4",
   "contracts": {
     "BlockSelector": {
-      "address": "0x9d021f696FCD18a388c1682781eA07E4f024c507",
+      "address": "0xEB210376951EBc154361d205CAb80a6eBcC4a756",
       "abi": [
         {
           "anonymous": false,
@@ -427,31 +427,8 @@
         }
       ]
     },
-    "CTSIFaucet": {
-      "address": "0x4de00a16DEFA1395b132649229b831285BF65044",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_ctsi",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "inputs": [],
-          "name": "drip",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
-        }
-      ]
-    },
     "PoS": {
-      "address": "0x4A468057d99dC4B2364B87Fcf31023eE69E1bFC5",
+      "address": "0x6afbB2cdd255Ea130a0B0cF52408610AA3438123",
       "abi": [
         {
           "anonymous": false,
@@ -930,7 +907,7 @@
       ]
     },
     "StakingImpl": {
-      "address": "0xBc21Adc9823e79583e5bC59A8Fe80f5174AE7a31",
+      "address": "0x75d93c94e46f3FAE92f78c3B9FD51F2DBCC51a6A",
       "abi": [
         {
           "inputs": [

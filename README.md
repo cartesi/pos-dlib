@@ -152,12 +152,7 @@ export MNEMONIC="your twelve words mnemonic"
 ## Fake goerli CTSI
 
 The first step is to have CTSI in your goerli account.
-We provide a faucet the drops 100 fake CTSI in exchange for 0.3 testnet ETH.
-Run the following command:
-
-```
-npx hardhat --network goerli ctsi:drip
-```
+You should ask Cartesi's team at Discord to send you some fake CTSI.
 
 ## Allowance
 
