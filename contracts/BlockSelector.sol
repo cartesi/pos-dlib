@@ -23,6 +23,8 @@ import "@cartesi/util/contracts/Decorated.sol";
 contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     using SafeMath for uint256;
 
+    uint256 constant C_256 = 256; // 256 blocks
+
     struct BlockSelectorCtx {
         mapping(uint256 => address) blockProducer; // block index to block producer
         uint256 blockCount; // how many blocks have been created
@@ -86,7 +88,9 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @param _user address to calculate log of random
     /// @return log of random number between goal and callers address * 1M
     function getLogOfRandom(uint256 _index, address _user) internal view returns (uint256) {
-        bytes32 currentGoal = blockhash(instance[_index].currentGoalBlockNumber);
+        bytes32 currentGoal = blockhash(
+            getSeed(instance[_index].currentGoalBlockNumber, block.number)
+        );
         bytes32 hashedAddress = keccak256(abi.encodePacked(_user));
         uint256 distance = uint256(keccak256(abi.encodePacked(hashedAddress, currentGoal)));
 
@@ -133,10 +137,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
 
         uint256 time = getMicrosecondsSinceLastBlock(_index);
 
-        // cannot get hash of block if its older than 256, we set 220 to avoid edge cases
-        // new goal cannot be in the past, otherwise user could "choose it"
         return (
-            (block.number).sub(bsc.currentGoalBlockNumber) > 220 ||
             (_weight.mul(time)) > bsc.difficulty.mul((256000000 - getLogOfRandom(_index, _user)))
         );
     }
@@ -170,6 +171,20 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         bsc.blockCount++;
         bsc.currentGoalBlockNumber = block.number + 1;
         bsc.lastBlockTimestamp = block.timestamp;
+    }
+
+    function getSeed(
+        uint256 _previousTarget,
+        uint256 _currentBlock
+    )
+    internal
+    pure
+    returns (uint256)
+    {
+        uint256 diff = _currentBlock.sub(_previousTarget);
+        uint256 res = diff.div(C_256);
+
+        return _previousTarget.add(res.mul(C_256));
     }
 
     /// @notice Calculates new difficulty parameter
