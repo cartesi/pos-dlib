@@ -131,20 +131,6 @@ describe("BlockSelector", async () => {
             "function wasn't called by operator address"
         ).to.be.revertedWith("Function can only be called by pos address");
     });
-    it("instantiate should revert if target interval is too small", async () => {
-        await expect(
-            blockSelector.instantiate(
-                minDiff,
-                initialDiff,
-                diffAdjust,
-                20,
-                await signer.getAddress()
-            ),
-            "target interval is less than 30 seconds (20 seconds)"
-        ).to.be.revertedWith(
-            "Target interval has to be bigger than 30 seconds"
-        );
-    });
 
     it("the amount of addresses eligible should increase over time", async () => {
         const provider = new MockProvider();

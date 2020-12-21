@@ -24,6 +24,9 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     using SafeMath for uint256;
 
     uint256 constant C_256 = 256; // 256 blocks
+    uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256000000; //256 M
+    uint256 constant ADJUSTMENT_BASE = 1000000; // 1M
+    uint256 constant ONE_MILLION = 1000000;
 
     struct BlockSelectorCtx {
         mapping(uint256 => address) blockProducer; // block index to block producer
@@ -65,11 +68,6 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         address _posManagerAddress
     ) public returns (uint256)
     {
-        require(
-            _targetInterval > 30,
-            "Target interval has to be bigger than 30 seconds"
-        );
-
         instance[currentIndex].minDifficulty = _minDifficulty;
         instance[currentIndex].difficulty = _initialDifficulty;
         instance[currentIndex].difficultyAdjustmentParameter = _difficultyAdjustmentParameter;
@@ -138,7 +136,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         uint256 time = getMicrosecondsSinceLastBlock(_index);
 
         return (
-            (_weight.mul(time)) > bsc.difficulty.mul((256000000 - getLogOfRandom(_index, _user)))
+            (_weight.mul(time)) > bsc.difficulty.mul((DIFFICULTY_BASE_MULTIPLIER - getLogOfRandom(_index, _user)))
         );
     }
 
@@ -206,9 +204,9 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     returns (uint256)
     {
         if (_timePassed < _targetInterval) {
-            return _oldDiff.add(_oldDiff.mul(_adjustmentParam).div(1000000) + 1);
+            return _oldDiff.add(_oldDiff.mul(_adjustmentParam).div(ADJUSTMENT_BASE) + 1);
         } else if (_timePassed > _targetInterval) {
-            uint256 newDiff = _oldDiff.sub(_oldDiff.mul(_adjustmentParam).div(1000000) + 1);
+            uint256 newDiff = _oldDiff.sub(_oldDiff.mul(_adjustmentParam).div(ADJUSTMENT_BASE) + 1);
 
             return newDiff > _minDiff ? newDiff : _minDiff;
         }
@@ -271,7 +269,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         BlockSelectorCtx storage bsc = instance[_index];
 
         // time since selection started times 1e6 (microseconds)
-        return ((block.timestamp).sub(bsc.lastBlockTimestamp)).mul(1000000);
+        return ((block.timestamp).sub(bsc.lastBlockTimestamp)).mul(ONE_MILLION);
     }
 
     function getState(uint256 _index, address _user)
@@ -282,7 +280,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
             block.number,
             i.currentGoalBlockNumber,
             i.difficulty,
-            ((block.timestamp).sub(i.lastBlockTimestamp)).mul(1000000), // time passed
+            ((block.timestamp).sub(i.lastBlockTimestamp)).mul(ONE_MILLION), // time passed
             getLogOfRandom(_index, _user)
         ];
 
