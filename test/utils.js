@@ -12,7 +12,14 @@ const advanceBlock = async (provider) => {
   await provider.send("evm_mine");
 };
 
+const advanceMultipleBlocks = async (provider, numOfBlocks) => {
+    for (let i = 0; i <= numOfBlocks; i++) {
+        await provider.send("evm_mine");
+    }
+};
+
 module.exports = {
   advanceTime,
-  advanceBlock
+  advanceBlock,
+  advanceMultipleBlocks
 };
