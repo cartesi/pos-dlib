@@ -32,8 +32,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployer } = await getNamedAccounts();
     const { CartesiToken } = await deployments.all();
 
-    const timeToStake = 2 * HOUR;
-    const timeToRelease = hre.network.name == "mainnet" ? 2 * DAY : 2 * HOUR;
+    const timeToStake = hre.network.name == "mainnet" ? 6 * HOUR : 2 * MINUTE;
+    const timeToRelease = hre.network.name == "mainnet" ? 2 * DAY : 2 * MINUTE;
 
     await deploy("StakingImpl", {
         args: [CartesiToken.address, timeToStake, timeToRelease],
