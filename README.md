@@ -118,3 +118,20 @@ A user has the right to add a beneficiary, which often will be the worker repres
 - Someone being able to add a beneficiary on behalf of someone else.
 - The sum of splits (user_split + beneficiary_split) being different than 100%.
 - The function `produceBlock()` always reverting and freezing the chain.
+
+# Contributing
+
+Thank you for your interest in Cartesi! Head over to our [Contributing Guidelines](CONTRIBUTING.md) for instructions on how to sign our Contributors Agreement and get started with
+Cartesi!
+
+Please note we have a [Code of Conduct](CODE_OF_CONDUCT.md), please follow it in all your interactions with the project.
+
+# Authors
+
+* *Felipe Argento*
+* *Danilo Tuler*
+
+# License
+
+The repository and all contributions are licensed under
+[APACHE 2.0](https://www.apache.org/licenses/LICENSE-2.0). Please review our [LICENSE](LICENSE) file.
