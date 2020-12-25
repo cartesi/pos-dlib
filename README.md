@@ -60,12 +60,6 @@ If the last deposit has already matured (and is counted when `getStakedBalance` 
 The same is true for the `unstake()` function - any tokens waiting to be released will have their deadlines reset if new tokens are added to the "withdraw bucket".
 When unstaking the priority are tokens that are in the "maturing bucket" and then the ones in the already staked one. This behaviour was chosen because it is the one most helpful to the users, since their staked tokens might be generating revenue.
 
-## Risks:
-- Someone withdrawing more tokens than they deposited.
-- Someone having more staked balanced than the amount of tokens they have deposited before `now - time to stake`.
-- Someone withdrawing tokens without having to wait for `time to  release` seconds.
-- Someone having tokens in the relase bucket that still count as staked tokens.
-
 # Block Selector
 
 The Block Selector contract manages the selection of an address every `targetInterval` seconds according to the weighted random selection [described above](#selection-process).
@@ -73,14 +67,6 @@ The Block Selector contract manages the selection of an address every `targetInt
 When the function `produceBlock()` is called, the contract check if the address sent as a parameter fits the current random weighted selection and, if it does, declares a block as produced by returning true. Every time a block is deemed produced, the private function `_blockProduced` is called, storing the address of the producer and starting a new selection proccess with an updated difficulty.
 
 The new difficulty is defined by the `getNewDifficulty` method, which takes into account the difference between the target interval and the actual interval and adjusts the difficulty based on the `adjustmentParam`, defined on the `instantiate` function.
-
-## Risks:
-- Miner manipulation of random numbers. This is addressed when discussing the selection process.
-- An address claiming the win many times recursively before the selection gets reset.
-- The chance of being selected not being proportional to the amount of tokens staked (the `weight` variable).
-- Splitting the stake between different addresses increasing the chance of one of those addresses being selected.
-- The difficulty getting stuck and not adjusting properly.
-- Stakers being able to manipulate the selection process interval to reward more often than on average `targetInterval` by colluding to add/remove stake.
 
 # RewardManager
 
@@ -97,10 +83,6 @@ The function `reward` can only be called by an `operator`, defined during the co
 ## Unintuitive behaviour:
 The `operator` has the right to "order" the `RewardManager` contract to send any amount of tokens to any address, by calling the `reward()` function. However, the operator is expected to always use the `getCurrentReward()` to decide the correct amount and act accordingly.
 
-## Risks:
-- `getCurrentReward()` function always reverting will lock the tokens forever.
-- `getCurrentReward()` returning the wrong value will over-reward or under-reward the block producer.
-
 # PoS
 The PoS contract is the main concern when dealing with the Noether architecture, it manages the interactions between the Staking, BlockSelector and RewardManager. It is responsible for making sure permissioned calls are secure, instantiating the BlockSelector and guiding the RewardManager on whom to transfer money to. It is also the main concern and the contract that will interact with the offchain part of this dlib.
 
@@ -109,15 +91,6 @@ The contract instantiates a `BlockSelector` instance in order to control the wei
 The worker, representing a user, will constantly check off-chain if the address they are representing has been selected and, if so, they'll call the `produceBlock()` function of PoS on their behalf.
 The `produceBlock()` checks if the `msg.sender` is an authorized representant of the selected address and, if they are, rewards the owner of that worker according to the `rewardManager` current reward definition.
 A user has the right to add a beneficiary, which often will be the worker representing them, if they're not running that worker themselves. A beneficiary is defined by the function `addBeneficiary`, which receives a `split` variable. The `split` defines the percentage of each reward dedicated to the user that will go to the beneficiary, according to the math: `reward * split / SPLIT_BASE`, where `SPLIT_BASE` is equal to `10000`.
-
-# Risks:
-- An unauthorized worker calling the `produceBlock()` function on behalf of a user.
-- A user calling the `produceBlock()` function directly and not through a worker.
-- The function `produceBlock()` being called multiple times in a row for the same selected address, without a reset on the selection.
-- The reward amount being manipulated or the getCurrentReward() always reverting.
-- Someone being able to add a beneficiary on behalf of someone else.
-- The sum of splits (user_split + beneficiary_split) being different than 100%.
-- The function `produceBlock()` always reverting and freezing the chain.
 
 # Contributing
 
