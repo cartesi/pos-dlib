@@ -13,7 +13,7 @@ const advanceBlock = async (provider) => {
 };
 
 const advanceMultipleBlocks = async (provider, numOfBlocks) => {
-    for (let i = 0; i <= numOfBlocks; i++) {
+    for (let i = 0; i < numOfBlocks; i++) {
         await provider.send("evm_mine");
     }
 };
