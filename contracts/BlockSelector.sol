@@ -183,6 +183,12 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         uint256 diff = _currentBlock.sub(_previousTarget);
         uint256 res = diff.div(C_256);
 
+        // if difference is multiple of 256 (256, 512, 1024)
+        // preserve old target
+        if (diff % C_256 == 0) {
+            return _previousTarget.add((res - 1).mul(C_256));
+        }
+
         return _previousTarget.add(res.mul(C_256));
     }
 
