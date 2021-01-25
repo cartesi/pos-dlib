@@ -27,7 +27,7 @@ import { BlockSelector } from "../src/types/BlockSelector";
 import { BlockSelector__factory } from "../src/types/factories/BlockSelector__factory";
 import { BigNumberish, Signer } from "ethers";
 
-const { advanceTime, advanceBlock } = require("./utils");
+const { advanceTime, advanceBlock, advanceMultipleBlocks } = require("./utils");
 
 use(solidity);
 
@@ -38,9 +38,9 @@ describe("BlockSelector", async () => {
     let blockSelector: BlockSelector;
 
     let minDiff = 100;
-    let initialDiff = 1000000000;
+    let initialDiff = 100;
     let diffAdjust = 50000;
-    let targetInterval = 60 * 10; //10 minutes
+    let targetInterval = 40; //40 blocks ~= 10 minutes
 
     beforeEach(async () => {
         await deployments.fixture();
@@ -132,10 +132,11 @@ describe("BlockSelector", async () => {
         ).to.be.revertedWith("Function can only be called by pos address");
     });
 
-    it("the amount of addresses eligible should increase over time", async () => {
+    it("the amount of addresses eligible should increase with mainchain blocks", async () => {
         const provider = new MockProvider();
+        var address : any;
         let wallets = provider.getWallets();
-        let weigth = 500000;
+        let weigth = 5000000;
         let initialCount = 0;
         let midwayCount = 0;
         let finalCount = 0;
@@ -153,27 +154,25 @@ describe("BlockSelector", async () => {
         await advanceBlock(signer.provider);
 
         for (var wallet of wallets) {
-            var address = await wallet.getAddress();
+            address = await wallet.getAddress();
             if (await blockSelector.canProduceBlock(0, address, weigth)) {
                 initialCount++;
             }
         }
 
-        await advanceTime(signer.provider, 60 * 30); //30 minutes
-        await advanceBlock(signer.provider);
+        await advanceMultipleBlocks(signer.provider, 80);
 
         for (var wallet of wallets) {
-            var address = await wallet.getAddress();
+            address = await wallet.getAddress();
             if (await blockSelector.canProduceBlock(0, address, weigth)) {
                 midwayCount++;
             }
         }
 
-        await advanceTime(signer.provider, 60 * 60); // 60 minutes
-        await advanceBlock(signer.provider);
+        await advanceMultipleBlocks(signer.provider, 120);
 
         for (var wallet of wallets) {
-            var address = await wallet.getAddress();
+            address = await wallet.getAddress();
             if (await blockSelector.canProduceBlock(0, address, weigth)) {
                 finalCount++;
             }
@@ -196,7 +195,7 @@ describe("BlockSelector", async () => {
         let highWeightCount = 0;
         let mediumWeightCount = 0;
         let lowWeight = 1;
-        let mediumWeight = 500000000;
+        let mediumWeight = 900000;
         let highWeight = 500000000000000;
 
         await blockSelector.instantiate(
@@ -207,9 +206,7 @@ describe("BlockSelector", async () => {
             await signer.getAddress()
         );
 
-        // advance blocks so the target is set
-        await advanceBlock(signer.provider);
-        await advanceBlock(signer.provider);
+        await advanceMultipleBlocks(signer.provider, 120);
 
         for (var wallet of wallets) {
             var address = await wallet.getAddress();
@@ -223,7 +220,9 @@ describe("BlockSelector", async () => {
             if (await blockSelector.canProduceBlock(0, address, highWeight)) {
                 highWeightCount++;
             }
+
         }
+
         expect(
             lowWeightCount,
             "low weight count should be less than medium weight count"
@@ -236,9 +235,9 @@ describe("BlockSelector", async () => {
     });
 
     // TODO: this test should also make sure that the diff is changing by adjustment param
-    it("difficulty should adjust according to time passed", async () => {
+    it("difficulty should adjust according to number of blocks passed", async () => {
         let address = await signer.getAddress();
-        let highWeight = 1000000000000;
+        let highWeight = 100000000000000;
         await blockSelector.instantiate(
             minDiff,
             initialDiff,
@@ -247,7 +246,7 @@ describe("BlockSelector", async () => {
             address
         );
 
-        let diff: BigNumberish = await blockSelector.getDifficulty(0);
+        var diff: BigNumberish = await blockSelector.getDifficulty(0);
 
         // advance blocks so the target is set
         await advanceBlock(signer.provider);
@@ -261,15 +260,14 @@ describe("BlockSelector", async () => {
         // weight is very high to ensure block gets produced
         await blockSelector.produceBlock(0, address, highWeight);
 
-        diff = await blockSelector.getDifficulty(0);
+        var newDiff = await blockSelector.getDifficulty(0);
 
         expect(
-            diff,
+            newDiff,
             "difficulty should increase if block was produced too quickly"
         ).to.be.above(initialDiff);
 
-        await advanceTime(signer.provider, 31 * 60); // advance 31 minutes
-        await advanceBlock(signer.provider);
+        await advanceMultipleBlocks(signer.provider, targetInterval + 5);
 
         await blockSelector.produceBlock(0, address, highWeight);
 
@@ -277,21 +275,18 @@ describe("BlockSelector", async () => {
 
         expect(
             diff,
-            "difficulty should decrease if block took more than 30 mins to be produced"
-        ).to.be.below(initialDiff);
+            "difficulty should decrease if block took longer than target interval be produced"
+        ).to.be.below(newDiff);
 
-        await advanceTime(signer.provider, 5 * 60); // advance 5 minutes
-        await advanceBlock(signer.provider);
-
-        await blockSelector.produceBlock(0, address, highWeight);
-
-        await advanceTime(signer.provider, 5 * 60); // advance 5 minutes
-        await advanceBlock(signer.provider);
+        await advanceMultipleBlocks(signer.provider, 20); // advance 20 blocks
 
         await blockSelector.produceBlock(0, address, highWeight);
 
-        await advanceTime(signer.provider, 5 * 60); // advance 5 minutes
-        await advanceBlock(signer.provider);
+        await advanceMultipleBlocks(signer.provider, 20); // advance 20 blocks
+
+        await blockSelector.produceBlock(0, address, highWeight);
+
+        await advanceMultipleBlocks(signer.provider, 20); // advance 20 blocks
 
         await blockSelector.produceBlock(0, address, highWeight);
 
@@ -376,7 +371,7 @@ describe("BlockSelector", async () => {
 
     it("getters should return expected values", async () => {
         let address = await signer.getAddress();
-        let mediumWeight = 5000000;
+        let highWeight = 500000000000000;
 
         await blockSelector.instantiate(
             minDiff,
@@ -387,14 +382,13 @@ describe("BlockSelector", async () => {
         );
 
         var blockCount = await blockSelector.getBlockCount(0);
-        var fTimestamp = await blockSelector.getLastBlockTimestamp(0);
         var difficulty = await blockSelector.getDifficulty(0);
         var minDifficulty = await blockSelector.getMinDifficulty(0);
         var adjustmentParam = await blockSelector.getDifficultyAdjustmentParameter(
             0
         );
         var gTargetInterval = await blockSelector.getTargetInterval(0);
-        var microSeconds = await blockSelector.getMicrosecondsSinceLastBlock(0);
+        var blocksPassed = await blockSelector.getSelectionBlockDuration(0);
 
         expect(blockCount, "blockCount should start at zero").to.equal(0);
         expect(difficulty, "difficulty should start as initialDiffi").to.equal(
@@ -413,35 +407,26 @@ describe("BlockSelector", async () => {
             "getTargetInterval should return target interval"
         ).to.equal(targetInterval);
         expect(
-            microSeconds,
-            "micro seconds since last block should start at zero"
+            blocksPassed,
+            "blocks passed should start at zero"
         ).to.equal(0);
 
-        // advance blocks so the target is set
-        await advanceBlock(signer.provider);
-        await advanceBlock(signer.provider);
+        // advance 200 blocks
+        await advanceMultipleBlocks(signer.provider, 200);
 
-        // advance time so a block can definitely be produced
-        await advanceTime(signer.provider, 24 * 60 * 60); // advance 1 day
-        await advanceBlock(signer.provider);
-
-        var sMicroSeconds = await blockSelector.getMicrosecondsSinceLastBlock(
+        var sBlocksPassed = await blockSelector.getSelectionBlockDuration(
             0
         );
 
-        expect(sMicroSeconds, "more than 1 day should have passed").to.be.above(
-            24 * 60 * 60 * 1000000
-        ); //microseconds
+        expect(sBlocksPassed, "200 blocks should have passed").to.equal(
+            200
+        ); //blocks
         // produce a block
-        await blockSelector.produceBlock(0, address, mediumWeight);
 
-        var sTimestamp = await blockSelector.getLastBlockTimestamp(0);
+        await blockSelector.produceBlock(0, address, highWeight);
+
         blockCount = await blockSelector.getBlockCount(0);
 
-        expect(
-            sTimestamp,
-            "second timestamp should be bigger than first"
-        ).to.be.above(fTimestamp);
         expect(
             blockCount,
             "blockCount should be one after first block is created"
