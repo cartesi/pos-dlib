@@ -92,8 +92,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         address _workerAuthAddress,
         uint256 _minimumDifficulty,
         uint256 _initialDifficulty,
-        uint256 _difficultyAdjustmentParameter,
-        uint256 _targetInterval,
+        uint32 _difficultyAdjustmentParameter,
+        uint32 _targetInterval,
 
         // RewardManager constructor parameters
         address _ctsiAddress,
