@@ -134,7 +134,7 @@ describe("BlockSelector", async () => {
 
     it("the amount of addresses eligible should increase with mainchain blocks", async () => {
         const provider = new MockProvider();
-        var address : any;
+        var address: any;
         let wallets = provider.getWallets();
         let weigth = 5000000;
         let initialCount = 0;
@@ -160,7 +160,7 @@ describe("BlockSelector", async () => {
             }
         }
 
-        await advanceMultipleBlocks(signer.provider, 80);
+        await advanceMultipleBlocks(signer.provider, 20);
 
         for (var wallet of wallets) {
             address = await wallet.getAddress();
@@ -220,7 +220,6 @@ describe("BlockSelector", async () => {
             if (await blockSelector.canProduceBlock(0, address, highWeight)) {
                 highWeightCount++;
             }
-
         }
 
         expect(
@@ -296,6 +295,107 @@ describe("BlockSelector", async () => {
             diff,
             "difficulty should increase after multiple blocks that were produced quickly"
         ).to.be.above(initialDiff);
+    });
+
+    it("every 256 blocks target should be updated", async () => {
+        const provider = new MockProvider();
+        let wallets = provider.getWallets();
+        let mediumWeight = 900000;
+        var initialTargetCount = 0;
+        var falseUpdateTargetCount = 0;
+        var updatedTargetCount = 0;
+
+        await blockSelector.instantiate(
+            minDiff,
+            initialDiff,
+            diffAdjust,
+            targetInterval,
+            await signer.getAddress()
+        );
+
+        await advanceMultipleBlocks(signer.provider, 256);
+
+        for (var wallet of wallets) {
+            var address = await wallet.getAddress();
+            if (await blockSelector.canProduceBlock(0, address, mediumWeight)) {
+                initialTargetCount++;
+            }
+        }
+
+        await advanceMultipleBlocks(signer.provider, 1);
+
+        // target shouldn't change, this is the edge case
+        for (var wallet of wallets) {
+            var address = await wallet.getAddress();
+            if (await blockSelector.canProduceBlock(0, address, mediumWeight)) {
+                falseUpdateTargetCount++;
+            }
+        }
+
+        await advanceMultipleBlocks(signer.provider, 2);
+
+        // total blocks advanced = 256 + 1 + 2, should trigger seed update
+        for (var wallet of wallets) {
+            var address = await wallet.getAddress();
+            if (await blockSelector.canProduceBlock(0, address, mediumWeight)) {
+                updatedTargetCount++;
+            }
+        }
+
+        expect(
+            initialTargetCount,
+            "256 block advancement should mantain target"
+        ).to.equal(falseUpdateTargetCount);
+
+        expect(
+            initialTargetCount,
+            ">256 should update target and therefore statistically have different winners"
+        ).to.not.equal(updatedTargetCount);
+
+        await blockSelector.produceBlock(
+            0,
+            await signer.getAddress(),
+            mediumWeight * 1000000
+        ); // high weight to guarantee block will be produced
+
+        await advanceMultipleBlocks(signer.provider, 512);
+
+        for (var wallet of wallets) {
+            var address = await wallet.getAddress();
+            if (await blockSelector.canProduceBlock(0, address, mediumWeight)) {
+                initialTargetCount++;
+            }
+        }
+
+        await advanceMultipleBlocks(signer.provider, 1);
+
+        // target shouldn't change, this is the edge case
+        for (var wallet of wallets) {
+            var address = await wallet.getAddress();
+            if (await blockSelector.canProduceBlock(0, address, mediumWeight)) {
+                falseUpdateTargetCount++;
+            }
+        }
+
+        await advanceMultipleBlocks(signer.provider, 2);
+
+        // total blocks advanced = 256 + 1 + 2, should trigger seed update
+        for (var wallet of wallets) {
+            var address = await wallet.getAddress();
+            if (await blockSelector.canProduceBlock(0, address, mediumWeight)) {
+                updatedTargetCount++;
+            }
+        }
+
+        expect(
+            initialTargetCount,
+            "512 block advancement should mantain target"
+        ).to.equal(falseUpdateTargetCount);
+
+        expect(
+            initialTargetCount,
+            ">512 should update target and therefore statistically have different winners"
+        ).to.not.equal(updatedTargetCount);
     });
 
     it("producing block resets selection", async () => {
@@ -406,21 +506,14 @@ describe("BlockSelector", async () => {
             gTargetInterval,
             "getTargetInterval should return target interval"
         ).to.equal(targetInterval);
-        expect(
-            blocksPassed,
-            "blocks passed should start at zero"
-        ).to.equal(0);
+        expect(blocksPassed, "blocks passed should start at zero").to.equal(0);
 
         // advance 200 blocks
         await advanceMultipleBlocks(signer.provider, 200);
 
-        var sBlocksPassed = await blockSelector.getSelectionBlockDuration(
-            0
-        );
+        var sBlocksPassed = await blockSelector.getSelectionBlockDuration(0);
 
-        expect(sBlocksPassed, "200 blocks should have passed").to.equal(
-            200
-        ); //blocks
+        expect(sBlocksPassed, "200 blocks should have passed").to.equal(200); //blocks
         // produce a block
 
         await blockSelector.produceBlock(0, address, highWeight);
