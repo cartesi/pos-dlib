@@ -26,19 +26,20 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     uint256 constant C_256 = 256; // 256 blocks
     uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256000000; //256 M
     uint256 constant ADJUSTMENT_BASE = 1000000; // 1M
-    uint256 constant ONE_MILLION = 1000000;
 
     struct BlockSelectorCtx {
         mapping(uint256 => address) blockProducer; // block index to block producer
-        uint256 blockCount; // how many blocks have been created
-        uint256 lastBlockTimestamp; // timestamp of when current selection started
         uint256 difficulty; // difficulty parameter defines how big the interval will be
         uint256 minDifficulty; // lower bound for difficulty
-        uint256 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired interval, number * 1000000
-        uint256 targetInterval; // desired block selection interval, used to tune difficulty
-        uint256 currentGoalBlockNumber; // main chain block number which will decide current random target
+        uint32 currentGoalBlockNumber; // main chain block number which will decide current random target
 
         address posManagerAddress;
+
+        uint32 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired interval, number * 1000000
+        uint32 targetInterval; // desired block selection interval in ethereum blocks
+        uint32 blockCount; // how many blocks have been created
+        uint32 ethBlockCheckpoint; // ethereum block number when current selection started
+
 
     }
 
@@ -47,10 +48,10 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     event BlockProduced(
         uint256 indexed index,
         address indexed producer,
-        uint256 blockNumber,
+        uint32 blockNumber,
         uint256 roundDuration,
         uint256 difficulty,
-        uint256 targetInterval
+        uint32 targetInterval
     );
 
     /// @notice Instantiates a BlockSelector structure
@@ -58,13 +59,13 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @param _initialDifficulty starting difficulty
     /// @param _difficultyAdjustmentParameter how quickly the difficulty gets updated
     /// according to the difference between time passed and target interval.
-    /// @param _targetInterval how often we want produce blocks
+    /// @param _targetInterval how often we want produce noether blocks, in ethereum blocks
     /// @param _posManagerAddress address of ProofOfStake that will use this instance
     function instantiate(
         uint256 _minDifficulty,
         uint256 _initialDifficulty,
-        uint256 _difficultyAdjustmentParameter,
-        uint256 _targetInterval,
+        uint32 _difficultyAdjustmentParameter,
+        uint32 _targetInterval,
         address _posManagerAddress
     ) public returns (uint256)
     {
@@ -74,8 +75,8 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         instance[currentIndex].targetInterval = _targetInterval;
         instance[currentIndex].posManagerAddress = _posManagerAddress;
 
-        instance[currentIndex].currentGoalBlockNumber = block.number + 1; // goal has to be in the future, so miner cant manipulate (easily)
-        instance[currentIndex].lastBlockTimestamp = block.timestamp; // first selection starts when the instance is created
+        instance[currentIndex].currentGoalBlockNumber = uint32(block.number + 1); // goal has to be in the future, so miner cant manipulate (easily)
+        instance[currentIndex].ethBlockCheckpoint = uint32(block.number); // first selection starts when the instance is created
 
         active[currentIndex] = true;
         return currentIndex++;
@@ -87,7 +88,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @return log of random number between goal and callers address * 1M
     function getLogOfRandom(uint256 _index, address _user) internal view returns (uint256) {
         bytes32 currentGoal = blockhash(
-            getSeed(instance[_index].currentGoalBlockNumber, block.number)
+            getSeed(uint256(instance[_index].currentGoalBlockNumber), block.number)
         );
         bytes32 hashedAddress = keccak256(abi.encodePacked(_user));
         uint256 distance = uint256(keccak256(abi.encodePacked(hashedAddress, currentGoal)));
@@ -110,7 +111,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
                 _index,
                 _user,
                 bsc.blockCount,
-                getMicrosecondsSinceLastBlock(_index),
+                getSelectionBlockDuration(_index),
                 bsc.difficulty,
                 bsc.targetInterval
             );
@@ -133,10 +134,10 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
             return false;
         }
 
-        uint256 time = getMicrosecondsSinceLastBlock(_index);
+        uint256 blockDuration = getSelectionBlockDuration(_index);
 
         return (
-            (_weight.mul(time)) > bsc.difficulty.mul((DIFFICULTY_BASE_MULTIPLIER - getLogOfRandom(_index, _user)))
+            (_weight.mul(blockDuration)) > bsc.difficulty.mul((DIFFICULTY_BASE_MULTIPLIER - getLogOfRandom(_index, _user)))
         );
     }
 
@@ -152,7 +153,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         bsc.difficulty = getNewDifficulty(
             bsc.minDifficulty,
             bsc.difficulty,
-            (block.timestamp).sub(bsc.lastBlockTimestamp),
+            uint32((block.number).sub(uint256(bsc.ethBlockCheckpoint))),
             bsc.targetInterval,
             bsc.difficultyAdjustmentParameter
         );
@@ -167,8 +168,8 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         BlockSelectorCtx storage bsc = instance[_index];
 
         bsc.blockCount++;
-        bsc.currentGoalBlockNumber = block.number + 1;
-        bsc.lastBlockTimestamp = block.timestamp;
+        bsc.ethBlockCheckpoint = uint32(block.number);
+        bsc.currentGoalBlockNumber = uint32(block.number + 1);
     }
 
     function getSeed(
@@ -188,24 +189,24 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @notice Calculates new difficulty parameter
     /// @param _minDiff minimum difficulty of instance
     /// @param _oldDiff is the difficulty of previous round
-    /// @param _timePassed is how long the previous round took
+    /// @param _blocksPassed how many ethereum blocks have passed
     /// @param _targetInterval is how long a round is supposed to take
     /// @param _adjustmentParam is how fast the difficulty gets adjusted,
     ///         should be number * 1000000
     function getNewDifficulty(
         uint256 _minDiff,
         uint256 _oldDiff,
-        uint256 _timePassed,
-        uint256 _targetInterval,
-        uint256 _adjustmentParam
+        uint32 _blocksPassed,
+        uint32 _targetInterval,
+        uint32 _adjustmentParam
     )
     internal
     pure
     returns (uint256)
     {
-        if (_timePassed < _targetInterval) {
+        if (_blocksPassed < _targetInterval) {
             return _oldDiff.add(_oldDiff.mul(_adjustmentParam).div(ADJUSTMENT_BASE) + 1);
-        } else if (_timePassed > _targetInterval) {
+        } else if (_blocksPassed > _targetInterval) {
             uint256 newDiff = _oldDiff.sub(_oldDiff.mul(_adjustmentParam).div(ADJUSTMENT_BASE) + 1);
 
             return newDiff > _minDiff ? newDiff : _minDiff;
@@ -217,15 +218,8 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @notice Returns the number of blocks
     /// @param _index the index of the instance of block selector to be interact with
     /// @return number of blocks
-    function getBlockCount(uint256 _index) public view returns (uint256) {
+    function getBlockCount(uint256 _index) public view returns (uint32) {
         return instance[_index].blockCount;
-    }
-
-    /// @notice Returns last block timestamp
-    /// @param _index the index of the instance of block selector to be interact with
-    /// @return timestamp of when last block was created
-    function getLastBlockTimestamp(uint256 _index) public view returns (uint256) {
-        return instance[_index].lastBlockTimestamp;
     }
 
     /// @notice Returns current difficulty
@@ -250,7 +244,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     )
     public
     view
-    returns (uint256)
+    returns (uint32)
     {
         return instance[_index].difficultyAdjustmentParameter;
     }
@@ -258,18 +252,17 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @notice Returns target interval
     /// @param _index the index of the instance of block selector to be interact with
     /// @return target interval
-    function getTargetInterval(uint256 _index) public view returns (uint256) {
+    function getTargetInterval(uint256 _index) public view returns (uint32) {
         return instance[_index].targetInterval;
     }
 
-    /// @notice Returns time since last selection started, in microseconds
+    /// @notice Returns time since last selection started, in ethereum blocks
     /// @param _index the index of the instance of block selector to be interact with
-    /// @return microseconds passed since last selection started
-    function getMicrosecondsSinceLastBlock(uint256 _index) public view returns (uint256) {
+    /// @return number of etheereum blocks passed since last selection started
+    function getSelectionBlockDuration(uint256 _index) public view returns (uint256) {
         BlockSelectorCtx storage bsc = instance[_index];
 
-        // time since selection started times 1e6 (microseconds)
-        return ((block.timestamp).sub(bsc.lastBlockTimestamp)).mul(ONE_MILLION);
+        return (block.number).sub(uint256(bsc.ethBlockCheckpoint));
     }
 
     function getState(uint256 _index, address _user)
@@ -280,7 +273,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
             block.number,
             i.currentGoalBlockNumber,
             i.difficulty,
-            ((block.timestamp).sub(i.lastBlockTimestamp)).mul(ONE_MILLION), // time passed
+            getSelectionBlockDuration(_index), // blocks passed
             getLogOfRandom(_index, _user)
         ];
 
