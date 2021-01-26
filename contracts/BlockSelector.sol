@@ -34,7 +34,6 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         uint256 minDifficulty; // lower bound for difficulty
 
         uint32 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired interval, number * 1000000
-        uint32 currentGoalBlockNumber; // main chain block number which will decide current random target
         uint32 targetInterval; // desired block selection interval in ethereum blocks
         uint32 blockCount; // how many blocks have been created
         uint32 ethBlockCheckpoint; // ethereum block number when current selection started
@@ -71,7 +70,6 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         instance[currentIndex].targetInterval = _targetInterval;
         instance[currentIndex].posManagerAddress = _posManagerAddress;
 
-        instance[currentIndex].currentGoalBlockNumber = uint32(block.number + 1); // goal has to be in the future, so miner cant manipulate (easily)
         instance[currentIndex].ethBlockCheckpoint = uint32(block.number); // first selection starts when the instance is created
 
         active[currentIndex] = true;
@@ -83,8 +81,9 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @param _user address to calculate log of random
     /// @return log of random number between goal and callers address * 1M
     function getLogOfRandom(uint256 _index, address _user) internal view returns (uint256) {
+        // seed for goal takes a block in the future (+1) so it is harder to manipulate
         bytes32 currentGoal = blockhash(
-            getSeed(uint256(instance[_index].currentGoalBlockNumber), block.number)
+            getSeed(uint256(instance[_index].ethBlockCheckpoint + 1), block.number)
         );
         bytes32 hashedAddress = keccak256(abi.encodePacked(_user));
         uint256 distance = uint256(keccak256(abi.encodePacked(hashedAddress, currentGoal)));
@@ -125,7 +124,8 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         BlockSelectorCtx storage bsc = instance[_index];
 
         // cannot produce if block selector goal hasnt been decided yet
-        if (block.number <= bsc.currentGoalBlockNumber) {
+        // goal is defined the block after selection was reset
+        if (block.number <= bsc.ethBlockCheckpoint + 1) {
             return false;
         }
 
@@ -161,7 +161,6 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
 
         bsc.blockCount++;
         bsc.ethBlockCheckpoint = uint32(block.number);
-        bsc.currentGoalBlockNumber = uint32(block.number + 1);
     }
 
     function getSeed(
@@ -269,7 +268,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
 
         uint256[5] memory uintValues = [
             block.number,
-            i.currentGoalBlockNumber,
+            i.ethBlockCheckpoint + 1, // initial selection goal
             i.difficulty,
             getSelectionBlockDuration(_index), // blocks passed
             getLogOfRandom(_index, _user)
