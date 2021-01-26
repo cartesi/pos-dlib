@@ -28,13 +28,20 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     uint256 constant ADJUSTMENT_BASE = 1000000; // 1M
 
     struct BlockSelectorCtx {
+        // @dev the order of variables are important for storage packing
+        // 32 bytes constants
+        uint256 minDifficulty; // lower bound for difficulty
+        // 32 bytes var
+        uint256 difficulty; // difficulty parameter defines how big the interval will be
+
+        // 20 bytes constants
         address posManagerAddress;
 
-        uint256 difficulty; // difficulty parameter defines how big the interval will be
-        uint256 minDifficulty; // lower bound for difficulty
-
+        // 4 bytes constants
         uint32 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired interval, number * 1000000
         uint32 targetInterval; // desired block selection interval in ethereum blocks
+
+        // 4 bytes var
         uint32 blockCount; // how many blocks have been created
         uint32 ethBlockCheckpoint; // ethereum block number when current selection started
     }
