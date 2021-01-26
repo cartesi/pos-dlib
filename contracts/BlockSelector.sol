@@ -208,15 +208,15 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     pure
     returns (uint256)
     {
-        if (_blocksPassed < _targetInterval) {
+        // @dev to save gas on evaluation, instead of returning the _oldDiff when the target
+        // was exactly matched - we increase the difficulty.
+        if (_blocksPassed <= _targetInterval) {
             return _oldDiff.add(_oldDiff.mul(_adjustmentParam).div(ADJUSTMENT_BASE) + 1);
-        } else if (_blocksPassed > _targetInterval) {
-            uint256 newDiff = _oldDiff.sub(_oldDiff.mul(_adjustmentParam).div(ADJUSTMENT_BASE) + 1);
-
-            return newDiff > _minDiff ? newDiff : _minDiff;
         }
 
-        return _oldDiff;
+        uint256 newDiff = _oldDiff.sub(_oldDiff.mul(_adjustmentParam).div(ADJUSTMENT_BASE) + 1);
+
+        return newDiff > _minDiff ? newDiff : _minDiff;
     }
 
     /// @notice Returns the number of blocks
