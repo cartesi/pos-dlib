@@ -22,12 +22,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract RewardManager {
     using SafeMath for uint256;
 
-    uint256 minReward;
-    uint256 maxReward;
-    uint256 distNumerator;
-    uint256 distDenominator;
-    address operator;
-    IERC20 ctsi;
+    uint256 immutable minReward;
+    uint256 immutable maxReward;
+    uint256 immutable distNumerator;
+    uint256 immutable distDenominator;
+    address immutable operator;
+    IERC20 immutable ctsi;
 
     /// @notice Creates contract
     /// @param _operator address of the operator
