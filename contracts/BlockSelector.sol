@@ -28,19 +28,16 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     uint256 constant ADJUSTMENT_BASE = 1000000; // 1M
 
     struct BlockSelectorCtx {
-        mapping(uint256 => address) blockProducer; // block index to block producer
-        uint256 difficulty; // difficulty parameter defines how big the interval will be
-        uint256 minDifficulty; // lower bound for difficulty
-        uint32 currentGoalBlockNumber; // main chain block number which will decide current random target
-
         address posManagerAddress;
 
+        uint256 difficulty; // difficulty parameter defines how big the interval will be
+        uint256 minDifficulty; // lower bound for difficulty
+
         uint32 difficultyAdjustmentParameter; // how fast the difficulty gets adjusted to reach the desired interval, number * 1000000
+        uint32 currentGoalBlockNumber; // main chain block number which will decide current random target
         uint32 targetInterval; // desired block selection interval in ethereum blocks
         uint32 blockCount; // how many blocks have been created
         uint32 ethBlockCheckpoint; // ethereum block number when current selection started
-
-
     }
 
     mapping(uint256 => BlockSelectorCtx) internal instance;
@@ -50,8 +47,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         address indexed producer,
         uint32 blockNumber,
         uint256 roundDuration,
-        uint256 difficulty,
-        uint32 targetInterval
+        uint256 difficulty
     );
 
     /// @notice Instantiates a BlockSelector structure
@@ -112,11 +108,10 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
                 _user,
                 bsc.blockCount,
                 getSelectionBlockDuration(_index),
-                bsc.difficulty,
-                bsc.targetInterval
+                bsc.difficulty
             );
 
-            return _blockProduced(_index, _user);
+            return _blockProduced(_index);
         }
 
         return false;
@@ -143,11 +138,8 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
 
     /// @notice Block produced, declare producer and adjust difficulty
     /// @param _index the index of the instance of block selector you want to interact with
-    /// @param _user address of user that won the round
-    function _blockProduced(uint256 _index, address _user) private returns (bool) {
+    function _blockProduced(uint256 _index) private returns (bool) {
         BlockSelectorCtx storage bsc = instance[_index];
-        // declare producer
-        bsc.blockProducer[bsc.blockCount] = _user;
 
         // adjust difficulty
         bsc.difficulty = getNewDifficulty(
