@@ -29,11 +29,7 @@ import "./RewardManager.sol";
 contract PoS is Ownable, InstantiatorImpl, Decorated {
     using SafeMath for uint256;
 
-    uint256 constant SPLIT_BASE = 10000;
-
     struct PoSCtx {
-        mapping(address => address) beneficiaryMap;
-        mapping(address => uint256) splitMap;
         uint256 blockSelectorIndex;
         BlockSelector blockSelector;
         Staking staking;
@@ -47,32 +43,8 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 indexed index,
         address indexed worker,
         address indexed user,
-        address beneficiary,
-        uint256 userReward,
-        uint256 beneficiaryReward
+        uint256 reward
     );
-
-    event BeneficiaryAdded(
-        uint256 indexed index,
-        address indexed user,
-        address indexed beneficiary,
-        uint256 split
-    );
-
-    function addBeneficiary(
-        uint256 _index,
-        address _beneficiary,
-        uint256 _split
-    ) public {
-        PoSCtx storage pos = instance[_index];
-
-        require(_split <= SPLIT_BASE, "split has to be less than 100%");
-
-        pos.beneficiaryMap[msg.sender] = _beneficiary;
-        pos.splitMap[msg.sender] = SPLIT_BASE.sub(_split);
-
-        emit BeneficiaryAdded(_index, msg.sender, _beneficiary, _split);
-    }
 
     /// @notice Instantiates a Proof of Stake
     /// @param _stakingAddress address of StakingInterface
@@ -154,10 +126,6 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         );
 
         address user = pos.workerAuth.getOwner(msg.sender);
-        address beneficiary = pos.beneficiaryMap[user];
-
-        uint256 userSplit = pos.splitMap[user];
-        uint256 beneficiarySplit = SPLIT_BASE.sub(userSplit);
 
         require(
             pos.blockSelector.produceBlock(
@@ -170,43 +138,13 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
 
         uint256 currentReward = pos.rewardManager.getCurrentReward();
 
-        if (beneficiary == address(0) || userSplit == SPLIT_BASE) {
-            pos.rewardManager.reward(user, currentReward);
-            emit Rewarded(
-                _index,
-                msg.sender,
-                user,
-                beneficiary,
-                currentReward,
-                0
-            );
-        } else if (beneficiarySplit == SPLIT_BASE) {
-            pos.rewardManager.reward(beneficiary, currentReward);
-            emit Rewarded(
-                _index,
-                msg.sender,
-                user,
-                beneficiary,
-                0,
-                currentReward
-            );
-        } else {
-            uint256 bSplit = currentReward.mul(beneficiarySplit).div(
-                SPLIT_BASE
-            );
-            uint256 uSplit = currentReward.sub(bSplit);
-
-            pos.rewardManager.reward(beneficiary, bSplit);
-            pos.rewardManager.reward(user, uSplit);
-            emit Rewarded(
-                _index,
-                msg.sender,
-                user,
-                beneficiary,
-                uSplit,
-                bSplit
-            );
-        }
+        pos.rewardManager.reward(user, currentReward);
+        emit Rewarded(
+            _index,
+            msg.sender,
+            user,
+            currentReward
+        );
 
         return true;
     }
@@ -261,14 +199,12 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
     /// @return bool if user is eligible to produce next block
     /// @return address of user that was chosen to build the block
     /// @return current reward paid by the network for that block
-    /// @return percentage of reward that goes to the user
     function getState(uint256 _index, address _user)
         public
         view
         returns (
             bool,
             address,
-            uint256,
             uint256
         )
     {
@@ -280,8 +216,7 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
                 pos.staking.getStakedBalance(_user)
             ),
             _user,
-            pos.rewardManager.getCurrentReward(),
-            pos.splitMap[_user]
+            pos.rewardManager.getCurrentReward()
         );
     }
 
