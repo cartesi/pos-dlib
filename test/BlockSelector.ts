@@ -415,8 +415,7 @@ describe("BlockSelector", async () => {
         await advanceBlock(signer.provider);
 
         // advance time so a block can definitely be produced
-        await advanceTime(signer.provider, 24 * 60 * 60); // advance 1 day
-        await advanceBlock(signer.provider);
+        await advanceMultipleBlocks(signer.provider, 1000);
 
         // produce a block
         await blockSelector.produceBlock(0, address, mediumWeight);
