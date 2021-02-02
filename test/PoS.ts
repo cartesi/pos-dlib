@@ -137,6 +137,45 @@ describe("PoS", async () => {
         ).to.equal(true);
     });
 
+    it("instantiate should emit event", async () => {
+        await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
+
+        await expect(
+            pos.instantiate(
+                mockSI.address,
+                mockBS.address,
+                mockWM.address,
+                minDiff,
+                initialDiff,
+                diffAdjust,
+                targetInterval,
+                mockCTSI.address,
+                maxReward,
+                minReward,
+                numerator,
+                denominator
+            ),
+            "block produced should emit rewarded events with correct args"
+        )
+            .to.emit(pos, "NewChain")
+            .withArgs(
+                0,
+                mockSI.address,
+                mockBS.address,
+                mockWM.address,
+                minDiff,
+                initialDiff,
+                diffAdjust,
+                targetInterval,
+                mockCTSI.address,
+                maxReward,
+                minReward,
+                numerator,
+                denominator
+            );
+
+
+    });
     it("terminate", async () => {
         await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
 
