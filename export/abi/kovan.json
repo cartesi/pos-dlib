@@ -3,7 +3,7 @@
   "chainId": "42",
   "contracts": {
     "BlockSelector": {
-      "address": "0x2885edBf89E949f409E8D0BF6d44Da4109C9e8a1",
+      "address": "0x3aEe844D20Bc221e6C5269796E2Bf9b1b885dFb2",
       "abi": [
         {
           "anonymous": false,
@@ -22,9 +22,9 @@
             },
             {
               "indexed": false,
-              "internalType": "uint256",
+              "internalType": "uint32",
               "name": "blockNumber",
-              "type": "uint256"
+              "type": "uint32"
             },
             {
               "indexed": false,
@@ -36,12 +36,6 @@
               "indexed": false,
               "internalType": "uint256",
               "name": "difficulty",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "targetInterval",
               "type": "uint256"
             }
           ],
@@ -101,9 +95,9 @@
           "name": "getBlockCount",
           "outputs": [
             {
-              "internalType": "uint256",
+              "internalType": "uint32",
               "name": "",
-              "type": "uint256"
+              "type": "uint32"
             }
           ],
           "stateMutability": "view",
@@ -139,47 +133,9 @@
           "name": "getDifficultyAdjustmentParameter",
           "outputs": [
             {
-              "internalType": "uint256",
+              "internalType": "uint32",
               "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_index",
-              "type": "uint256"
-            }
-          ],
-          "name": "getLastBlockTimestamp",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_index",
-              "type": "uint256"
-            }
-          ],
-          "name": "getMicrosecondsSinceLastBlock",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
+              "type": "uint32"
             }
           ],
           "stateMutability": "view",
@@ -217,6 +173,25 @@
             {
               "internalType": "uint256",
               "name": "currentNonce",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_index",
+              "type": "uint256"
+            }
+          ],
+          "name": "getSelectionBlockDuration",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
               "type": "uint256"
             }
           ],
@@ -287,9 +262,9 @@
           "name": "getTargetInterval",
           "outputs": [
             {
-              "internalType": "uint256",
+              "internalType": "uint32",
               "name": "",
-              "type": "uint256"
+              "type": "uint32"
             }
           ],
           "stateMutability": "view",
@@ -308,14 +283,14 @@
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint32",
               "name": "_difficultyAdjustmentParameter",
-              "type": "uint256"
+              "type": "uint32"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint32",
               "name": "_targetInterval",
-              "type": "uint256"
+              "type": "uint32"
             },
             {
               "internalType": "address",
@@ -428,7 +403,7 @@
       ]
     },
     "PoS": {
-      "address": "0xf24Bad6fFe04996898cD5Cf82Ddb44aAF078172F",
+      "address": "0x6d1BD2C4f5D3F26F29D66A28beA1A6Ba967AfDe9",
       "abi": [
         {
           "anonymous": false,
@@ -440,25 +415,79 @@
               "type": "uint256"
             },
             {
-              "indexed": true,
+              "indexed": false,
               "internalType": "address",
-              "name": "user",
+              "name": "stakingAddress",
               "type": "address"
             },
             {
-              "indexed": true,
+              "indexed": false,
               "internalType": "address",
-              "name": "beneficiary",
+              "name": "blockSelectorAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "workerAuthAddress",
               "type": "address"
             },
             {
               "indexed": false,
               "internalType": "uint256",
-              "name": "split",
+              "name": "minimumDifficulty",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "initialDifficulty",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint32",
+              "name": "difficultyAdjustmentParameter",
+              "type": "uint32"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint32",
+              "name": "targetInterval",
+              "type": "uint32"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "ctsiAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "maxReward",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "minReward",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "distNumerator",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "distDenominator",
               "type": "uint256"
             }
           ],
-          "name": "BeneficiaryAdded",
+          "name": "NewChain",
           "type": "event"
         },
         {
@@ -503,48 +532,13 @@
             },
             {
               "indexed": false,
-              "internalType": "address",
-              "name": "beneficiary",
-              "type": "address"
-            },
-            {
-              "indexed": false,
               "internalType": "uint256",
-              "name": "userReward",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "beneficiaryReward",
+              "name": "reward",
               "type": "uint256"
             }
           ],
           "name": "Rewarded",
           "type": "event"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "_index",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "_beneficiary",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "_split",
-              "type": "uint256"
-            }
-          ],
-          "name": "addBeneficiary",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
         },
         {
           "inputs": [],
@@ -683,11 +677,6 @@
               "internalType": "uint256",
               "name": "",
               "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
             }
           ],
           "stateMutability": "view",
@@ -750,14 +739,14 @@
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint32",
               "name": "_difficultyAdjustmentParameter",
-              "type": "uint256"
+              "type": "uint32"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint32",
               "name": "_targetInterval",
-              "type": "uint256"
+              "type": "uint32"
             },
             {
               "internalType": "address",
