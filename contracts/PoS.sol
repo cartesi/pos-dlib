@@ -46,6 +46,21 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
         uint256 reward
     );
 
+    event NewChain (
+        uint256 indexed index,
+        address stakingAddress,
+        address blockSelectorAddress,
+        address workerAuthAddress,
+        uint256 minimumDifficulty,
+        uint256 initialDifficulty,
+        uint32 difficultyAdjustmentParameter,
+        uint32 targetInterval,
+        address ctsiAddress,
+        uint256 maxReward,
+        uint256 minReward,
+        uint256 distNumerator,
+        uint256 distDenominator
+    );
     /// @notice Instantiates a Proof of Stake
     /// @param _stakingAddress address of StakingInterface
     /// @param _blockSelectorAddress address of blockSelector contract
@@ -109,6 +124,22 @@ contract PoS is Ownable, InstantiatorImpl, Decorated {
             _difficultyAdjustmentParameter,
             _targetInterval,
             address(this)
+        );
+
+        emit NewChain (
+            currentIndex - 1,
+            _stakingAddress,
+            _blockSelectorAddress,
+            _workerAuthAddress,
+            _minimumDifficulty,
+            _initialDifficulty,
+            _difficultyAdjustmentParameter,
+            _targetInterval,
+            _ctsiAddress,
+            _maxReward,
+            _minReward,
+            _distNumerator,
+            _distDenominator
         );
 
         return currentIndex - 1;
