@@ -333,7 +333,7 @@
   "storageLayout": {
     "storage": [
       {
-        "astId": 2944,
+        "astId": 3008,
         "contract": "contracts/StakingImpl.sol:StakingImpl",
         "label": "ctsi",
         "offset": 0,
@@ -341,7 +341,7 @@
         "type": "t_contract(IERC20)1492"
       },
       {
-        "astId": 2946,
+        "astId": 3010,
         "contract": "contracts/StakingImpl.sol:StakingImpl",
         "label": "timeToStake",
         "offset": 0,
@@ -349,7 +349,7 @@
         "type": "t_uint256"
       },
       {
-        "astId": 2948,
+        "astId": 3012,
         "contract": "contracts/StakingImpl.sol:StakingImpl",
         "label": "timeToRelease",
         "offset": 0,
@@ -357,7 +357,7 @@
         "type": "t_uint256"
       },
       {
-        "astId": 2952,
+        "astId": 3016,
         "contract": "contracts/StakingImpl.sol:StakingImpl",
         "label": "staked",
         "offset": 0,
@@ -365,20 +365,20 @@
         "type": "t_mapping(t_address,t_uint256)"
       },
       {
-        "astId": 2956,
+        "astId": 3020,
         "contract": "contracts/StakingImpl.sol:StakingImpl",
         "label": "maturing",
         "offset": 0,
         "slot": "4",
-        "type": "t_mapping(t_address,t_struct(MaturationStruct)2965_storage)"
+        "type": "t_mapping(t_address,t_struct(MaturationStruct)3029_storage)"
       },
       {
-        "astId": 2960,
+        "astId": 3024,
         "contract": "contracts/StakingImpl.sol:StakingImpl",
         "label": "releasing",
         "offset": 0,
         "slot": "5",
-        "type": "t_mapping(t_address,t_struct(MaturationStruct)2965_storage)"
+        "type": "t_mapping(t_address,t_struct(MaturationStruct)3029_storage)"
       }
     ],
     "types": {
@@ -392,12 +392,12 @@
         "label": "contract IERC20",
         "numberOfBytes": "20"
       },
-      "t_mapping(t_address,t_struct(MaturationStruct)2965_storage)": {
+      "t_mapping(t_address,t_struct(MaturationStruct)3029_storage)": {
         "encoding": "mapping",
         "key": "t_address",
         "label": "mapping(address => struct StakingImpl.MaturationStruct)",
         "numberOfBytes": "32",
-        "value": "t_struct(MaturationStruct)2965_storage"
+        "value": "t_struct(MaturationStruct)3029_storage"
       },
       "t_mapping(t_address,t_uint256)": {
         "encoding": "mapping",
@@ -406,12 +406,12 @@
         "numberOfBytes": "32",
         "value": "t_uint256"
       },
-      "t_struct(MaturationStruct)2965_storage": {
+      "t_struct(MaturationStruct)3029_storage": {
         "encoding": "inplace",
         "label": "struct StakingImpl.MaturationStruct",
         "members": [
           {
-            "astId": 2962,
+            "astId": 3026,
             "contract": "contracts/StakingImpl.sol:StakingImpl",
             "label": "amount",
             "offset": 0,
@@ -419,7 +419,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 2964,
+            "astId": 3028,
             "contract": "contracts/StakingImpl.sol:StakingImpl",
             "label": "timestamp",
             "offset": 0,
