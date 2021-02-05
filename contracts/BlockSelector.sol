@@ -56,6 +56,17 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         uint256 difficulty
     );
 
+    modifier onlyAfterGoalDefinition(uint256 _index){
+        // cannot produce if block selector goal hasnt been decided yet
+        // goal is defined the block after selection was reset
+        require(
+            block.number >= instance[_index].ethBlockCheckpoint + 1,
+            "Goal for new block hasnt been decided yet"
+        );
+        _;
+
+    }
+
     /// @notice Instantiates a BlockSelector structure
     /// @param _minDifficulty lower bound for difficulty parameter
     /// @param _initialDifficulty starting difficulty
@@ -102,7 +113,15 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @param _index the index of the instance of block selector you want to interact with
     /// @param _user address that has the right to produce block
     /// @param _weight number that will weight the random number, will be the number of staked tokens
-    function produceBlock(uint256 _index, address _user, uint256 _weight) public returns (bool) {
+    function produceBlock(
+        uint256 _index,
+        address _user,
+        uint256 _weight
+    )
+    public
+    onlyAfterGoalDefinition(_index)
+    returns (bool)
+    {
         BlockSelectorCtx storage bsc = instance[_index];
 
         require(_weight > 0, "Caller can't have zero staked tokens");
@@ -263,10 +282,30 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
     /// @notice Returns time since last selection started, in ethereum blocks
     /// @param _index the index of the instance of block selector to be interact with
     /// @return number of etheereum blocks passed since last selection started
-    function getSelectionBlockDuration(uint256 _index) public view returns (uint256) {
+    /// @dev block duration resets every 256 blocks
+    function getSelectionBlockDuration(uint256 _index)
+    public
+    view
+    returns (uint256)
+    {
         BlockSelectorCtx storage bsc = instance[_index];
 
-        return (block.number).sub(uint256(bsc.ethBlockCheckpoint));
+        uint256 goalBlock = uint256(bsc.ethBlockCheckpoint + 1);
+
+        // target hasnt been set
+        if (goalBlock >= block.number) return 0;
+
+        uint256 blocksPassed = (block.number).sub(goalBlock);
+
+        // if blocksPassed is multiple of 256, 256 blocks have passed
+        // this avoids blocksPassed going to zero right before target change
+        if (blocksPassed % C_256 == 0) return C_256;
+
+        // every 256 blocks, the blocksPassed should reset to 0
+        uint256 numOfResets = blocksPassed.div(C_256);
+
+        blocksPassed = blocksPassed.sub(numOfResets.mul(C_256));
+        return blocksPassed;
     }
 
     function getState(uint256 _index, address _user)
