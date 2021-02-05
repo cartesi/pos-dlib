@@ -468,6 +468,54 @@ describe("BlockSelector", async () => {
         expect(subInstances[1].length).to.equal(0);
     });
 
+    it("blocks passed should reset after 256 blocks", async () => {
+        let address = await signer.getAddress();
+
+        await blockSelector.instantiate(
+            minDiff,
+            initialDiff,
+            diffAdjust,
+            targetInterval,
+            address
+        );
+
+        var blocksPassed = await blockSelector.getSelectionBlockDuration(0);
+        expect(blocksPassed, "blocks passed should start at zero").to.equal(0);
+
+        // 256 blocks + 1 for target to be set
+        await advanceMultipleBlocks(signer.provider, 257);
+
+        blocksPassed = await blockSelector.getSelectionBlockDuration(0);
+        expect(
+            blocksPassed,
+            "blocks passed should be 256 after advancing 257 blocks"
+        ).to.equal(256);
+
+        await advanceMultipleBlocks(signer.provider, 1);
+
+        blocksPassed = await blockSelector.getSelectionBlockDuration(0);
+        expect(
+            blocksPassed,
+            "blocks passed should be 1 after advancing 257 blocks in total"
+        ).to.equal(1);
+
+        await advanceMultipleBlocks(signer.provider, 255);
+
+        blocksPassed = await blockSelector.getSelectionBlockDuration(0);
+        expect(
+            blocksPassed,
+            "blocks passed should be 256 after advancing 512 blocks in total"
+        ).to.equal(256);
+
+        await advanceMultipleBlocks(signer.provider, 35);
+
+        blocksPassed = await blockSelector.getSelectionBlockDuration(0);
+        expect(
+            blocksPassed,
+            "blocks passed should be 35 after advancing 537 blocks in total"
+        ).to.equal(35);
+    });
+
     it("getters should return expected values", async () => {
         let address = await signer.getAddress();
         let highWeight = 500000000000000;
@@ -507,8 +555,8 @@ describe("BlockSelector", async () => {
         ).to.equal(targetInterval);
         expect(blocksPassed, "blocks passed should start at zero").to.equal(0);
 
-        // advance 200 blocks
-        await advanceMultipleBlocks(signer.provider, 200);
+        // advance 1 block to set goal, then advance 200 blocks
+        await advanceMultipleBlocks(signer.provider, 201);
 
         var sBlocksPassed = await blockSelector.getSelectionBlockDuration(0);
 
