@@ -3,7 +3,7 @@
   "chainId": "42",
   "contracts": {
     "BlockSelector": {
-      "address": "0x3aEe844D20Bc221e6C5269796E2Bf9b1b885dFb2",
+      "address": "0x0E1c2255Cc3c2614b02a88042ed5427bCe471796",
       "abi": [
         {
           "anonymous": false,
@@ -403,7 +403,7 @@
       ]
     },
     "PoS": {
-      "address": "0x6d1BD2C4f5D3F26F29D66A28beA1A6Ba967AfDe9",
+      "address": "0x3f4DB36BB955ea8192018C1a0d4588b2ae455077",
       "abi": [
         {
           "anonymous": false,
