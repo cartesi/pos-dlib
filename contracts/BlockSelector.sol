@@ -301,11 +301,7 @@ contract BlockSelector is InstantiatorImpl, Decorated, CartesiMath {
         // this avoids blocksPassed going to zero right before target change
         if (blocksPassed % C_256 == 0) return C_256;
 
-        // every 256 blocks, the blocksPassed should reset to 0
-        uint256 numOfResets = blocksPassed.div(C_256);
-
-        blocksPassed = blocksPassed.sub(numOfResets.mul(C_256));
-        return blocksPassed;
+        return blocksPassed % C_256;
     }
 
     function getState(uint256 _index, address _user)
