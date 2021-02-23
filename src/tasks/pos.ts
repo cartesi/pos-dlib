@@ -18,8 +18,8 @@ import { formatUnits } from "ethers/lib/utils";
 task("pos:create", "Create the main PoS contract")
     .addOptionalParam(
         "targetInterval",
-        "Specify the desired duration of each interval, in seconds",
-        10 * 60, // 10 minutes
+        "Specify the desired duration of each interval, in number of blocks",
+        138, // 138 blocks ~ 30 minutes on a 13s/block pace
         types.int
     )
     .addOptionalParam(
