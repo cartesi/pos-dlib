@@ -28,9 +28,9 @@ The main formula we use for regulating the system is the one determining `T_i`:
 Therefore, before allowing a user to claim to be the selected one, we should run:
 
 ```
-require(b_i * timePassedMicroSeconds > difficulty * (256 - log(Y_i))
+require(b_i * blockDuration > difficulty * (256 - log(Y_i))
 ```
-where `timePassedMicroSeconds` is the time since the last person was selected.
+where `blockDuration` is the number of blocks since the last person was selected
 
 Note that we should multiply both sides of the above inequality by a large number (say one million) in order to avoid rounding errors (effectively simulating fixed point arithmetics).
 
@@ -62,9 +62,9 @@ When unstaking the priority are tokens that are in the "maturing bucket" and the
 
 # Block Selector
 
-The Block Selector contract manages the selection of an address every `targetInterval` seconds according to the weighted random selection [described above](#selection-process).
+The Block Selector contract manages the selection of an address every `targetInterval` blocks according to the weighted random selection [described above](#selection-process).
 
-When the function `produceBlock()` is called, the contract check if the address sent as a parameter fits the current random weighted selection and, if it does, declares a block as produced by returning true. Every time a block is deemed produced, the private function `_blockProduced` is called, storing the address of the producer and starting a new selection proccess with an updated difficulty.
+When the function `produceBlock()` is called, the contract check if the address sent as a parameter fits the current random weighted selection and, if it does, declares a block as produced by returning true. Every time a block is deemed produced, the private function `_blockProduced` is called, storing the address of the producer and starting a new selection process with an updated difficulty.
 
 The new difficulty is defined by the `getNewDifficulty` method, which takes into account the difference between the target interval and the actual interval and adjusts the difficulty based on the `adjustmentParam`, defined on the `instantiate` function.
 
