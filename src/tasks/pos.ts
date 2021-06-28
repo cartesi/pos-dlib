@@ -66,9 +66,8 @@ task("pos:create", "Create the main PoS contract")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const {
-            PoS__factory,
-        } = await require("../types/factories/PoS__factory");
+        const { PoS__factory } =
+            await require("../types/factories/PoS__factory");
         const {
             BlockSelector,
             PoS,
@@ -117,9 +116,8 @@ task("pos:terminate", "Deativate a PoS instance")
     .addPositionalParam("index", "Index of instance to terminate", 0, types.int)
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const {
-            PoS__factory,
-        } = await require("../types/factories/PoS__factory");
+        const { PoS__factory } =
+            await require("../types/factories/PoS__factory");
         const { PoS } = await deployments.all();
 
         const [deployer] = await ethers.getSigners();
@@ -136,9 +134,8 @@ task(
     .addPositionalParam("amount", "amount of CTSI to stake")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const {
-            StakingImpl__factory,
-        } = await require("../types/factories/StakingImpl__factory");
+        const { StakingImpl__factory } =
+            await require("../types/factories/StakingImpl__factory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
         const staking = StakingImpl__factory.connect(
@@ -158,12 +155,10 @@ task("pos:show", "Show staking information")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const {
-            StakingImpl__factory,
-        } = await require("../types/factories/StakingImpl__factory");
-        const {
-            PoS__factory,
-        } = await require("../types/factories/PoS__factory");
+        const { StakingImpl__factory } =
+            await require("../types/factories/StakingImpl__factory");
+        const { PoS__factory } =
+            await require("../types/factories/PoS__factory");
         const { PoS, StakingImpl } = await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
@@ -236,9 +231,8 @@ task(
     .addPositionalParam("amount", "amount of CTSI")
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const {
-            StakingImpl__factory,
-        } = await require("../types/factories/StakingImpl__factory");
+        const { StakingImpl__factory } =
+            await require("../types/factories/StakingImpl__factory");
         const { StakingImpl } = await deployments.all();
         const [signer] = await ethers.getSigners();
         const staking = StakingImpl__factory.connect(
@@ -259,9 +253,8 @@ task("pos:produceBlock", "Produce a block using local node").setAction(
         const address = await signer.getAddress();
         console.log(`Producing a block using node ${address}`);
 
-        const {
-            PoS__factory,
-        } = await require("../types/factories/PoS__factory");
+        const { PoS__factory } =
+            await require("../types/factories/PoS__factory");
         const { PoS } = await deployments.all();
         const pos = PoS__factory.connect(PoS.address, signer);
         const tx = await pos.produceBlock(0);

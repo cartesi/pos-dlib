@@ -1,37 +1,29 @@
-// Copyright (C) 2020 Cartesi Pte. Ltd.
+// Copyright 2021 Cartesi Pte. Ltd.
 
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public License as published by the Free Software
-// Foundation, either version 3 of the License, or (at your option) any later
-// version.
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at http://www.apache.org/licenses/LICENSE-2.0
 
-// This program is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-// PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-// Note: This component currently has dependencies that are licensed under the GNU
-// GPL, version 3, and so you should treat this component as a whole as being under
-// the GPL version 3. But all Cartesi-written code in this component is licensed
-// under the Apache License, version 2, or a compatible permissive license, and can
-// be used independently under the Apache v2 license. After this component is
-// rewritten, the entire component will be released under the Apache v2 license.
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 
 import { expect, use } from "chai";
 import { deployments, ethers } from "hardhat";
+import { BigNumberish, Signer } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 import { solidity, MockProvider } from "ethereum-waffle";
 
 import { BlockSelector } from "../src/types/BlockSelector";
 import { BlockSelector__factory } from "../src/types/factories/BlockSelector__factory";
-import { BigNumberish, Signer } from "ethers";
 
-const { advanceTime, advanceBlock, advanceMultipleBlocks } = require("./utils");
+import { advanceBlock, advanceMultipleBlocks } from "./utils";
 
 use(solidity);
 
 describe("BlockSelector", async () => {
+    let provider: JsonRpcProvider;
     let signer: Signer;
     let alice: Signer;
 
@@ -46,6 +38,7 @@ describe("BlockSelector", async () => {
         await deployments.fixture();
 
         [signer, alice] = await ethers.getSigners();
+        provider = signer.provider as JsonRpcProvider;
 
         const bsAddress = (await deployments.get("BlockSelector")).address;
         blockSelector = BlockSelector__factory.connect(bsAddress, signer);
@@ -104,8 +97,8 @@ describe("BlockSelector", async () => {
         );
 
         // advance blocks so the target is set
-        await advanceBlock(signer.provider);
-        await advanceBlock(signer.provider);
+        await advanceBlock(provider);
+        await advanceBlock(provider);
 
         await expect(
             blockSelector.produceBlock(0, await signer.getAddress(), 0),
@@ -123,8 +116,8 @@ describe("BlockSelector", async () => {
         );
 
         // advance blocks so the target is set
-        await advanceBlock(signer.provider);
-        await advanceBlock(signer.provider);
+        await advanceBlock(provider);
+        await advanceBlock(provider);
 
         await expect(
             blockSelector.produceBlock(0, await signer.getAddress(), 50),
@@ -133,9 +126,9 @@ describe("BlockSelector", async () => {
     });
 
     it("the amount of addresses eligible should increase with mainchain blocks", async () => {
-        const provider = new MockProvider();
-        var address: any;
-        let wallets = provider.getWallets();
+        const mockProvider = new MockProvider();
+        var address: string;
+        let wallets = mockProvider.getWallets();
         let weigth = 5000000;
         let initialCount = 0;
         let midwayCount = 0;
@@ -150,8 +143,8 @@ describe("BlockSelector", async () => {
         );
 
         // advance blocks so the target is set
-        await advanceBlock(signer.provider);
-        await advanceBlock(signer.provider);
+        await advanceBlock(provider);
+        await advanceBlock(provider);
 
         for (var wallet of wallets) {
             address = await wallet.getAddress();
@@ -160,7 +153,7 @@ describe("BlockSelector", async () => {
             }
         }
 
-        await advanceMultipleBlocks(signer.provider, 20);
+        await advanceMultipleBlocks(provider, 20);
 
         for (var wallet of wallets) {
             address = await wallet.getAddress();
@@ -169,7 +162,7 @@ describe("BlockSelector", async () => {
             }
         }
 
-        await advanceMultipleBlocks(signer.provider, 120);
+        await advanceMultipleBlocks(provider, 120);
 
         for (var wallet of wallets) {
             address = await wallet.getAddress();
@@ -189,8 +182,8 @@ describe("BlockSelector", async () => {
     });
 
     it("the weight variable should increase chance of producing a block", async () => {
-        const provider = new MockProvider();
-        let wallets = provider.getWallets();
+        const mockProvider = new MockProvider();
+        let wallets = mockProvider.getWallets();
         let lowWeightCount = 0;
         let highWeightCount = 0;
         let mediumWeightCount = 0;
@@ -206,7 +199,7 @@ describe("BlockSelector", async () => {
             await signer.getAddress()
         );
 
-        await advanceMultipleBlocks(signer.provider, 120);
+        await advanceMultipleBlocks(provider, 120);
 
         for (var wallet of wallets) {
             var address = await wallet.getAddress();
@@ -248,8 +241,8 @@ describe("BlockSelector", async () => {
         var diff: BigNumberish = await blockSelector.getDifficulty(0);
 
         // advance blocks so the target is set
-        await advanceBlock(signer.provider);
-        await advanceBlock(signer.provider);
+        await advanceBlock(provider);
+        await advanceBlock(provider);
 
         expect(
             diff,
@@ -266,7 +259,7 @@ describe("BlockSelector", async () => {
             "difficulty should increase if block was produced too quickly"
         ).to.be.above(initialDiff);
 
-        await advanceMultipleBlocks(signer.provider, targetInterval + 5);
+        await advanceMultipleBlocks(provider, targetInterval + 5);
 
         await blockSelector.produceBlock(0, address, highWeight);
 
@@ -277,15 +270,15 @@ describe("BlockSelector", async () => {
             "difficulty should decrease if block took longer than target interval be produced"
         ).to.be.below(newDiff);
 
-        await advanceMultipleBlocks(signer.provider, 20); // advance 20 blocks
+        await advanceMultipleBlocks(provider, 20); // advance 20 blocks
 
         await blockSelector.produceBlock(0, address, highWeight);
 
-        await advanceMultipleBlocks(signer.provider, 20); // advance 20 blocks
+        await advanceMultipleBlocks(provider, 20); // advance 20 blocks
 
         await blockSelector.produceBlock(0, address, highWeight);
 
-        await advanceMultipleBlocks(signer.provider, 20); // advance 20 blocks
+        await advanceMultipleBlocks(provider, 20); // advance 20 blocks
 
         await blockSelector.produceBlock(0, address, highWeight);
 
@@ -298,8 +291,8 @@ describe("BlockSelector", async () => {
     });
 
     it("every 256 blocks target should be updated", async () => {
-        const provider = new MockProvider();
-        let wallets = provider.getWallets();
+        const mockProvider = new MockProvider();
+        let wallets = mockProvider.getWallets();
         let mediumWeight = 900000;
         var initialTargetCount = 0;
         var falseUpdateTargetCount = 0;
@@ -313,7 +306,7 @@ describe("BlockSelector", async () => {
             await signer.getAddress()
         );
 
-        await advanceMultipleBlocks(signer.provider, 256);
+        await advanceMultipleBlocks(provider, 256);
 
         for (var wallet of wallets) {
             var address = await wallet.getAddress();
@@ -322,7 +315,7 @@ describe("BlockSelector", async () => {
             }
         }
 
-        await advanceMultipleBlocks(signer.provider, 1);
+        await advanceMultipleBlocks(provider, 1);
 
         // target shouldn't change, this is the edge case
         for (var wallet of wallets) {
@@ -332,7 +325,7 @@ describe("BlockSelector", async () => {
             }
         }
 
-        await advanceMultipleBlocks(signer.provider, 2);
+        await advanceMultipleBlocks(provider, 2);
 
         // total blocks advanced = 256 + 1 + 2, should trigger seed update
         for (var wallet of wallets) {
@@ -358,7 +351,7 @@ describe("BlockSelector", async () => {
             mediumWeight * 1000000
         ); // high weight to guarantee block will be produced
 
-        await advanceMultipleBlocks(signer.provider, 512);
+        await advanceMultipleBlocks(provider, 512);
 
         for (var wallet of wallets) {
             var address = await wallet.getAddress();
@@ -367,7 +360,7 @@ describe("BlockSelector", async () => {
             }
         }
 
-        await advanceMultipleBlocks(signer.provider, 1);
+        await advanceMultipleBlocks(provider, 1);
 
         // target shouldn't change, this is the edge case
         for (var wallet of wallets) {
@@ -377,7 +370,7 @@ describe("BlockSelector", async () => {
             }
         }
 
-        await advanceMultipleBlocks(signer.provider, 2);
+        await advanceMultipleBlocks(provider, 2);
 
         // total blocks advanced = 256 + 1 + 2, should trigger seed update
         for (var wallet of wallets) {
@@ -411,18 +404,18 @@ describe("BlockSelector", async () => {
         );
 
         // advance blocks so the target is set
-        await advanceBlock(signer.provider);
-        await advanceBlock(signer.provider);
+        await advanceBlock(provider);
+        await advanceBlock(provider);
 
         // advance time so a block can definitely be produced
-        await advanceMultipleBlocks(signer.provider, 1000);
+        await advanceMultipleBlocks(provider, 1000);
 
         // produce a block
         await blockSelector.produceBlock(0, address, mediumWeight);
 
         // advance blocks so the target is set
-        await advanceBlock(signer.provider);
-        await advanceBlock(signer.provider);
+        await advanceBlock(provider);
+        await advanceBlock(provider);
 
         expect(
             await blockSelector.canProduceBlock(0, address, mediumWeight),
@@ -483,7 +476,7 @@ describe("BlockSelector", async () => {
         expect(blocksPassed, "blocks passed should start at zero").to.equal(0);
 
         // 256 blocks + 1 for target to be set
-        await advanceMultipleBlocks(signer.provider, 257);
+        await advanceMultipleBlocks(provider, 257);
 
         blocksPassed = await blockSelector.getSelectionBlockDuration(0);
         expect(
@@ -491,7 +484,7 @@ describe("BlockSelector", async () => {
             "blocks passed should be 256 after advancing 257 blocks"
         ).to.equal(256);
 
-        await advanceMultipleBlocks(signer.provider, 1);
+        await advanceMultipleBlocks(provider, 1);
 
         blocksPassed = await blockSelector.getSelectionBlockDuration(0);
         expect(
@@ -499,7 +492,7 @@ describe("BlockSelector", async () => {
             "blocks passed should be 1 after advancing 257 blocks in total"
         ).to.equal(1);
 
-        await advanceMultipleBlocks(signer.provider, 255);
+        await advanceMultipleBlocks(provider, 255);
 
         blocksPassed = await blockSelector.getSelectionBlockDuration(0);
         expect(
@@ -507,7 +500,7 @@ describe("BlockSelector", async () => {
             "blocks passed should be 256 after advancing 512 blocks in total"
         ).to.equal(256);
 
-        await advanceMultipleBlocks(signer.provider, 35);
+        await advanceMultipleBlocks(provider, 35);
 
         blocksPassed = await blockSelector.getSelectionBlockDuration(0);
         expect(
@@ -531,9 +524,8 @@ describe("BlockSelector", async () => {
         var blockCount = await blockSelector.getBlockCount(0);
         var difficulty = await blockSelector.getDifficulty(0);
         var minDifficulty = await blockSelector.getMinDifficulty(0);
-        var adjustmentParam = await blockSelector.getDifficultyAdjustmentParameter(
-            0
-        );
+        var adjustmentParam =
+            await blockSelector.getDifficultyAdjustmentParameter(0);
         var gTargetInterval = await blockSelector.getTargetInterval(0);
         var blocksPassed = await blockSelector.getSelectionBlockDuration(0);
 
@@ -556,7 +548,7 @@ describe("BlockSelector", async () => {
         expect(blocksPassed, "blocks passed should start at zero").to.equal(0);
 
         // advance 1 block to set goal, then advance 200 blocks
-        await advanceMultipleBlocks(signer.provider, 201);
+        await advanceMultipleBlocks(provider, 201);
 
         var sBlocksPassed = await blockSelector.getSelectionBlockDuration(0);
 

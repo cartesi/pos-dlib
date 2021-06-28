@@ -1,26 +1,18 @@
-// Copyright (C) 2020 Cartesi Pte. Ltd.
+// Copyright 2021 Cartesi Pte. Ltd.
 
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public License as published by the Free Software
-// Foundation, either version 3 of the License, or (at your option) any later
-// version.
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at http://www.apache.org/licenses/LICENSE-2.0
 
-// This program is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-// PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-// Note: This component currently has dependencies that are licensed under the GNU
-// GPL, version 3, and so you should treat this component as a whole as being under
-// the GPL version 3. But all Cartesi-written code in this component is licensed
-// under the Apache License, version 2, or a compatible permissive license, and can
-// be used independently under the Apache v2 license. After this component is
-// rewritten, the entire component will be released under the Apache v2 license.
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
 
 import { expect, use } from "chai";
 import { deployments, ethers } from "hardhat";
+import { Signer } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 import {
     deployMockContract,
     MockContract,
@@ -29,9 +21,8 @@ import { solidity } from "ethereum-waffle";
 
 import { Staking } from "../src/types/Staking";
 import { StakingImpl__factory } from "../src/types/factories/StakingImpl__factory";
-import { Signer } from "ethers";
 
-const { advanceTime, advanceBlock } = require("./utils");
+import { advanceTime, advanceBlock } from "./utils";
 
 use(solidity);
 
@@ -40,6 +31,7 @@ describe("Staking", async () => {
     const MATURATION = 5 * DAY + 1;
 
     let signer: Signer;
+    let provider: JsonRpcProvider;
 
     let staking: Staking;
     let mockToken: MockContract;
@@ -63,6 +55,7 @@ describe("Staking", async () => {
 
     beforeEach(async () => {
         [signer] = await ethers.getSigners();
+        provider = signer.provider as JsonRpcProvider;
 
         const CartesiToken = await deployments.getArtifact("CartesiToken");
         mockToken = await deployMockContract(signer, CartesiToken.abi);
@@ -73,13 +66,14 @@ describe("Staking", async () => {
         let toBeDeposited = 5;
 
         // mock transfer from as true
-         mockToken.mock.transferFrom.revertsWithReason("ERC20: transfer amount exceeds balance");
+        await mockToken.mock.transferFrom.revertsWithReason(
+            "ERC20: transfer amount exceeds balance"
+        );
 
         await expect(
             staking.stake(toBeDeposited),
             "should revert if transfeFrom reverts"
         ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
-
     });
 
     it("deposit stake should emit event", async () => {
@@ -118,8 +112,8 @@ describe("Staking", async () => {
         await staking.stake(toBeDeposited);
         let sAddress = await signer.getAddress();
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         expect(
             await staking.getStakedBalance(sAddress),
@@ -133,19 +127,19 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
 
         await staking.stake(toBeDeposited);
-        await advanceTime(signer.provider, MATURATION / 2);
+        await advanceTime(provider, MATURATION / 2);
         await staking.stake(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION / 3);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION / 3);
+        await advanceBlock(provider);
 
         expect(
             await staking.getStakedBalance(await signer.getAddress()),
             "staked balance should match finalized deposit"
         ).to.equal(0);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         expect(
             await staking.getStakedBalance(await signer.getAddress()),
@@ -160,8 +154,8 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         await staking.unstake(toBeDeposited);
 
@@ -188,8 +182,8 @@ describe("Staking", async () => {
             "maturing balance should be toBeDeposited"
         ).to.equal(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         await staking.unstake(toBeDeposited);
 
@@ -206,8 +200,8 @@ describe("Staking", async () => {
             "maturing balance should be toBeDeposited"
         ).to.equal(toBeDeposited - toBeReleased);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         expect(
             await staking.getStakedBalance(await signer.getAddress()),
@@ -241,8 +235,8 @@ describe("Staking", async () => {
         await staking.stake(toBeDeposited);
         await staking.stake(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         expect(
             await staking.getStakedBalance(await signer.getAddress()),
@@ -274,8 +268,8 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         await staking.unstake(toBeDeposited);
 
@@ -303,8 +297,8 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         await expect(
             staking.unstake(toBeDeposited + 1),
@@ -318,8 +312,8 @@ describe("Staking", async () => {
         await mockToken.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         await staking.stake(toBeDeposited);
 
@@ -357,8 +351,8 @@ describe("Staking", async () => {
         await staking.stake(toBeDeposited);
         await staking.unstake(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         await mockToken.mock.transfer.returns(true);
 
@@ -396,8 +390,8 @@ describe("Staking", async () => {
             "maturing balance should be toBeDeposit"
         ).to.equal(toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         expect(
             await staking.getMaturingBalance(await signer.getAddress()),
@@ -455,8 +449,8 @@ describe("Staking", async () => {
             "realeasing balance should be 2 * toBeDeposit"
         ).to.equal(2 * toBeDeposited);
 
-        await advanceTime(signer.provider, MATURATION);
-        await advanceBlock(signer.provider);
+        await advanceTime(provider, MATURATION);
+        await advanceBlock(provider);
 
         await mockToken.mock.transfer.returns(true);
 
