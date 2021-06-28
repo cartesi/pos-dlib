@@ -24,11 +24,12 @@ import { HttpNetworkUserConfig } from "hardhat/types";
 
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-etherscan";
+import "@tenderly/hardhat-tenderly";
 import "@typechain/hardhat";
 import "solidity-coverage";
 import "hardhat-deploy";
 import "hardhat-gas-reporter";
-import "@tenderly/hardhat-tenderly";
 import "./src/tasks";
 
 // read MNEMONIC from env variable
@@ -58,11 +59,7 @@ const config: HardhatUserConfig = {
         rinkeby: infuraNetwork("rinkeby", 4, 6283185),
         kovan: infuraNetwork("kovan", 42, 6283185),
         goerli: infuraNetwork("goerli", 5, 6283185),
-        matic_testnet: {
-            url: "https://rpc-mumbai.matic.today",
-            chainId: 80001,
-            accounts: mnemonic ? { mnemonic } : undefined,
-        },
+        matic_testnet: infuraNetwork("polygon-mumbai", 80001),
         bsc_testnet: {
             url: "https://data-seed-prebsc-1-s1.binance.org:8545",
             chainId: 97,
@@ -141,6 +138,9 @@ const config: HardhatUserConfig = {
         beneficiary: {
             default: 1,
         },
+    },
+    etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY,
     },
     tenderly: {
         username: "cartesi",
