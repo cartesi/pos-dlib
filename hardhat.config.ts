@@ -24,10 +24,10 @@ import { HttpNetworkUserConfig } from "hardhat/types";
 
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
 import "solidity-coverage";
-import "hardhat-typechain";
 import "hardhat-deploy";
-import "hardhat-gas-reporter"
+import "hardhat-gas-reporter";
 import "@tenderly/hardhat-tenderly";
 import "./src/tasks";
 
@@ -43,7 +43,7 @@ const infuraNetwork = (
         url: `https://${network}.infura.io/v3/${process.env.PROJECT_ID}`,
         chainId,
         gas,
-        accounts: mnemonic ? { mnemonic } : undefined
+        accounts: mnemonic ? { mnemonic } : undefined,
     };
 };
 
@@ -52,7 +52,7 @@ const config: HardhatUserConfig = {
         hardhat: mnemonic ? { accounts: { mnemonic } } : {},
         localhost: {
             url: "http://localhost:8545",
-            accounts: mnemonic ? { mnemonic } : undefined
+            accounts: mnemonic ? { mnemonic } : undefined,
         },
         mainnet: infuraNetwork("mainnet", 1, 6283185),
         rinkeby: infuraNetwork("rinkeby", 4, 6283185),
@@ -61,68 +61,68 @@ const config: HardhatUserConfig = {
         matic_testnet: {
             url: "https://rpc-mumbai.matic.today",
             chainId: 80001,
-            accounts: mnemonic ? { mnemonic } : undefined
+            accounts: mnemonic ? { mnemonic } : undefined,
         },
         bsc_testnet: {
             url: "https://data-seed-prebsc-1-s1.binance.org:8545",
             chainId: 97,
-            accounts: mnemonic ? { mnemonic } : undefined
-        }
+            accounts: mnemonic ? { mnemonic } : undefined,
+        },
     },
     solidity: {
         version: "0.7.4",
         settings: {
             optimizer: {
-                enabled: true
-            }
-        }
+                enabled: true,
+            },
+        },
     },
     paths: {
         artifacts: "artifacts",
         deploy: "deploy",
-        deployments: "deployments"
+        deployments: "deployments",
     },
     external: {
         contracts: [
             {
                 artifacts: "node_modules/@cartesi/token/export/artifacts",
-                deploy: "node_modules/@cartesi/token/dist/deploy"
+                deploy: "node_modules/@cartesi/token/dist/deploy",
             },
             {
                 artifacts: "node_modules/@cartesi/util/export/artifacts",
-                deploy: "node_modules/@cartesi/util/dist/deploy"
-            }
+                deploy: "node_modules/@cartesi/util/dist/deploy",
+            },
         ],
         deployments: {
             localhost: [
                 "node_modules/@cartesi/util/deployments/localhost",
-                "node_modules/@cartesi/token/deployments/localhost"
+                "node_modules/@cartesi/token/deployments/localhost",
             ],
             mainnet: [
                 "node_modules/@cartesi/util/deployments/mainnet",
-                "node_modules/@cartesi/token/deployments/mainnet"
+                "node_modules/@cartesi/token/deployments/mainnet",
             ],
             rinkeby: [
                 "node_modules/@cartesi/util/deployments/rinkeby",
-                "node_modules/@cartesi/token/deployments/rinkeby"
+                "node_modules/@cartesi/token/deployments/rinkeby",
             ],
             kovan: [
                 "node_modules/@cartesi/util/deployments/kovan",
-                "node_modules/@cartesi/token/deployments/kovan"
+                "node_modules/@cartesi/token/deployments/kovan",
             ],
             goerli: [
                 "node_modules/@cartesi/util/deployments/goerli",
-                "node_modules/@cartesi/token/deployments/goerli"
+                "node_modules/@cartesi/token/deployments/goerli",
             ],
             matic_testnet: [
                 "node_modules/@cartesi/util/deployments/matic_testnet",
-                "node_modules/@cartesi/token/deployments/matic_testnet"
+                "node_modules/@cartesi/token/deployments/matic_testnet",
             ],
             bsc_testnet: [
                 "node_modules/@cartesi/util/deployments/bsc_testnet",
-                "node_modules/@cartesi/token/deployments/bsc_testnet"
-            ]
-        }
+                "node_modules/@cartesi/token/deployments/bsc_testnet",
+            ],
+        },
     },
     typechain: {
         outDir: "src/types",
@@ -130,22 +130,22 @@ const config: HardhatUserConfig = {
     },
     namedAccounts: {
         deployer: {
-            default: 0
+            default: 0,
         },
         alice: {
-            default: 0
+            default: 0,
         },
         bob: {
-            default: 1
+            default: 1,
         },
         beneficiary: {
-            default: 1
-        }
+            default: 1,
+        },
     },
     tenderly: {
-        username: 'cartesi',
-        project: 'pos'
-    }
+        username: "cartesi",
+        project: "pos",
+    },
 };
 
 export default config;
