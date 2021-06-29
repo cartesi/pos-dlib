@@ -9,10 +9,10 @@
   dependencies:
     "@openzeppelin/contracts" "^2.5.0"
 
-"@cartesi/util@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@cartesi/util/-/util-1.0.0.tgz#f82a9a64abaa7899d5a2b53c6f596de855d8a298"
-  integrity sha512-O2dM8xMnmgxVzW0KY3LHQpqpyTd9AZwIX8uvyJozL8ywVNWdR5WqGuAmKGqkGKNdBATfwoRmuiolSH2r6V92rQ==
+"@cartesi/util@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@cartesi/util/-/util-1.0.1.tgz#7416bf9bd254b25010ce883d483666b4648b3397"
+  integrity sha512-OsfgsT4OQ8ddulrkr/zsn9tnFiZdARkr0j1595UUgDAXO5QZkSpl2WjAZvOCqWg2uv5VrJjXVolvFp0jdn0iKw==
   dependencies:
     "@openzeppelin/contracts" "3.2.1-solc-0.7"
 
