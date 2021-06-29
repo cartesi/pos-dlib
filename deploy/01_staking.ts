@@ -17,13 +17,19 @@ const HOUR = 60 * MINUTE; // seconds in an hour
 const DAY = 24 * HOUR; // seconds in a day
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-    const { deployments, getNamedAccounts } = hre;
+    const { deployments, getNamedAccounts, network } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
     const { CartesiToken } = await deployments.all();
 
-    const timeToStake = hre.network.name == "mainnet" ? 6 * HOUR : 2 * MINUTE;
-    const timeToRelease = hre.network.name == "mainnet" ? 2 * DAY : 2 * MINUTE;
+    const timeToStake =
+        network.name == "mainnet" || network.name == "ropsten"
+            ? 6 * HOUR
+            : 2 * MINUTE;
+    const timeToRelease =
+        network.name == "mainnet" || network.name == "ropsten"
+            ? 2 * DAY
+            : 2 * MINUTE;
 
     await deploy("StakingImpl", {
         args: [CartesiToken.address, timeToStake, timeToRelease],
