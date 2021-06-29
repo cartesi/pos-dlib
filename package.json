@@ -1,6 +1,6 @@
 {
     "name": "@cartesi/pos",
-    "version": "1.1.1-beta.1",
+    "version": "1.1.1-beta.2",
     "description": "CTSI Proof of Stake",
     "directories": {
         "test": "test"
@@ -42,7 +42,7 @@
     },
     "scripts": {
         "build": "hardhat compile && tsc",
-        "clean": "rimraf artifacts && rimraf cache && rimraf deployments/localhost && rimraf src/types/*",
+        "clean": "rimraf artifacts && rimraf cache && rimraf deployments/localhost && rimraf src/types/* && rimraf dist/deploy",
         "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist/src",
         "deploy": "run-s deploy:development",
         "deploy:testnet": "run-s deploy:rinkeby deploy:ropsten deploy:kovan deploy:goerli deploy:matic_testnet deploy:bsc_testnet",
