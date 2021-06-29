@@ -292,7 +292,7 @@ describe("Staking", async () => {
         await expect(
             staking.unstake(1),
             "not enough tokens to unstake"
-        ).to.be.revertedWith("revert SafeMath: subtraction overflow");
+        ).to.be.revertedWith("SafeMath: subtraction overflow");
 
         await mockToken.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
@@ -303,7 +303,7 @@ describe("Staking", async () => {
         await expect(
             staking.unstake(toBeDeposited + 1),
             "not enough tokens to unstake"
-        ).to.be.revertedWith("revert SafeMath: subtraction overflow");
+        ).to.be.revertedWith("SafeMath: subtraction overflow");
     });
 
     it("unstake should move funds from m.amount first", async () => {
