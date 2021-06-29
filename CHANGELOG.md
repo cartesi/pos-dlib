@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2021-06-29
+
+### Added
+
+- Interfaces compatible with solidity 0.8
+- Deployment to ropsten
+
 ## [1.1.0] - 2021-02-26
 
 ### Changed
@@ -20,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First release
 
-[unreleased]: https://github.com/cartesi/pos-dlib/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/cartesi/pos-dlib/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/cartesi/pos-dlib/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/cartesi/pos-dlib/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/cartesi/pos-dlib/releases/tag/v1.0.0
