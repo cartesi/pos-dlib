@@ -32,4 +32,10 @@ interface IWorkerManagerAuthManager {
     /// @param _workerAddress address of the worker node to given permission
     /// @param _dappAddress address of the dapp that permission will be given to
     function authorize(address _workerAddress, address _dappAddress) external;
+
+    /// @notice Called by the worker to accept the job
+    function acceptJob() external;
+
+    /// @notice Called by the worker to reject a job offer
+    function rejectJob() external payable;
 }
