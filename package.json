@@ -1,6 +1,6 @@
 {
     "name": "@cartesi/pos",
-    "version": "1.1.1-beta.0",
+    "version": "1.1.1-beta.1",
     "description": "CTSI Proof of Stake",
     "directories": {
         "test": "test"
@@ -93,6 +93,7 @@
         "deployments/*/*.json",
         "deployments/*/.chainid",
         "dist/src/types",
+        "dist/deploy/*.js",
         "export"
     ],
     "main": "./dist/src/types/index.js",
