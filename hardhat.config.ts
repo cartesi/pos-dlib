@@ -68,12 +68,24 @@ const config: HardhatUserConfig = {
         },
     },
     solidity: {
-        version: "0.7.4",
-        settings: {
-            optimizer: {
-                enabled: true,
+        compilers: [
+            {
+                version: "0.7.4",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                    },
+                },
             },
-        },
+            {
+                version: "0.8.14",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                    },
+                },
+            },
+        ],
     },
     paths: {
         artifacts: "artifacts",
@@ -90,38 +102,50 @@ const config: HardhatUserConfig = {
                 artifacts: "node_modules/@cartesi/util/export/artifacts",
                 deploy: "node_modules/@cartesi/util/dist/deploy",
             },
+            {
+                artifacts: "node_modules/@cartesi/util-v3/export/artifacts",
+                deploy: "node_modules/@cartesi/util-v3/dist/deploy",
+            },
         ],
         deployments: {
             localhost: [
                 "node_modules/@cartesi/util/deployments/localhost",
+                "node_modules/@cartesi/util-v3/deployments/localhost",
                 "node_modules/@cartesi/token/deployments/localhost",
             ],
             mainnet: [
                 "node_modules/@cartesi/util/deployments/mainnet",
+                "node_modules/@cartesi/util-v3/deployments/mainnet",
                 "node_modules/@cartesi/token/deployments/mainnet",
             ],
             ropsten: [
                 "node_modules/@cartesi/util/deployments/ropsten",
+                "node_modules/@cartesi/util-v3/deployments/ropsten",
                 "node_modules/@cartesi/token/deployments/ropsten",
             ],
             rinkeby: [
                 "node_modules/@cartesi/util/deployments/rinkeby",
+                "node_modules/@cartesi/util-v3/deployments/rinkeby",
                 "node_modules/@cartesi/token/deployments/rinkeby",
             ],
             kovan: [
                 "node_modules/@cartesi/util/deployments/kovan",
+                "node_modules/@cartesi/util-v3/deployments/kovan",
                 "node_modules/@cartesi/token/deployments/kovan",
             ],
             goerli: [
                 "node_modules/@cartesi/util/deployments/goerli",
+                "node_modules/@cartesi/util-v3/deployments/goerli",
                 "node_modules/@cartesi/token/deployments/goerli",
             ],
             matic_testnet: [
                 "node_modules/@cartesi/util/deployments/matic_testnet",
+                "node_modules/@cartesi/util-v3/deployments/matic_testnet",
                 "node_modules/@cartesi/token/deployments/matic_testnet",
             ],
             bsc_testnet: [
                 "node_modules/@cartesi/util/deployments/bsc_testnet",
+                "node_modules/@cartesi/util-v3/deployments/bsc_testnet",
                 "node_modules/@cartesi/token/deployments/bsc_testnet",
             ],
         },

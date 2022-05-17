@@ -17,9 +17,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
+    const CartesiMathAddress = (await deployments.get("CartesiMath")).address;
+
     await deploy("BlockSelector", {
         from: deployer,
         log: true,
+    });
+    await deploy("BlockSelectorV2", {
+        from: deployer,
+        log: true,
+        libraries: { CartesiMath: CartesiMathAddress },
     });
 };
 
