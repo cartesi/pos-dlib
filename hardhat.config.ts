@@ -50,10 +50,12 @@ const infuraNetwork = (
 
 const config: HardhatUserConfig = {
     networks: {
-        hardhat: mnemonic ? { accounts: { mnemonic } } : {},
+        hardhat: mnemonic
+            ? { accounts: { mnemonic, count: 400 } }
+            : { accounts: { count: 400 } },
         localhost: {
             url: "http://localhost:8545",
-            accounts: mnemonic ? { mnemonic } : undefined,
+            accounts: mnemonic ? { mnemonic, count: 400 } : undefined,
         },
         mainnet: infuraNetwork("mainnet", 1, 6283185),
         ropsten: infuraNetwork("ropsten", 3, 6283185),

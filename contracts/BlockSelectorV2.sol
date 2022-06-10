@@ -14,13 +14,13 @@
 
 pragma solidity ^0.8.0;
 
-import "@cartesi/util-v3/contracts/CartesiMath.sol";
+import "@cartesi/util-v3/contracts/UnrolledCordic.sol";
 import "@cartesi/util-v3/contracts/InstantiatorImpl.sol";
 import "@cartesi/util-v3/contracts/Decorated.sol";
 
 contract BlockSelectorV2 is InstantiatorImpl, Decorated {
     uint256 constant C_256 = 256; // 256 blocks
-    uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256000000; //256 M
+    uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256 * 1e18; //256 M
     uint256 constant ADJUSTMENT_BASE = 1000000; // 1M
 
     struct BlockSelectorCtx {
@@ -96,18 +96,18 @@ contract BlockSelectorV2 is InstantiatorImpl, Decorated {
         returns (uint256)
     {
         // seed for goal takes a block in the future (+1) so it is harder to manipulate
-        bytes32 currentGoal =
-            blockhash(
-                getSeed(
-                    uint256(instance[_index].ethBlockCheckpoint + 1),
-                    block.number
-                )
-            );
+        bytes32 currentGoal = blockhash(
+            getSeed(
+                uint256(instance[_index].ethBlockCheckpoint + 1),
+                block.number
+            )
+        );
         bytes32 hashedAddress = keccak256(abi.encodePacked(_user));
-        uint256 distance =
-            uint256(keccak256(abi.encodePacked(hashedAddress, currentGoal)));
+        uint256 distance = uint256(
+            keccak256(abi.encodePacked(hashedAddress, currentGoal))
+        );
 
-        return CartesiMath.log2ApproxTimes1M(distance);
+        return UnrolledCordic.log2Times1e18(distance);
     }
 
     /// @notice Produces a block
@@ -161,7 +161,7 @@ contract BlockSelectorV2 is InstantiatorImpl, Decorated {
 
         uint256 blockDuration = getSelectionBlockDuration(_index);
 
-        return ((_weight * blockDuration) >
+        return ((_weight * blockDuration * 1e12) >
             bsc.difficulty *
                 (DIFFICULTY_BASE_MULTIPLIER - getLogOfRandom(_index, _user)));
     }
@@ -232,8 +232,8 @@ contract BlockSelectorV2 is InstantiatorImpl, Decorated {
                 (_oldDiff * (_adjustmentParam / ADJUSTMENT_BASE) + 1);
         }
 
-        uint256 newDiff =
-            _oldDiff - (_oldDiff * (_adjustmentParam / ADJUSTMENT_BASE) + 1);
+        uint256 newDiff = _oldDiff -
+            (_oldDiff * (_adjustmentParam / ADJUSTMENT_BASE) + 1);
 
         return newDiff > _minDiff ? newDiff : _minDiff;
     }
@@ -309,14 +309,13 @@ contract BlockSelectorV2 is InstantiatorImpl, Decorated {
     {
         BlockSelectorCtx storage i = instance[_index];
 
-        uint256[5] memory uintValues =
-            [
-                block.number,
-                i.ethBlockCheckpoint + 1, // initial selection goal
-                i.difficulty,
-                getSelectionBlockDuration(_index), // blocks passed
-                getLogOfRandom(_index, _user)
-            ];
+        uint256[5] memory uintValues = [
+            block.number,
+            i.ethBlockCheckpoint + 1, // initial selection goal
+            i.difficulty,
+            getSelectionBlockDuration(_index), // blocks passed
+            getLogOfRandom(_index, _user)
+        ];
 
         return uintValues;
     }

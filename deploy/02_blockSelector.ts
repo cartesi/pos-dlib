@@ -17,7 +17,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
-    const CartesiMathAddress = (await deployments.get("CartesiMath")).address;
+    const UnrolledCordicAddress = (await deployments.get("UnrolledCordic")).address;
 
     await deploy("BlockSelector", {
         from: deployer,
@@ -26,7 +26,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await deploy("BlockSelectorV2", {
         from: deployer,
         log: true,
-        libraries: { CartesiMath: CartesiMathAddress },
+        libraries: { UnrolledCordic: UnrolledCordicAddress },
     });
 };
 
