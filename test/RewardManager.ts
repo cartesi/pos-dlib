@@ -18,8 +18,8 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { RewardManager } from "../src/types/RewardManager";
-import { RewardManager__factory } from "../src/types/factories/RewardManager__factory";
+import { RewardManager } from "../src/types/contracts/RewardManager";
+import { RewardManager__factory } from "../src/types/factories/contracts/RewardManager__factory";
 
 use(solidity);
 

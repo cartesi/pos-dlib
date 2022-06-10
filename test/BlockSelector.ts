@@ -15,8 +15,8 @@ import { BigNumberish, Signer } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { solidity, MockProvider } from "ethereum-waffle";
 
-import { BlockSelector } from "../src/types/BlockSelector";
-import { BlockSelector__factory } from "../src/types/factories/BlockSelector__factory";
+import { BlockSelector } from "../src/types/contracts/BlockSelector";
+import { BlockSelector__factory } from "../src/types/factories/contracts/BlockSelector__factory";
 
 import { advanceBlock, advanceMultipleBlocks } from "./utils";
 

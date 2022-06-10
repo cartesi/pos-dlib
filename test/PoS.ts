@@ -17,8 +17,8 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { PoS } from "../src/types/PoS";
-import { PoS__factory } from "../src/types/factories/PoS__factory";
+import { PoS } from "../src/types/contracts/PoS";
+import { PoS__factory } from "../src/types/factories/contracts/PoS__factory";
 import { Signer } from "ethers";
 
 use(solidity);

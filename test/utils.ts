@@ -13,6 +13,8 @@ import { use } from "chai";
 import { solidity } from "ethereum-waffle";
 import { JsonRpcProvider } from "@ethersproject/providers";
 
+import * as helpers from "@nomicfoundation/hardhat-network-helpers";
+
 use(solidity);
 
 export const advanceTime = async (
@@ -37,6 +39,11 @@ export const advanceMultipleBlocks = async (
     provider: JsonRpcProvider,
     numOfBlocks: number
 ) => {
+    //hardhat node
+    if (provider._network.chainId === 31337)
+        // return await provider.send("hardhat_mine", [numOfBlocks.toString()]);
+        return await helpers.mine(numOfBlocks);
+
     for (let i = 0; i < numOfBlocks; i++) {
         await advanceBlock(provider);
     }

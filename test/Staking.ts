@@ -19,8 +19,8 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { Staking } from "../src/types/Staking";
-import { StakingImpl__factory } from "../src/types/factories/StakingImpl__factory";
+import { Staking } from "../src/types/contracts/Staking";
+import { StakingImpl__factory } from "../src/types/factories/contracts/StakingImpl__factory";
 
 import { advanceTime, advanceBlock } from "./utils";
 
