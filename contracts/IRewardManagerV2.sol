@@ -10,9 +10,9 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-/// @title Abstract RewardManager
+/// @title Interface RewardManagerV2
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity >=0.7.0;
 
 interface IRewardManagerV2 {
     event Rewarded(uint32 indexed sidechainBlockNumber, uint256 reward);

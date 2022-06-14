@@ -12,7 +12,7 @@
 
 /// @title Abstract Eligibility Calculator
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 abstract contract AEligibilityCal {
     /// @notice Check if _user is allowed to produce a sidechain block
