@@ -15,18 +15,6 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 interface IPoSV2 {
-    event NewChain(
-        address ctsiAddress,
-        address stakingAddress,
-        address workerAuthAddress,
-        uint64 minDifficulty,
-        uint64 initialDifficulty,
-        uint32 difficultyAdjustmentParameter,
-        uint32 targetInterval,
-        uint256 rewardValue,
-        uint32 rewardDelay
-    );
-
     event BlockProduced(
         address indexed user,
         address indexed worker,
