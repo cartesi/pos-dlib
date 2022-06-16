@@ -43,24 +43,8 @@ contract PoSV2FactoryImpl is Ownable, PoSV2Factory {
         uint256 _rewardValue,
         uint32 _rewardDelay,
         uint32 _version
-    ) external override returns (address) {
-        address pos = address(
-            new PoSV2Impl(
-                _ctsiAddress,
-                _stakingAddress,
-                _workerAuthAddress,
-                _minDifficulty,
-                _initialDifficulty,
-                _difficultyAdjustmentParameter,
-                _targetInterval,
-                _rewardValue,
-                _rewardDelay,
-                _version
-            )
-        );
-
-        emit NewChain(
-            pos,
+    ) external override onlyOwner returns (address) {
+        PoSV2Impl pos = new PoSV2Impl(
             _ctsiAddress,
             _stakingAddress,
             _workerAuthAddress,
@@ -73,6 +57,22 @@ contract PoSV2FactoryImpl is Ownable, PoSV2Factory {
             _version
         );
 
-        return pos;
+        pos.transferOwnership(msg.sender);
+
+        emit NewChain(
+            address(pos),
+            _ctsiAddress,
+            _stakingAddress,
+            _workerAuthAddress,
+            _minDifficulty,
+            _initialDifficulty,
+            _difficultyAdjustmentParameter,
+            _targetInterval,
+            _rewardValue,
+            _rewardDelay,
+            _version
+        );
+
+        return address(pos);
     }
 }

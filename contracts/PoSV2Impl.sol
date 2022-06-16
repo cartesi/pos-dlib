@@ -189,4 +189,8 @@ contract PoSV2Impl is
 
         return user;
     }
+
+    function transferOwnership(address newOwner) public override {
+        Ownable.transferOwnership(newOwner);
+    }
 }
