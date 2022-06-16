@@ -39,7 +39,6 @@ contract PoSV2Impl is
     IRewardManagerV2 immutable rewardManager;
     WorkerAuthManager immutable workerAuth;
 
-    uint32 ethBlockStamp;
     bool active;
 
     /// @param _ctsiAddress address of token instance being used
@@ -85,15 +84,16 @@ contract PoSV2Impl is
         active = true;
     }
 
+    // legacy methods from V1 chains for staking pool V1 compatibility
     /// @notice Produce a block in V1 chains
     /// @dev this function can only be called by a worker, user never calls it directly
-    function produceBlock(uint256) external override returns (bool) {
+    function produceBlock(uint256) external returns (bool) {
         require(version == 1, "protocol has to be V1");
 
         address user = _produceBlock();
 
         // historical
-        uint32 sidechainBlockNumber = blockProduced(
+        uint32 sidechainBlockNumber = HistoricalDataImpl.recordBlock(
             lastSidechainBlock,
             user,
             bytes32(0)
@@ -103,7 +103,7 @@ contract PoSV2Impl is
             user,
             msg.sender,
             sidechainBlockNumber,
-            ethBlockStamp,
+            blockData[sidechainBlockNumber].mainchainBlockNumber,
             ""
         );
 
@@ -116,7 +116,7 @@ contract PoSV2Impl is
     /// @param _parent the parent block that current block appends to
     /// @param _data the data to store in the block
     /// @dev this function can only be called by a worker, user never calls it directly
-    function produceBlock2(uint32 _parent, bytes calldata _data)
+    function produceBlock(uint32 _parent, bytes calldata _data)
         external
         override
         returns (bool)
@@ -126,7 +126,7 @@ contract PoSV2Impl is
         address user = _produceBlock();
 
         // historical
-        uint32 sidechainBlockNumber = blockProduced(
+        uint32 sidechainBlockNumber = HistoricalDataImpl.recordBlock(
             _parent,
             user,
             keccak256(abi.encodePacked(_data))
@@ -136,21 +136,17 @@ contract PoSV2Impl is
             user,
             msg.sender,
             sidechainBlockNumber,
-            ethBlockStamp,
+            blockData[sidechainBlockNumber].mainchainBlockNumber,
             _data
         );
 
         return true;
     }
 
+    // legacy methods from V1 chains for staking pool V1 compatibility
     /// @notice Get reward manager address
     /// @return address of instance's RewardManager
-    function getRewardManagerAddress(uint256)
-        external
-        view
-        override
-        returns (address)
-    {
+    function getRewardManagerAddress(uint256) external view returns (address) {
         return address(rewardManager);
     }
 
@@ -170,6 +166,8 @@ contract PoSV2Impl is
         );
 
         address user = workerAuth.getOwner(msg.sender);
+        uint32 ethBlockStamp = blockData[lastSidechainBlock]
+        .mainchainBlockNumber;
 
         require(
             canProduceBlock(
@@ -181,16 +179,13 @@ contract PoSV2Impl is
             "User couldnt produce a block"
         );
 
-        uint32 blockNumber = uint32(block.number);
         uint32 blocksPassed = Eligibility.getBlocksPassed(
-            blockNumber,
+            uint32(block.number),
             ethBlockStamp
         );
 
         // difficulty
-        blockProduced(blocksPassed);
-
-        ethBlockStamp = blockNumber;
+        DifficultyManagerImpl.adjustDifficulty(blocksPassed);
 
         return user;
     }

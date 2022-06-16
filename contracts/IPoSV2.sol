@@ -23,24 +23,11 @@ interface IPoSV2 {
         bytes data
     );
 
-    // legacy methods from V1 chains for staking pool V1 compatibility
-    // perhaps hack the uint256 value to smuggle parent/data for V2 block production
-
-    /// @notice Produce a block in V1 chains
-    /// @dev this function can only be called by a worker, user never calls it directly
-    function produceBlock(uint256) external returns (bool);
-
-    /// @notice Get reward manager address
-    /// @return address of instance's RewardManager
-    function getRewardManagerAddress(uint256) external view returns (address);
-
-    // methods for V2 chains
-
     /// @notice Produce a block in V2 chains
     /// @param _parent the parent block that current block appends to
     /// @param _data the data to store in the block
     /// @dev this function can only be called by a worker, user never calls it directly
-    function produceBlock2(uint32 _parent, bytes calldata _data)
+    function produceBlock(uint32 _parent, bytes calldata _data)
         external
         returns (bool);
 

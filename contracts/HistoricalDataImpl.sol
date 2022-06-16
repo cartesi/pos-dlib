@@ -1,4 +1,4 @@
-// Copyright 2020 Cartesi Pte. Ltd.
+// Copyright 2022 Cartesi Pte. Ltd.
 
 // SPDX-License-Identifier: Apache-2.0
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -35,7 +35,7 @@ contract HistoricalDataImpl is AHistoricalData {
     /// @param _parent the parent block that current block appends to
     /// @param _producer the producer of the sidechain block
     /// @param _dataHash hash of the data held by the block
-    function blockProduced(
+    function recordBlock(
         uint32 _parent,
         address _producer,
         bytes32 _dataHash
