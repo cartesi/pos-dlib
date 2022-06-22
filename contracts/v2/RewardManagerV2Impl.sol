@@ -15,9 +15,8 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-0.8/token/ERC20/IERC20.sol";
-
 import "@cartesi/util-0.8/contracts/Bitmask.sol";
+import "@openzeppelin/contracts-0.8/token/ERC20/IERC20.sol";
 
 import "./IHistoricalData.sol";
 import "./IRewardManagerV2.sol";
@@ -69,7 +68,6 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
         require(cReward > 0, "RewardManager has no funds");
 
         ctsi.transfer(producer, cReward);
-
         setRewarded(_sidechainBlockNumber);
 
         emit Rewarded(_sidechainBlockNumber, cReward);

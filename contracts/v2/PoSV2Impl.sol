@@ -19,11 +19,11 @@ import "@cartesi/util-0.8/contracts/WorkerAuthManager.sol";
 import "@openzeppelin/contracts-0.8/access/Ownable.sol";
 
 import "./IPoSV2.sol";
-import "./IStaking.sol";
 import "./DifficultyManagerImpl.sol";
 import "./EligibilityCalImpl.sol";
 import "./HistoricalDataImpl.sol";
 import "./RewardManagerV2Impl.sol";
+import "../IStaking.sol";
 
 contract PoSV2Impl is
     IPoSV2,

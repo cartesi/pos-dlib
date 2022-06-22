@@ -17,8 +17,8 @@ pragma solidity >=0.7.0;
 interface IRewardManagerV2 {
     event Rewarded(uint32 indexed sidechainBlockNumber, uint256 reward);
 
-    /// @notice Rewards sidechain block producer
-    /// @param _sidechainBlockNumber block of the producer to be rewarded
+    /// @notice Rewards sidechain block for V2 chains
+    /// @param _sidechainBlockNumber sidechain block number
     function reward(uint32 _sidechainBlockNumber) external;
 
     /// @notice Get RewardManager's balance
