@@ -36,7 +36,7 @@ contract PoSV2Impl is
 
     uint32 immutable version;
     IStaking immutable staking;
-    IRewardManagerV2 immutable rewardManager;
+    RewardManagerV2Impl immutable rewardManager;
     WorkerAuthManager immutable workerAuth;
 
     bool active;
@@ -92,22 +92,17 @@ contract PoSV2Impl is
 
         address user = _produceBlock();
 
-        // historical
-        uint32 sidechainBlockNumber = HistoricalDataImpl.recordBlock(
-            lastSidechainBlock,
-            user,
-            bytes32(0)
-        );
-
         emit BlockProduced(
             user,
             msg.sender,
-            sidechainBlockNumber,
-            blockData[sidechainBlockNumber].mainchainBlockNumber,
+            lastSidechainBlock,
+            uint32(block.number),
             ""
         );
 
-        rewardManager.reward(sidechainBlockNumber);
+        rewardManager.reward(lastSidechainBlock, msg.sender);
+
+        ++lastSidechainBlock;
 
         return true;
     }
@@ -136,7 +131,7 @@ contract PoSV2Impl is
             user,
             msg.sender,
             sidechainBlockNumber,
-            blockData[sidechainBlockNumber].mainchainBlockNumber,
+            uint32(block.number),
             _data
         );
 

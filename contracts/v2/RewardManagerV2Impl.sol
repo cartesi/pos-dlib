@@ -48,6 +48,24 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
         rewardDelay = _rewardDelay;
     }
 
+    /// @notice Rewards sidechain block for V1 chains
+    /// @param _sidechainBlockNumber sidechain block number
+    /// @param _address address to be rewarded
+    function reward(uint32 _sidechainBlockNumber, address _address) external {
+        require(
+            msg.sender == address(historical),
+            "Only the pos contract can call this function"
+        );
+
+        uint256 cReward = currentReward();
+
+        require(cReward > 0, "RewardManager has no funds");
+
+        ctsi.transfer(_address, cReward);
+
+        emit Rewarded(_sidechainBlockNumber, cReward);
+    }
+
     /// @notice Rewards sidechain block for V2 chains
     /// @param _sidechainBlockNumber sidechain block number
     function reward(uint32 _sidechainBlockNumber) external override {
