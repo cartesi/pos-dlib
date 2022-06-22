@@ -32,8 +32,8 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
     IHistoricalData immutable historical;
 
     /// @notice Creates contract
-    /// @param _posAddress address of the sidechain
     /// @param _ctsiAddress address of token instance being used
+    /// @param _posAddress address of the sidechain
     /// @param _rewardValue reward that this contract pays
     /// @param _rewardDelay number of blocks confirmation before a reward can be claimed
     constructor(

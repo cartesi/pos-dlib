@@ -75,8 +75,8 @@ contract PoSV2Impl is
         workerAuth = WorkerAuthManager(_workerAuthAddress);
 
         rewardManager = new RewardManagerV2Impl(
-            address(this),
             _ctsiAddress,
+            address(this),
             _rewardValue,
             _rewardDelay
         );
