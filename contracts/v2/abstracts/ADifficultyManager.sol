@@ -18,5 +18,5 @@ abstract contract ADifficultyManager {
     event DifficultyUpdated(uint64 difficulty);
 
     /// @notice Adjust difficulty based on new block production
-    function adjustDifficulty(uint32 _blockPassed) internal virtual;
+    function adjustDifficulty(uint256 _blockPassed) internal virtual;
 }

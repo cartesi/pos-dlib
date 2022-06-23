@@ -17,15 +17,15 @@ pragma solidity ^0.8.0;
 import "../IHistoricalData.sol";
 
 abstract contract AHistoricalData is IHistoricalData {
-    event VertexInserted(uint32 _parent);
+    event VertexInserted(uint256 _parent);
 
     /// @notice Record block data produced from PoS contract
     /// @param _parent the parent block that current block appends to
     /// @param _producer the producer of the sidechain block
     /// @param _dataHash hash of the data held by the block
     function recordBlock(
-        uint32 _parent,
+        uint256 _parent,
         address _producer,
         bytes32 _dataHash
-    ) internal virtual returns (uint32);
+    ) internal virtual returns (uint256);
 }

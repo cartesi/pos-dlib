@@ -54,13 +54,10 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
     function reward(uint32 _sidechainBlockNumber, address _address) external {
         require(
             msg.sender == address(historical),
-            "Only the pos contract can call this function"
+            "Only the pos contract can call"
         );
 
         uint256 cReward = currentReward();
-
-        require(cReward > 0, "RewardManager has no funds");
-
         ctsi.transfer(_address, cReward);
 
         emit Rewarded(_sidechainBlockNumber, cReward);

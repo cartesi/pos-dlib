@@ -92,17 +92,22 @@ contract PoSV2Impl is
 
         address user = _produceBlock();
 
+        uint32 sidechainBlockNumber = historicalCtx.sidechainBlockCount;
+
         emit BlockProduced(
             user,
             msg.sender,
-            lastSidechainBlock,
+            sidechainBlockNumber,
             uint32(block.number),
             ""
         );
 
-        rewardManager.reward(lastSidechainBlock, msg.sender);
+        rewardManager.reward(sidechainBlockNumber, msg.sender);
 
-        ++lastSidechainBlock;
+        // manually update the historicalCtx as historicalData module not involved
+        ++historicalCtx.sidechainBlockCount;
+        historicalCtx.lastProducer = user;
+        historicalCtx.ethBlockStamp = uint32(block.number);
 
         return true;
     }
@@ -120,17 +125,16 @@ contract PoSV2Impl is
 
         address user = _produceBlock();
 
-        // historical
-        uint32 sidechainBlockNumber = HistoricalDataImpl.recordBlock(
-            _parent,
-            user,
-            keccak256(abi.encodePacked(_data))
-        );
-
         emit BlockProduced(
             user,
             msg.sender,
-            sidechainBlockNumber,
+            uint32(
+                HistoricalDataImpl.recordBlock(
+                    _parent,
+                    user,
+                    keccak256(abi.encodePacked(_data))
+                )
+            ),
             uint32(block.number),
             _data
         );
@@ -161,11 +165,10 @@ contract PoSV2Impl is
         );
 
         address user = workerAuth.getOwner(msg.sender);
-        uint32 ethBlockStamp = blockData[lastSidechainBlock]
-        .mainchainBlockNumber;
+        uint256 ethBlockStamp = historicalCtx.ethBlockStamp;
 
         require(
-            canProduceBlock(
+            Eligibility.canProduceBlock(
                 difficulty,
                 ethBlockStamp,
                 user,
@@ -174,13 +177,10 @@ contract PoSV2Impl is
             "User couldnt produce a block"
         );
 
-        uint32 blocksPassed = Eligibility.getBlocksPassed(
-            uint32(block.number),
-            ethBlockStamp
-        );
-
         // difficulty
-        DifficultyManagerImpl.adjustDifficulty(blocksPassed);
+        DifficultyManagerImpl.adjustDifficulty(
+            Eligibility.getBlocksPassed(block.number, ethBlockStamp)
+        );
 
         return user;
     }

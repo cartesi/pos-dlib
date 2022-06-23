@@ -20,7 +20,7 @@ interface IHistoricalData {
     /// @param _depthDiff the minimal depth diff to validate sidechain block
     /// @return bool is the sidechain block valid
     /// @return address the producer of the sidechain block
-    function isValidBlock(uint32 _sidechainBlockNumber, uint32 _depthDiff)
+    function isValidBlock(uint256 _sidechainBlockNumber, uint256 _depthDiff)
         external
         view
         returns (bool, address);
