@@ -17,16 +17,16 @@ interface PoSV2Factory {
     /// emits NewChain with the parameters of the new chain
     /// @return new chain address
     function createNewChain(
-        address ctsiAddress,
-        address stakingAddress,
-        address workerAuthAddress,
-        uint64 minDifficulty,
-        uint64 initialDifficulty,
-        uint32 difficultyAdjustmentParameter,
-        uint32 targetInterval,
-        uint256 rewardValue,
-        uint32 rewardDelay,
-        uint32 version
+        address _ctsiAddress,
+        address _stakingAddress,
+        address _workerAuthAddress,
+        uint64 _minDifficulty,
+        uint64 _initialDifficulty,
+        uint32 _difficultyAdjustmentParameter,
+        uint32 _targetInterval,
+        uint256 _rewardValue,
+        uint32 _rewardDelay,
+        uint32 _version
     ) external returns (address);
 
     /// @notice Event emmited when a new chain is created

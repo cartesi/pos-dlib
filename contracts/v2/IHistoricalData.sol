@@ -15,6 +15,10 @@
 pragma solidity >=0.7.0;
 
 interface IHistoricalData {
+    /// @notice Get the producer of last sidechain block
+    /// @return address the producer of the last sidechain block
+    function getLastProducer() external view returns (address);
+
     /// @notice Validate a sidechain block
     /// @param _sidechainBlockNumber the sidechain block number to validate
     /// @param _depthDiff the minimal depth diff to validate sidechain block

@@ -59,6 +59,12 @@ contract HistoricalDataImpl is AHistoricalData {
         return sidechainBlockNumber;
     }
 
+    /// @notice Get the producer of last sidechain block
+    /// @return address the producer of the last sidechain block
+    function getLastProducer() external view override returns (address) {
+        return historicalCtx.lastProducer;
+    }
+
     /// @notice Validate a sidechain block
     /// @param _sidechainBlockNumber the sidechain block number to validate
     /// @param _depthDiff the minimal depth diff to validate sidechain block
