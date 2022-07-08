@@ -92,22 +92,20 @@ contract PoSV2Impl is
 
         address user = _produceBlock();
 
-        uint32 sidechainBlockNumber = historicalCtx.sidechainBlockCount;
+        uint32 sidechainBlockNumber = historicalCtx
+        .latestCtx
+        .sidechainBlockCount;
 
-        emit BlockProduced(
-            user,
-            msg.sender,
-            sidechainBlockNumber,
-            uint32(block.number),
-            ""
-        );
+        emit BlockProduced(user, msg.sender, sidechainBlockNumber, "");
 
         rewardManager.reward(sidechainBlockNumber, msg.sender);
 
         // manually update the historicalCtx as historicalData module not involved
-        ++historicalCtx.sidechainBlockCount;
-        historicalCtx.lastProducer = user;
-        historicalCtx.ethBlockStamp = uint32(block.number);
+        historicalCtx.latestCtx = LatestCtx(
+            user,
+            sidechainBlockNumber + 1,
+            uint32(block.number)
+        );
 
         return true;
     }
@@ -135,11 +133,43 @@ contract PoSV2Impl is
                     keccak256(abi.encodePacked(_data))
                 )
             ),
-            uint32(block.number),
             _data
         );
 
         return true;
+    }
+
+    /// @notice Check if address is allowed to produce block
+    function canProduceBlock(address _user)
+        external
+        view
+        override
+        returns (bool)
+    {
+        return
+            EligibilityCalImpl.canProduceBlock(
+                difficulty,
+                historicalCtx.latestCtx.ethBlockStamp,
+                _user,
+                staking.getStakedBalance(_user)
+            );
+    }
+
+    /// @notice Get when _user is allowed to produce a sidechain block
+    /// @return uint256 mainchain block number when the user can produce a sidechain block
+    function whenCanProduceBlock(address _user)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        return
+            EligibilityCalImpl.whenCanProduceBlock(
+                difficulty,
+                historicalCtx.latestCtx.ethBlockStamp,
+                _user,
+                staking.getStakedBalance(_user)
+            );
     }
 
     // legacy methods from V1 chains for staking pool V1 compatibility
@@ -149,7 +179,7 @@ contract PoSV2Impl is
         return address(rewardManager);
     }
 
-    function terminate() public override onlyOwner() {
+    function terminate() public override onlyOwner {
         require(
             rewardManager.getCurrentReward() == 0,
             "RewardManager still holds funds"
@@ -158,17 +188,17 @@ contract PoSV2Impl is
         active = false;
     }
 
-    function _produceBlock() private returns (address) {
+    function _produceBlock() internal returns (address) {
         require(
             workerAuth.isAuthorized(msg.sender, address(this)),
             "msg.sender is not authorized"
         );
 
         address user = workerAuth.getOwner(msg.sender);
-        uint256 ethBlockStamp = historicalCtx.ethBlockStamp;
+        uint32 ethBlockStamp = historicalCtx.latestCtx.ethBlockStamp;
 
         require(
-            Eligibility.canProduceBlock(
+            EligibilityCalImpl.canProduceBlock(
                 difficulty,
                 ethBlockStamp,
                 user,
@@ -178,14 +208,8 @@ contract PoSV2Impl is
         );
 
         // difficulty
-        DifficultyManagerImpl.adjustDifficulty(
-            Eligibility.getBlocksPassed(block.number, ethBlockStamp)
-        );
+        DifficultyManagerImpl.adjustDifficulty(block.number - ethBlockStamp);
 
         return user;
-    }
-
-    function transferOwnership(address newOwner) public override {
-        Ownable.transferOwnership(newOwner);
     }
 }

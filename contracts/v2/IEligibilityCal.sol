@@ -10,13 +10,16 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-/// @title Abstract Difficulty Manager
+/// @title Interface Eligibility Calculator
 
 pragma solidity ^0.8.0;
 
-abstract contract ADifficultyManager {
-    event DifficultyUpdated(uint256 difficulty);
-
-    /// @notice Adjust difficulty based on new block production
-    function adjustDifficulty(uint256 _blockPassed) internal virtual;
+interface IEligibilityCal {
+    /// @notice Returns the duration in blocks of current selection proccess
+    /// @param _ethBlockStamp ethereum block number of last sidechain block
+    /// @return number of ethereum blocks passed since last selection goal was defined
+    function getSelectionBlocksPassed(uint256 _ethBlockStamp)
+        external
+        view
+        returns (uint256);
 }

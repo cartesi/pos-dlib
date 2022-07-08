@@ -20,17 +20,15 @@ import "./abstracts/AHistoricalData.sol";
 contract HistoricalDataImpl is AHistoricalData {
     using Tree for Tree.TreeCtx;
 
-    struct BlockData {
-        address producer;
-        uint32 mainchainBlockNumber;
-        bytes32 dataHash;
-    }
-
-    struct HistoricalCtx {
+    struct LatestCtx {
         address lastProducer;
         uint32 ethBlockStamp;
         uint32 sidechainBlockCount;
+    }
+
+    struct HistoricalCtx {
         Tree.TreeCtx tree;
+        LatestCtx latestCtx;
         mapping(uint256 => BlockData) blockData;
     }
 
@@ -46,23 +44,44 @@ contract HistoricalDataImpl is AHistoricalData {
         bytes32 _dataHash
     ) internal override returns (uint256) {
         uint256 sidechainBlockNumber = historicalCtx.tree.insertVertex(_parent);
+
         historicalCtx.blockData[sidechainBlockNumber] = BlockData(
             _producer,
             uint32(block.number),
             _dataHash
         );
 
-        ++historicalCtx.sidechainBlockCount;
-        historicalCtx.lastProducer = _producer;
-        historicalCtx.ethBlockStamp = uint32(block.number);
+        historicalCtx.latestCtx = LatestCtx(
+            _producer,
+            uint32(sidechainBlockNumber + 1),
+            uint32(block.number)
+        );
 
         return sidechainBlockNumber;
+    }
+
+    /// @notice Get mainchain block number of last sidechain block
+    function getEthBlockStamp() external view override returns (uint256) {
+        return historicalCtx.latestCtx.ethBlockStamp;
     }
 
     /// @notice Get the producer of last sidechain block
     /// @return address the producer of the last sidechain block
     function getLastProducer() external view override returns (address) {
-        return historicalCtx.lastProducer;
+        return historicalCtx.latestCtx.lastProducer;
+    }
+
+    function getSidechainBlockCount() external view override returns (uint256) {
+        return historicalCtx.latestCtx.sidechainBlockCount;
+    }
+
+    function getSidechainBlock(uint256 _number)
+        external
+        view
+        override
+        returns (BlockData memory)
+    {
+        return historicalCtx.blockData[_number];
     }
 
     /// @notice Validate a sidechain block
@@ -70,7 +89,7 @@ contract HistoricalDataImpl is AHistoricalData {
     /// @param _depthDiff the minimal depth diff to validate sidechain block
     /// @return bool is the sidechain block valid
     /// @return address the producer of the sidechain block
-    function isValidBlock(uint256 _sidechainBlockNumber, uint256 _depthDiff)
+    function isValidBlock(uint32 _sidechainBlockNumber, uint32 _depthDiff)
         external
         view
         override

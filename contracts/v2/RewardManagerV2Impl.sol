@@ -98,10 +98,11 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
         return currentReward();
     }
 
-    /// @notice Check if a sidechain block is being rewarded
+    /// @notice Check if a sidechain block reward is claimed
     function isRewarded(uint32 _sidechainBlockNumber)
-        public
+        external
         view
+        override
         returns (bool)
     {
         return rewarded.getBit(_sidechainBlockNumber);

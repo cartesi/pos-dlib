@@ -10,16 +10,15 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-/// @title Abstract Eligibility Calculator
+/// @title Eligibility Calculator Implementation
 
 pragma solidity ^0.8.0;
 
-import "../IEligibilityCal.sol";
+import "./Eligibility.sol";
+import "./abstracts/AEligibilityCal.sol";
 
-abstract contract AEligibilityCal is IEligibilityCal {
-    /// @notice Check if _user is allowed to produce a sidechain block
-    /// @param _ethBlockStamp ethereum block number when current selection started
-    /// @param _difficulty ethereum block number when current selection started
+contract EligibilityCalImpl is AEligibilityCal {
+    /// @notice Check if address is allowed to produce block
     /// @param _user the address that is gonna get checked
     /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
     function canProduceBlock(
@@ -27,18 +26,40 @@ abstract contract AEligibilityCal is IEligibilityCal {
         uint256 _ethBlockStamp,
         address _user,
         uint256 _weight
-    ) internal view virtual returns (bool);
+    ) internal view override returns (bool) {
+        return
+            Eligibility.canProduceBlock(
+                _difficulty,
+                _ethBlockStamp,
+                _user,
+                _weight
+            );
+    }
 
-    /// @notice Get when _user is allowed to produce a sidechain block
-    /// @param _ethBlockStamp ethereum block number when current selection started
-    /// @param _difficulty ethereum block number when current selection started
+    /// @notice Check when address is allowed to produce block
     /// @param _user the address that is gonna get checked
     /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
-    /// @return uint256 mainchain block number when the user can produce a sidechain block
     function whenCanProduceBlock(
         uint256 _difficulty,
         uint256 _ethBlockStamp,
         address _user,
         uint256 _weight
-    ) internal view virtual returns (uint256);
+    ) internal view override returns (uint256) {
+        return
+            Eligibility.whenCanProduceBlock(
+                _difficulty,
+                _ethBlockStamp,
+                _user,
+                _weight
+            );
+    }
+
+    function getSelectionBlocksPassed(uint256 _ethBlockStamp)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        return Eligibility.getSelectionBlocksPassed(_ethBlockStamp);
+    }
 }

@@ -12,14 +12,13 @@
 
 /// @title Interface PoSV2
 
-pragma solidity >=0.7.0;
+pragma solidity >=0.8.0;
 
 interface IPoSV2 {
     event BlockProduced(
         address indexed user,
         address indexed worker,
         uint32 sidechainBlockNumber,
-        uint32 mainchainBlockNumber,
         bytes data
     );
 
@@ -30,6 +29,13 @@ interface IPoSV2 {
     function produceBlock(uint32 _parent, bytes calldata _data)
         external
         returns (bool);
+
+    /// @notice Check if address is allowed to produce block
+    function canProduceBlock(address _user) external view returns (bool);
+
+    /// @notice Get when _user is allowed to produce a sidechain block
+    /// @return uint256 mainchain block number when the user can produce a sidechain block
+    function whenCanProduceBlock(address _user) external view returns (uint256);
 
     function terminate() external;
 }

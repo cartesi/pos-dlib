@@ -1,0 +1,132 @@
+// Copyright 2022 Cartesi Pte. Ltd.
+
+// SPDX-License-Identifier: Apache-2.0
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
+
+/// @title Block Selector Library
+
+pragma solidity ^0.8.0;
+
+import "@cartesi/util-v3/contracts/UnrolledCordic.sol";
+
+library Eligibility {
+    uint256 constant C_40 = 40; // 40 blocks
+    uint256 constant C_256 = 256; // 256 blocks
+    uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256 * 1e18; //256 M
+    uint256 constant UINT256_MAX = 2**256 - 1;
+
+    /// @notice Check if address is allowed to produce block
+    /// @param _ethBlockStamp ethereum block number when current selection started
+    /// @param _difficulty ethereum block number when current selection started
+    /// @param _user the address that is gonna get checked
+    /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
+    function canProduceBlock(
+        uint256 _difficulty,
+        uint256 _ethBlockStamp,
+        address _user,
+        uint256 _weight
+    ) public view returns (bool) {
+        return
+            block.number >=
+            whenCanProduceBlock(_difficulty, _ethBlockStamp, _user, _weight);
+    }
+
+    /// @notice Check when address is allowed to produce block
+    /// @param _ethBlockStamp ethereum block number when current selection started
+    /// @param _difficulty ethereum block number when current selection started
+    /// @param _user the address that is gonna get checked
+    /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
+    function whenCanProduceBlock(
+        uint256 _difficulty,
+        uint256 _ethBlockStamp,
+        address _user,
+        uint256 _weight
+    ) public view returns (uint256) {
+        // cannot produce if block selector goal hasnt been decided yet
+        // goal is defined the block after selection was reset
+        // cannot produce if weight is zero
+        if (getSelectionBlocksPassed(_ethBlockStamp) == 0 || _weight == 0) {
+            return UINT256_MAX;
+        }
+
+        uint256 multiplier = 0;
+        // we want overflow and underflow on purpose
+        unchecked {
+            multiplier =
+                DIFFICULTY_BASE_MULTIPLIER -
+                getLogOfRandom(_user, _ethBlockStamp);
+        }
+
+        uint256 blocksToWait = (_difficulty * multiplier) / (_weight * 1e12);
+
+        // blocks to wait exceeds 255 is meaningless, since the block goal gets reset after 256 blocks
+        if (blocksToWait > 255) {
+            return UINT256_MAX;
+        }
+
+        return blocksToWait + _ethBlockStamp + C_40;
+    }
+
+    /// @notice Calculates the log of the random number between the goal and callers address
+    /// @param _user address to calculate log of random
+    /// @param _ethBlockStamp main chain block number of last sidechain block
+    /// @return log of random number between goal and callers address * 1M
+    function getLogOfRandom(address _user, uint256 _ethBlockStamp)
+        internal
+        view
+        returns (uint256)
+    {
+        // seed for goal takes a block in the future (+40) so it is harder to manipulate
+        bytes32 currentGoal = blockhash(getSeed(_ethBlockStamp + C_40));
+        bytes32 hashedAddress = keccak256(abi.encodePacked(_user));
+        uint256 distance = uint256(
+            keccak256(abi.encodePacked(hashedAddress, currentGoal))
+        );
+
+        return UnrolledCordic.log2Times1e18(distance);
+    }
+
+    function getSeed(uint256 _previousTarget) internal view returns (uint256) {
+        uint256 diff = block.number - _previousTarget;
+        uint256 res = diff / C_256;
+
+        // if difference is multiple of 256 (256, 512, 1024)
+        // preserve old target
+        if (diff % C_256 == 0) {
+            return _previousTarget + ((res - 1) * C_256);
+        }
+
+        return _previousTarget + (res * C_256);
+    }
+
+    /// @notice Returns the duration in blocks of current selection proccess
+    /// @param _ethBlockStamp ethereum block number of last sidechain block
+    /// @return number of ethereum blocks passed since last selection goal was defined
+    /// @dev blocks passed resets when target resets
+    function getSelectionBlocksPassed(uint256 _ethBlockStamp)
+        internal
+        view
+        returns (uint256)
+    {
+        // new goal block is decided 40 blocks after sidechain block is created
+        uint256 goalBlock = _ethBlockStamp + C_40;
+
+        // target hasnt been set
+        if (goalBlock >= block.number) return 0;
+
+        uint256 blocksPassed = block.number - goalBlock;
+
+        // if blocksPassed is multiple of 256, 256 blocks have passed
+        // this avoids blocksPassed going to zero right before target change
+        if (blocksPassed % C_256 == 0) return C_256;
+
+        return blocksPassed % C_256;
+    }
+}

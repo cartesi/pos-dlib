@@ -12,7 +12,7 @@
 
 /// @title Interface RewardManagerV2
 
-pragma solidity >=0.7.0;
+pragma solidity >=0.8.0;
 
 interface IRewardManagerV2 {
     event Rewarded(uint32 indexed sidechainBlockNumber, uint256 reward);
@@ -20,6 +20,12 @@ interface IRewardManagerV2 {
     /// @notice Rewards sidechain block for V2 chains
     /// @param _sidechainBlockNumber sidechain block number
     function reward(uint32 _sidechainBlockNumber) external;
+
+    /// @notice Check if a sidechain block reward is claimed
+    function isRewarded(uint32 _sidechainBlockNumber)
+        external
+        view
+        returns (bool);
 
     /// @notice Get RewardManager's balance
     function getBalance() external view returns (uint256);
