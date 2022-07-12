@@ -82,6 +82,7 @@ contract PoSV2Impl is
         );
 
         active = true;
+        historicalCtx.latestCtx.ethBlockStamp = uint32(block.number);
     }
 
     // legacy methods from V1 chains for staking pool V1 compatibility
@@ -99,12 +100,9 @@ contract PoSV2Impl is
         emit BlockProduced(user, msg.sender, sidechainBlockNumber, "");
 
         rewardManager.reward(sidechainBlockNumber, msg.sender);
-
-        // manually update the historicalCtx as historicalData module not involved
-        historicalCtx.latestCtx = LatestCtx(
+        HistoricalDataImpl.updateLatest(
             user,
-            sidechainBlockNumber + 1,
-            uint32(block.number)
+            sidechainBlockNumber + 1
         );
 
         return true;
@@ -169,6 +167,13 @@ contract PoSV2Impl is
                 historicalCtx.latestCtx.ethBlockStamp,
                 _user,
                 staking.getStakedBalance(_user)
+            );
+    }
+
+    function getSelectionBlocksPassed() external view returns (uint256) {
+        return
+            EligibilityCalImpl.getSelectionBlocksPassed(
+                historicalCtx.latestCtx.ethBlockStamp
             );
     }
 

@@ -14,9 +14,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../IEligibilityCal.sol";
-
-abstract contract AEligibilityCal is IEligibilityCal {
+abstract contract AEligibilityCal {
     /// @notice Check if _user is allowed to produce a sidechain block
     /// @param _ethBlockStamp ethereum block number when current selection started
     /// @param _difficulty ethereum block number when current selection started
@@ -41,4 +39,13 @@ abstract contract AEligibilityCal is IEligibilityCal {
         address _user,
         uint256 _weight
     ) internal view virtual returns (uint256);
+
+    /// @notice Returns the duration in blocks of current selection proccess
+    /// @param _ethBlockStamp ethereum block number of last sidechain block
+    /// @return number of ethereum blocks passed since last selection goal was defined
+    function getSelectionBlocksPassed(uint256 _ethBlockStamp)
+        internal
+        view
+        virtual
+        returns (uint256);
 }

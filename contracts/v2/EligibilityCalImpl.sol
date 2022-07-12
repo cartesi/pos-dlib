@@ -28,7 +28,7 @@ contract EligibilityCalImpl is AEligibilityCal {
         uint256 _weight
     ) internal view override returns (bool) {
         return
-            Eligibility.canProduceBlock(
+            block.number >= Eligibility.whenCanProduceBlock(
                 _difficulty,
                 _ethBlockStamp,
                 _user,
@@ -55,7 +55,7 @@ contract EligibilityCalImpl is AEligibilityCal {
     }
 
     function getSelectionBlocksPassed(uint256 _ethBlockStamp)
-        external
+        internal
         view
         override
         returns (uint256)

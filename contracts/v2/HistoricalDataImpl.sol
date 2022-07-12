@@ -34,47 +34,22 @@ contract HistoricalDataImpl is AHistoricalData {
 
     HistoricalCtx historicalCtx;
 
-    /// @notice Record block data produced from PoS contract
-    /// @param _parent the parent block that current block appends to
-    /// @param _producer the producer of the sidechain block
-    /// @param _dataHash hash of the data held by the block
-    function recordBlock(
-        uint256 _parent,
-        address _producer,
-        bytes32 _dataHash
-    ) internal override returns (uint256) {
-        uint256 sidechainBlockNumber = historicalCtx.tree.insertVertex(_parent);
-
-        historicalCtx.blockData[sidechainBlockNumber] = BlockData(
-            _producer,
-            uint32(block.number),
-            _dataHash
-        );
-
-        historicalCtx.latestCtx = LatestCtx(
-            _producer,
-            uint32(sidechainBlockNumber + 1),
-            uint32(block.number)
-        );
-
-        return sidechainBlockNumber;
-    }
-
     /// @notice Get mainchain block number of last sidechain block
     function getEthBlockStamp() external view override returns (uint256) {
         return historicalCtx.latestCtx.ethBlockStamp;
     }
 
     /// @notice Get the producer of last sidechain block
-    /// @return address the producer of the last sidechain block
     function getLastProducer() external view override returns (address) {
         return historicalCtx.latestCtx.lastProducer;
     }
 
+    /// @notice Get sidechain block count
     function getSidechainBlockCount() external view override returns (uint256) {
         return historicalCtx.latestCtx.sidechainBlockCount;
     }
 
+    /// @notice Get sidechain block
     function getSidechainBlock(uint256 _number)
         external
         view
@@ -113,5 +88,41 @@ contract HistoricalDataImpl is AHistoricalData {
         } else {
             return (false, address(0));
         }
+    }
+
+    /// @notice Record block data produced from PoS contract
+    /// @param _parent the parent block that current block appends to
+    /// @param _producer the producer of the sidechain block
+    /// @param _dataHash hash of the data held by the block
+    function recordBlock(
+        uint256 _parent,
+        address _producer,
+        bytes32 _dataHash
+    ) internal override returns (uint256) {
+        uint256 sidechainBlockNumber = historicalCtx.tree.insertVertex(_parent);
+
+        historicalCtx.blockData[sidechainBlockNumber] = BlockData(
+            _producer,
+            uint32(block.number),
+            _dataHash
+        );
+
+        updateLatest(_producer, sidechainBlockNumber + 1);
+
+        return sidechainBlockNumber;
+    }
+
+    /// @notice Record information about the latest sidechain block
+    /// @param _producer the producer of the sidechain block
+    /// @param _sidechainBlockCount count of total sidechain blocks
+    function updateLatest(
+        address _producer,
+        uint256 _sidechainBlockCount
+    ) internal virtual override {
+        historicalCtx.latestCtx = LatestCtx(
+            _producer,
+            uint32(_sidechainBlockCount),
+            uint32(block.number)
+        );
     }
 }

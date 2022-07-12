@@ -35,7 +35,6 @@ interface IHistoricalData {
     function getEthBlockStamp() external view returns (uint256);
 
     /// @notice Get the producer of last sidechain block
-    /// @return address the producer of the last sidechain block
     function getLastProducer() external view returns (address);
 
     /// @notice Get sidechain block count

@@ -22,22 +22,6 @@ library Eligibility {
     uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256 * 1e18; //256 M
     uint256 constant UINT256_MAX = 2**256 - 1;
 
-    /// @notice Check if address is allowed to produce block
-    /// @param _ethBlockStamp ethereum block number when current selection started
-    /// @param _difficulty ethereum block number when current selection started
-    /// @param _user the address that is gonna get checked
-    /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
-    function canProduceBlock(
-        uint256 _difficulty,
-        uint256 _ethBlockStamp,
-        address _user,
-        uint256 _weight
-    ) public view returns (bool) {
-        return
-            block.number >=
-            whenCanProduceBlock(_difficulty, _ethBlockStamp, _user, _weight);
-    }
-
     /// @notice Check when address is allowed to produce block
     /// @param _ethBlockStamp ethereum block number when current selection started
     /// @param _difficulty ethereum block number when current selection started
@@ -48,7 +32,7 @@ library Eligibility {
         uint256 _ethBlockStamp,
         address _user,
         uint256 _weight
-    ) public view returns (uint256) {
+    ) external view returns (uint256) {
         // cannot produce if block selector goal hasnt been decided yet
         // goal is defined the block after selection was reset
         // cannot produce if weight is zero
@@ -71,7 +55,9 @@ library Eligibility {
             return UINT256_MAX;
         }
 
-        return blocksToWait + _ethBlockStamp + C_40;
+        unchecked {
+            return blocksToWait + _ethBlockStamp + C_40;
+        }
     }
 
     /// @notice Calculates the log of the random number between the goal and callers address
@@ -115,18 +101,20 @@ library Eligibility {
         view
         returns (uint256)
     {
-        // new goal block is decided 40 blocks after sidechain block is created
-        uint256 goalBlock = _ethBlockStamp + C_40;
+        unchecked {
+            // new goal block is decided 40 blocks after sidechain block is created
+            uint256 goalBlock = _ethBlockStamp + C_40;
 
-        // target hasnt been set
-        if (goalBlock >= block.number) return 0;
+            // target hasnt been set
+            if (goalBlock >= block.number) return 0;
 
-        uint256 blocksPassed = block.number - goalBlock;
+            uint256 blocksPassed = block.number - goalBlock;
 
-        // if blocksPassed is multiple of 256, 256 blocks have passed
-        // this avoids blocksPassed going to zero right before target change
-        if (blocksPassed % C_256 == 0) return C_256;
+            // if blocksPassed is multiple of 256, 256 blocks have passed
+            // this avoids blocksPassed going to zero right before target change
+            if (blocksPassed % C_256 == 0) return C_256;
 
-        return blocksPassed % C_256;
+            return blocksPassed % C_256;
+        }
     }
 }

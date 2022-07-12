@@ -28,4 +28,12 @@ abstract contract AHistoricalData is IHistoricalData {
         address _producer,
         bytes32 _dataHash
     ) internal virtual returns (uint256);
+
+    /// @notice Record information about the latest sidechain block
+    /// @param _producer the producer of the sidechain block
+    /// @param _sidechainBlockCount count of total sidechain blocks
+    function updateLatest(
+        address _producer,
+        uint256 _sidechainBlockCount
+    ) internal virtual;
 }
