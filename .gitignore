@@ -1,4 +1,5 @@
 /artifacts
+/foundry_artifacts
 cache
 contracts.json
 /coverage*
@@ -9,6 +10,7 @@ pos/target
 node_modules
 src/types
 test/*/
+!test/foundry/
 .vscode
 .node*
 *.bin
