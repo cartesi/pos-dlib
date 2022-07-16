@@ -14,7 +14,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@cartesi/util-v3/contracts/UnrolledCordic.sol";
+import "@cartesi/util/contracts/UnrolledCordic.sol";
 
 library Eligibility {
     uint256 constant C_40 = 40; // 40 blocks

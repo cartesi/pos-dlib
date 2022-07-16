@@ -15,8 +15,8 @@
 
 pragma solidity ^0.8.0;
 
-import "@cartesi/util-v3/contracts/WorkerAuthManager.sol";
 import "@openzeppelin/contracts-0.8/access/Ownable.sol";
+import "@cartesi/util/contracts/IWorkerAuthManager.sol";
 
 import "./IPoSV2.sol";
 import "./DifficultyManagerImpl.sol";
@@ -37,7 +37,7 @@ contract PoSV2Impl is
     uint32 immutable version;
     IStaking immutable staking;
     RewardManagerV2Impl immutable rewardManager;
-    WorkerAuthManager immutable workerAuth;
+    IWorkerAuthManager immutable workerAuth;
 
     bool active;
 
@@ -72,7 +72,7 @@ contract PoSV2Impl is
     {
         version = _version;
         staking = IStaking(_stakingAddress);
-        workerAuth = WorkerAuthManager(_workerAuthAddress);
+        workerAuth = IWorkerAuthManager(_workerAuthAddress);
 
         rewardManager = new RewardManagerV2Impl(
             _ctsiAddress,
@@ -93,8 +93,8 @@ contract PoSV2Impl is
         address user = _produceBlock();
 
         uint32 sidechainBlockNumber = historicalCtx
-        .latestCtx
-        .sidechainBlockCount;
+            .latestCtx
+            .sidechainBlockCount;
 
         emit BlockProduced(user, msg.sender, sidechainBlockNumber, "");
 

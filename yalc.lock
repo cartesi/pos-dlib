@@ -1,0 +1,17 @@
+{
+  "version": "v1",
+  "packages": {
+    "@cartesi/util": {
+      "version": "4.0.0-alpha",
+      "signature": "9ffe746cace2c49c671c3fded52e2c96",
+      "file": true,
+      "replaced": "file:../solidity-util"
+    },
+    "@cartesi/tree": {
+      "version": "0.2.0",
+      "signature": "979eac792ab2b086fe63ac3501daa1d0",
+      "file": true,
+      "replaced": "file:../tree-dlib"
+    }
+  }
+}

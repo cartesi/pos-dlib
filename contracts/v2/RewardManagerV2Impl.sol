@@ -15,7 +15,7 @@
 
 pragma solidity ^0.8.0;
 
-import "@cartesi/util-v3/contracts/Bitmask.sol";
+import "@cartesi/util/contracts/Bitmask.sol";
 import "@openzeppelin/contracts-0.8/token/ERC20/IERC20.sol";
 
 import "./IHistoricalData.sol";

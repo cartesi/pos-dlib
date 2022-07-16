@@ -15,7 +15,6 @@
 
 pragma solidity ^0.8.0;
 
-import "@cartesi/util-v3/contracts/WorkerAuthManager.sol";
 import "@openzeppelin/contracts-0.8/access/Ownable.sol";
 
 import "./PoSV2Factory.sol";

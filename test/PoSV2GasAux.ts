@@ -18,8 +18,8 @@ import {
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { solidity } from "ethereum-waffle";
 
-import { PoSV2GasAux } from "../src/types/PoSV2GasAux";
-import { PoSV2GasAux__factory } from "../src/types/factories/PoSV2GasAux__factory";
+import { PoSV2GasAux } from "../src/types/contracts/v2/test/PoSV2GasAux";
+import { PoSV2GasAux__factory } from "../src/types/factories/contracts/v2/test/PoSV2GasAux__factory";
 import { Signer } from "ethers";
 import { advanceMultipleBlocks } from "./utils";
 
