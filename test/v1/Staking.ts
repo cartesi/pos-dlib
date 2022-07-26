@@ -19,10 +19,9 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { Staking } from "../src/types/contracts/Staking";
-import { StakingImpl__factory } from "../src/types/factories/contracts/StakingImpl__factory";
+import { Staking, StakingImpl__factory } from "../../src/types";
 
-import { advanceTime, advanceBlock } from "./utils";
+import { advanceTime, advanceBlock } from "../utils";
 
 use(solidity);
 
@@ -34,7 +33,7 @@ describe("Staking", async () => {
     let provider: JsonRpcProvider;
 
     let staking: Staking;
-    let mockToken: MockContract;
+    let mockCTSI: MockContract;
 
     const deployStaking = async ({
         ctsi,
@@ -58,15 +57,15 @@ describe("Staking", async () => {
         provider = signer.provider as JsonRpcProvider;
 
         const CartesiToken = await deployments.getArtifact("CartesiToken");
-        mockToken = await deployMockContract(signer, CartesiToken.abi);
-        staking = await deployStaking({ ctsi: mockToken.address });
+        mockCTSI = await deployMockContract(signer, CartesiToken.abi);
+        staking = await deployStaking({ ctsi: mockCTSI.address });
     });
 
     it("stake should revert if transferFrom reverts", async () => {
         let toBeDeposited = 5;
 
         // mock transfer from as true
-        await mockToken.mock.transferFrom.revertsWithReason(
+        await mockCTSI.mock.transferFrom.revertsWithReason(
             "ERC20: transfer amount exceeds balance"
         );
 
@@ -80,7 +79,7 @@ describe("Staking", async () => {
         let toBeDeposited = 5;
 
         // mock transfer from as true
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
 
         // TODO: fix the event parameter for maturation date
         //       the date is a bit unreliable, because the block.timestamp varies
@@ -93,7 +92,7 @@ describe("Staking", async () => {
     it("stake shouldnt change staked balance if tokens are not mature", async () => {
         let toBeDeposited = 5;
         // mock transfer from as true
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
 
         // await deposit
         await staking.stake(toBeDeposited);
@@ -107,7 +106,7 @@ describe("Staking", async () => {
     it("mature deposits should count as stake", async () => {
         let toBeDeposited = 5;
         // mock transfer from as true
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
 
         await staking.stake(toBeDeposited);
         let sAddress = await signer.getAddress();
@@ -124,7 +123,7 @@ describe("Staking", async () => {
     it("new deposits should reset maturation date", async () => {
         let toBeDeposited = 5;
         // mock transfer from as true
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
 
         await staking.stake(toBeDeposited);
         await advanceTime(provider, MATURATION / 2);
@@ -151,7 +150,7 @@ describe("Staking", async () => {
         let toBeDeposited = 5;
         let toBeReleased = 2;
         // mock transfer from as true
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         await advanceTime(provider, MATURATION);
@@ -169,7 +168,7 @@ describe("Staking", async () => {
             "maturing balance should be 0"
         ).to.equal(0);
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         expect(
@@ -187,7 +186,7 @@ describe("Staking", async () => {
 
         await staking.unstake(toBeDeposited);
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited - toBeReleased);
 
         expect(
@@ -208,7 +207,7 @@ describe("Staking", async () => {
             "staked balance should include all 3 deposits"
         ).to.equal(toBeDeposited - toBeReleased);
 
-        await mockToken.mock.transfer.returns(true);
+        await mockCTSI.mock.transfer.returns(true);
         await expect(
             staking.withdraw(toBeReleased),
             "Deposting stake should emit event"
@@ -228,7 +227,7 @@ describe("Staking", async () => {
     it("multiple deposit should mature at once", async () => {
         let toBeDeposited = 5;
         // mock transfer from as true
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         // test with multiple deposits
 
         await staking.stake(toBeDeposited);
@@ -254,7 +253,7 @@ describe("Staking", async () => {
 
     it("withdraw should revert if amount is zero", async () => {
         let toBeDeposited = 5;
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         await expect(
@@ -265,7 +264,7 @@ describe("Staking", async () => {
 
     it("withdraw should revert if tokens are not ready to be released", async () => {
         let toBeDeposited = 5;
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         await advanceTime(provider, MATURATION);
@@ -294,7 +293,7 @@ describe("Staking", async () => {
             "not enough tokens to unstake"
         ).to.be.revertedWith("SafeMath: subtraction overflow");
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         await advanceTime(provider, MATURATION);
@@ -309,7 +308,7 @@ describe("Staking", async () => {
     it("unstake should move funds from m.amount first", async () => {
         let toBeDeposited = 5;
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         await advanceTime(provider, MATURATION);
@@ -335,7 +334,7 @@ describe("Staking", async () => {
     it("unstake should emit event", async () => {
         let toBeDeposited = 5;
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         await expect(
@@ -347,14 +346,14 @@ describe("Staking", async () => {
     it("withdraw should emit event", async () => {
         let toBeDeposited = 5;
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
         await staking.unstake(toBeDeposited);
 
         await advanceTime(provider, MATURATION);
         await advanceBlock(provider);
 
-        await mockToken.mock.transfer.returns(true);
+        await mockCTSI.mock.transfer.returns(true);
 
         await expect(
             staking.withdraw(toBeDeposited),
@@ -366,7 +365,7 @@ describe("Staking", async () => {
         let toBeDeposited = 5;
         var now = new Date().getSeconds(); // time in ms
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         var maturing = await staking.getMaturingTimestamp(
@@ -382,7 +381,7 @@ describe("Staking", async () => {
     it("maturing balance getter", async () => {
         let toBeDeposited = 5;
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         expect(
@@ -398,7 +397,7 @@ describe("Staking", async () => {
             "maturing balance shouldnt count matured balance"
         ).to.equal(0);
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
 
         expect(
@@ -411,7 +410,7 @@ describe("Staking", async () => {
         let toBeDeposited = 5;
         var now = new Date().getSeconds(); // time in ms
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(toBeDeposited);
         await staking.unstake(toBeDeposited);
 
@@ -433,7 +432,7 @@ describe("Staking", async () => {
             "realeasing balance should be 0"
         ).to.equal(0);
 
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await staking.stake(2 * toBeDeposited);
         await staking.unstake(toBeDeposited);
 
@@ -452,7 +451,7 @@ describe("Staking", async () => {
         await advanceTime(provider, MATURATION);
         await advanceBlock(provider);
 
-        await mockToken.mock.transfer.returns(true);
+        await mockCTSI.mock.transfer.returns(true);
 
         await staking.withdraw(toBeDeposited);
 
@@ -461,7 +460,7 @@ describe("Staking", async () => {
             "realeasing balance should be toBeDeposited after first withdraw"
         ).to.equal(toBeDeposited);
 
-        await mockToken.mock.transfer.returns(true);
+        await mockCTSI.mock.transfer.returns(true);
 
         await staking.withdraw(toBeDeposited);
 

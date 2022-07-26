@@ -18,8 +18,7 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { RewardManager } from "../src/types/contracts/RewardManager";
-import { RewardManager__factory } from "../src/types/factories/contracts/RewardManager__factory";
+import { RewardManager, RewardManager__factory } from "../../src/types";
 
 use(solidity);
 
@@ -30,7 +29,7 @@ describe("RewardManager", async () => {
     let aliceAddress: string;
 
     let rewardManager: RewardManager;
-    let mockToken: MockContract;
+    let mockCTSI: MockContract;
 
     let minReward = 500;
     let maxReward = 1200;
@@ -88,19 +87,19 @@ describe("RewardManager", async () => {
         [signer, alice] = await ethers.getSigners();
         aliceAddress = await alice.getAddress();
         const CartesiToken = await deployments.getArtifact("CartesiToken");
-        mockToken = await deployMockContract(signer, CartesiToken.abi);
+        mockCTSI = await deployMockContract(signer, CartesiToken.abi);
     });
 
     it("reward function can only be called by PoS", async () => {
         rewardManager = await deployRewardManager({
-            pos: mockToken.address, // not signer's address
-            ctsi: mockToken.address,
+            pos: mockCTSI.address, // not signer's address
+            ctsi: mockCTSI.address,
             numerator,
             denominator,
         });
-        await mockToken.mock.balanceOf.returns(50000);
-        await mockToken.mock.transfer.returns(true);
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.balanceOf.returns(50000);
+        await mockCTSI.mock.transfer.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await expect(
             rewardManager.reward(aliceAddress, 0),
             "function can only be called by operator contract"
@@ -113,13 +112,13 @@ describe("RewardManager", async () => {
         // deploy contract with signer as pos address
         rewardManager = await deployRewardManager({
             pos: await signer.getAddress(),
-            ctsi: mockToken.address,
+            ctsi: mockCTSI.address,
             numerator,
             denominator,
         });
 
-        await mockToken.mock.balanceOf.returns(0);
-        await mockToken.mock.transfer.reverts();
+        await mockCTSI.mock.balanceOf.returns(0);
+        await mockCTSI.mock.transfer.reverts();
 
         await expect(rewardManager.reward(aliceAddress, 0)).to.be.revertedWith(
             "Mock revert"
@@ -133,14 +132,14 @@ describe("RewardManager", async () => {
         // deploy contract with signer as pos address
         rewardManager = await deployRewardManager({
             pos: await signer.getAddress(),
-            ctsi: mockToken.address,
+            ctsi: mockCTSI.address,
             numerator,
             denominator,
         });
 
-        await mockToken.mock.balanceOf.returns(balance);
-        await mockToken.mock.transfer.returns(true);
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.balanceOf.returns(balance);
+        await mockCTSI.mock.transfer.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         await rewardManager.reward(aliceAddress, currentReward);
     });
 
@@ -151,25 +150,25 @@ describe("RewardManager", async () => {
         // deploy contract with signer as pos address
         rewardManager = await deployRewardManager({
             pos: await signer.getAddress(),
-            ctsi: mockToken.address,
+            ctsi: mockCTSI.address,
             numerator,
             denominator,
             isConstant, //constant
         });
-        await mockToken.mock.transfer.returns(true);
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transfer.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
         // loops until balance is zero
         while (true) {
             balance = Math.floor(balance - maxReward);
 
             if (balance < maxReward) break;
 
-            await mockToken.mock.balanceOf.returns(balance);
+            await mockCTSI.mock.balanceOf.returns(balance);
             expect(
                 await rewardManager.getCurrentReward(),
                 "current reward has to be correct"
             ).to.equal(maxReward);
-            await mockToken.mock.balanceOf.returns(balance - maxReward);
+            await mockCTSI.mock.balanceOf.returns(balance - maxReward);
         }
     });
 
@@ -181,18 +180,18 @@ describe("RewardManager", async () => {
         // deploy contract with signer as pos address
         rewardManager = await deployRewardManager({
             pos: await signer.getAddress(),
-            ctsi: mockToken.address,
+            ctsi: mockCTSI.address,
             numerator,
             denominator,
         });
-        await mockToken.mock.transfer.returns(true);
-        await mockToken.mock.transferFrom.returns(true);
+        await mockCTSI.mock.transfer.returns(true);
+        await mockCTSI.mock.transferFrom.returns(true);
 
         // loops until balance is zero
         while (true) {
             balance = Math.floor(balance - lastReward);
 
-            await mockToken.mock.balanceOf.returns(balance);
+            await mockCTSI.mock.balanceOf.returns(balance);
             expect(
                 await rewardManager.getBalance(),
                 "current reward has to be correct"
@@ -207,13 +206,13 @@ describe("RewardManager", async () => {
                 lastReward > balance ? balance : lastReward
             );
 
-            await mockToken.mock.balanceOf.returns(balance);
+            await mockCTSI.mock.balanceOf.returns(balance);
             expect(
                 await rewardManager.getCurrentReward(),
                 "current reward has to be correct"
             ).to.equal(lastReward);
 
-            await mockToken.mock.balanceOf.returns(balance);
+            await mockCTSI.mock.balanceOf.returns(balance);
             //await rewardManager.reward(aliceAddress, lastReward);
         }
     });

@@ -17,8 +17,7 @@ import {
 } from "@ethereum-waffle/mock-contract";
 import { solidity } from "ethereum-waffle";
 
-import { PoS } from "../src/types/contracts/PoS";
-import { PoS__factory } from "../src/types/factories/contracts/PoS__factory";
+import { PoS, PoS__factory } from "../../src/types";
 import { Signer } from "ethers";
 
 use(solidity);
@@ -145,7 +144,7 @@ describe("PoS", async () => {
                 numerator,
                 denominator
             ),
-            "block produced should emit rewarded events with correct args"
+            "instantiate should emit new chain events with correct args"
         )
             .to.emit(pos, "NewChain")
             .withArgs(
@@ -164,6 +163,7 @@ describe("PoS", async () => {
                 denominator
             );
     });
+
     it("terminate", async () => {
         await mockBS.mock.instantiate.returns(0); // mock block selector instantiate
 

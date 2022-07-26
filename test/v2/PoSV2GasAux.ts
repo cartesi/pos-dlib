@@ -9,7 +9,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-import { expect, use } from "chai";
+import { use } from "chai";
 import { deployments, ethers } from "hardhat";
 import {
     deployMockContract,
@@ -18,31 +18,38 @@ import {
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { solidity } from "ethereum-waffle";
 
-import { PoSV2GasAux } from "../src/types/contracts/v2/test/PoSV2GasAux";
-import { PoSV2GasAux__factory } from "../src/types/factories/contracts/v2/test/PoSV2GasAux__factory";
-import { Signer } from "ethers";
-import { advanceMultipleBlocks } from "./utils";
+import {
+    PoSV2GasAux,
+    PoSV2GasAux__factory,
+    RewardManagerV2Impl,
+    RewardManagerV2Impl__factory,
+} from "../../src/types";
+import { BigNumberish, Signer } from "ethers";
+import { advanceMultipleBlocks } from "../utils";
 
 use(solidity);
 
 describe("PoSV2GasAux", async () => {
     let provider: JsonRpcProvider;
     let signer: Signer;
+    let alice: Signer;
+
+    let aliceAddress: string;
 
     let mockSI: MockContract; //mock staking implementation
     let mockWM: MockContract; //mock worker manager
     let mockCTSI: MockContract; //mock ctsi
+    let mockPoS: MockContract; // mock pos
     let minDiff = 100;
     let initialDiff = 100;
     let diffAdjust = 1;
-    let targetInterval = 60 * 10; //10 minutes
+    let targetInterval = 138;
 
     // RewardManager constructor parameters
     let rewardValue = 1000;
     let rewardDelay = 0;
 
     const BLOCK_DATA = ethers.utils.toUtf8Bytes("BlockData");
-    const HEX_DATA = "0x426c6f636b44617461"; // hex representation of "BlockData"
 
     const deployPoSV2 = async (version: number): Promise<PoSV2GasAux> => {
         const { deploy } = deployments;
@@ -77,6 +84,31 @@ describe("PoSV2GasAux", async () => {
         return pos;
     };
 
+    const deployRewardManagerV2 = async (
+        rewardValue: BigNumberish,
+        rewardDelay: BigNumberish,
+        posAddress: String = mockPoS.address
+    ): Promise<RewardManagerV2Impl> => {
+        const [signer] = await ethers.getSigners();
+        const { Bitmask } = await deployments.all();
+
+        const { deploy } = deployments;
+        const { address } = await deploy("RewardManagerV2Impl", {
+            from: signer.address,
+            log: true,
+            libraries: {
+                ["Bitmask"]: Bitmask.address,
+            },
+            args: [mockCTSI.address, posAddress, rewardValue, rewardDelay],
+        });
+
+        let rewardManagerV2 = RewardManagerV2Impl__factory.connect(
+            address,
+            signer
+        );
+        return rewardManagerV2;
+    };
+
     beforeEach(async () => {
         await deployments.fixture();
 
@@ -85,40 +117,17 @@ describe("PoSV2GasAux", async () => {
         const WorkerAuthManager = await deployments.getArtifact(
             "WorkerAuthManager"
         );
+        const PoS = await deployments.getArtifact("PoSV2Impl");
 
-        [signer] = await ethers.getSigners();
+        [signer, alice] = await ethers.getSigners();
+        aliceAddress = await alice.getAddress();
         provider = signer.provider as JsonRpcProvider;
 
         mockSI = await deployMockContract(signer, Staking.abi);
         mockWM = await deployMockContract(signer, WorkerAuthManager.abi);
         mockCTSI = await deployMockContract(signer, CTSI.abi);
+        mockPoS = await deployMockContract(signer, PoS.abi);
     });
-
-    // expect(
-    //     tx,
-    //     "block produced should emit BlockProduced events with correct args"
-    // )
-    //     .to.emit(pos, "BlockProduced")
-    //     .withArgs(
-    //         await signer.getAddress(),
-    //         await signer.getAddress(),
-    //         i,
-    //         blockNumber + 1,
-    //         "0x"
-    //     );
-
-    // expect(
-    //     tx,
-    //     "block produced V2 should emit BlockProduced events with correct args"
-    // )
-    //     .to.emit(pos, "BlockProduced")
-    //     .withArgs(
-    //         await signer.getAddress(),
-    //         await signer.getAddress(),
-    //         i + 1,
-    //         tx.blockNumber!,
-    //         HEX_DATA
-    //     );
 
     it("produceBlock(v1) 50 times", async () => {
         // deploy v1 chain
@@ -154,6 +163,44 @@ describe("PoSV2GasAux", async () => {
             await advanceMultipleBlocks(provider, 250);
 
             const tx = await pos["produceBlock(uint32,bytes)"](i, BLOCK_DATA);
+        }
+    });
+
+    it("reward(v1) 50 times", async function () {
+        let rewardManagerV1 = await deployRewardManagerV2(
+            rewardValue,
+            rewardDelay,
+            await signer.getAddress()
+        );
+
+        await mockCTSI.mock.balanceOf.returns(2900);
+        await mockCTSI.mock.transfer.returns(true);
+
+        for (var i = 0; i < 50; ++i) {
+            await rewardManagerV1["reward(uint32,address)"](
+                i,
+                await signer.getAddress()
+            );
+        }
+    });
+
+    it("reward(v2) 50 times", async function () {
+        let rewardManagerV2 = await deployRewardManagerV2(
+            rewardValue,
+            rewardDelay
+        );
+
+        await mockCTSI.mock.balanceOf.returns(2900);
+        await mockCTSI.mock.transfer.returns(true);
+        await mockPoS.mock.isValidBlock.returns(true, aliceAddress);
+
+        for (var i = 0; i < 50; ++i) {
+            await rewardManagerV2["reward(uint32[])"]([
+                4 * i,
+                4 * i + 1,
+                4 * i + 2,
+                4 * i + 3,
+            ]);
         }
     });
 

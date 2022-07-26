@@ -9,39 +9,88 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-import { expect, use } from "chai";
+import { expect, use, util } from "chai";
 import { deployments, ethers } from "hardhat";
-import { BigNumberish, Signer } from "ethers";
+import { BigNumberish, BigNumber, Signer, Wallet } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { solidity, MockProvider } from "ethereum-waffle";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
-import { BlockSelector } from "../src/types/contracts/BlockSelector";
-import { BlockSelector__factory } from "../src/types/factories/contracts/BlockSelector__factory";
+import { BlockSelectorV2 } from "../../src/types/contracts/BlockSelectorV2";
+import { BlockSelectorV2__factory } from "../../src/types/factories/contracts/BlockSelectorV2__factory";
 
-import { advanceBlock, advanceMultipleBlocks } from "./utils";
+import { advanceBlock, advanceMultipleBlocks } from "../utils";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 use(solidity);
 
-describe("BlockSelector", async () => {
+describe("BlockSelectorV2", async () => {
     let provider: JsonRpcProvider;
     let signer: Signer;
     let alice: Signer;
 
-    let blockSelector: BlockSelector;
+    let blockSelector: BlockSelectorV2;
 
     let minDiff = 100;
     let initialDiff = 100;
     let diffAdjust = 50000;
     let targetInterval = 40; //40 blocks ~= 10 minutes
+    const _1e18 = BigNumber.from(10).pow(18);
 
-    beforeEach(async () => {
+    const checkProduction = async (
+        blockSelector: BlockSelectorV2,
+        wallets: SignerWithAddress[],
+        lowest: BigNumber,
+        low: BigNumber,
+        medium: BigNumber,
+        high: BigNumber
+    ): Promise<Array<number>> => {
+        let lowestWeightCount = 0;
+        let lowWeightCount = 0;
+        let mediumWeightCount = 0;
+        let highWeightCount = 0;
+
+        for (let i = 0; i < 100; i++) {
+            await Promise.all(
+                wallets.map(async ({ address }) => {
+                    if (await blockSelector.canProduceBlock(0, address, lowest))
+                        lowestWeightCount++;
+
+                    if (await blockSelector.canProduceBlock(0, address, low))
+                        lowWeightCount++;
+
+                    if (await blockSelector.canProduceBlock(0, address, medium))
+                        mediumWeightCount++;
+
+                    if (await blockSelector.canProduceBlock(0, address, high))
+                        highWeightCount++;
+                })
+            );
+            await advanceMultipleBlocks(provider, 256); // get a new hash on the process
+            console.log(`\t\tFinished Round Session #${i}`);
+        }
+
+        return [
+            lowestWeightCount,
+            lowWeightCount,
+            mediumWeightCount,
+            highWeightCount,
+        ];
+    };
+
+    async function setup() {
         await deployments.fixture();
 
         [signer, alice] = await ethers.getSigners();
         provider = signer.provider as JsonRpcProvider;
 
-        const bsAddress = (await deployments.get("BlockSelector")).address;
-        blockSelector = BlockSelector__factory.connect(bsAddress, signer);
+        const bsAddress = (await deployments.get("BlockSelectorV2")).address;
+        blockSelector = BlockSelectorV2__factory.connect(bsAddress, signer);
+    }
+
+    beforeEach(async () => {
+        // ensure we are always using a clean contract
+        await loadFixture(setup);
     });
 
     it("instantiate should activate the instance", async () => {
@@ -181,9 +230,69 @@ describe("BlockSelector", async () => {
         ).to.below(finalCount);
     });
 
+    it("[regression] small weight should eventually be able to produce", async () => {
+        if (!process.env.REGRESSION == true) {
+            console.log("\t skipping regression test", process.env.REGRESSION);
+            return;
+        }
+        let wallets = await ethers.getSigners();
+        let lowestWeight = _1e18.mul(15 * 1000); // 15k
+        let lowWeight = _1e18.mul(500 * 1000); // 500k
+        let mediumWeight = _1e18.mul(2 * 1e6); // 2Mi
+        let highWeight = _1e18.mul(20 * 1e6); // 20Mi
+        let initialDifficulty = BigNumber.from("25798284791319440457930"); //extracted from mainnet; 240mi ctsi staked
+        await blockSelector.instantiate(
+            minDiff,
+            initialDifficulty,
+            diffAdjust,
+            targetInterval,
+            await signer.getAddress()
+        );
+
+        await advanceMultipleBlocks(provider, 254);
+        let [
+            lowestWeightCount,
+            lowWeightCount,
+            mediumWeightCount,
+            highWeightCount,
+        ] = await checkProduction(
+            blockSelector,
+            wallets,
+            lowestWeight,
+            lowWeight,
+            mediumWeight,
+            highWeight
+        );
+        console.log(
+            "\tRegression results: \n",
+            JSON.stringify(
+                {
+                    lowestWeightCount,
+                    lowWeightCount,
+                    mediumWeightCount,
+                    highWeightCount,
+                },
+                null,
+                2
+            )
+        );
+
+        expect(
+            lowestWeightCount,
+            "lowest weight count should be less than low weight count"
+        ).to.below(lowWeightCount);
+        expect(
+            lowWeightCount,
+            "low weight count should be less than medium weight count"
+        ).to.below(mediumWeightCount);
+        expect(
+            mediumWeightCount,
+            "medium weight count should be less than high weight count"
+        ).to.below(highWeightCount);
+    }).timeout(60 * 60 * 1000 * 60);
+
     it("the weight variable should increase chance of producing a block", async () => {
-        const mockProvider = new MockProvider();
-        let wallets = mockProvider.getWallets();
+        let wallets = await ethers.getSigners();
         let lowWeightCount = 0;
         let highWeightCount = 0;
         let mediumWeightCount = 0;
@@ -202,7 +311,7 @@ describe("BlockSelector", async () => {
         await advanceMultipleBlocks(provider, 120);
 
         for (var wallet of wallets) {
-            var address = await wallet.getAddress();
+            let { address } = wallet;
             if (await blockSelector.canProduceBlock(0, address, lowWeight)) {
                 lowWeightCount++;
             }
@@ -214,7 +323,6 @@ describe("BlockSelector", async () => {
                 highWeightCount++;
             }
         }
-
         expect(
             lowWeightCount,
             "low weight count should be less than medium weight count"
