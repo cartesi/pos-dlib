@@ -39,15 +39,52 @@ contract RMV2Test is Test {
         );
     }
 
-    function testRewardV1() public {
-        for (uint32 i; i < 1000; ++i) {
-            rm.reward(i, address(this));
-        }
+    function testRewardV1(uint32 _i) public {
+        rm.reward(_i, address(this));
     }
 
     function testRewardV2() public {
-        for (uint32 i; i < 1000; ++i) {
-            rm.reward(i);
+        uint32 i;
+        for (uint32 j = 1; j <= 10; ++j) {
+            uint32[] memory blocks = new uint32[](j);
+
+            for (uint32 k; k < j; ++k & ++i) {
+                blocks[k] = i;
+            }
+
+            rm.reward(blocks);
         }
+    }
+
+    function testRewardV1Revert() public {
+        vm.prank(address(900));
+        vm.expectRevert(bytes("Only the pos contract can call"));
+        rm.reward(0, address(this));
+    }
+
+    function testRewardV2Revert() public {
+        uint32[] memory blocks = new uint32[](10);
+
+        for (uint32 i; i < 10; ++i) {
+            blocks[i] = i;
+        }
+
+        vm.mockCall(
+            mockContract,
+            abi.encodeWithSelector(IERC20.balanceOf.selector),
+            abi.encode(0)
+        );
+
+        vm.expectRevert(bytes("RewardManager has no funds"));
+        rm.reward(blocks);
+
+        vm.mockCall(
+            mockContract,
+            abi.encodeWithSelector(IHistoricalData.isValidBlock.selector),
+            abi.encode(0, msg.sender)
+        );
+
+        vm.expectRevert(bytes("Invalid block"));
+        rm.reward(blocks);
     }
 }

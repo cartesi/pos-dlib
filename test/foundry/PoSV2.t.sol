@@ -13,7 +13,7 @@ contract PoSV2Test is Test {
     uint32 constant minDiff = 100;
     uint32 constant initialDiff = 100;
     uint32 constant diffAdjust = 1;
-    uint32 constant targetInterval = 60 * 10; //10 minutes
+    uint32 constant targetInterval = 138;
 
     // RewardManager constructor parameters
     uint256 constant rewardValue = 1000;
