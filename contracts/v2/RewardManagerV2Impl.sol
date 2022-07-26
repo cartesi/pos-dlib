@@ -63,29 +63,38 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
         emit Rewarded(_sidechainBlockNumber, cReward);
     }
 
-    /// @notice Rewards sidechain block for V2 chains
-    /// @param _sidechainBlockNumber sidechain block number
-    function reward(uint32 _sidechainBlockNumber) external override {
-        require(
-            !rewarded.getBit(_sidechainBlockNumber),
-            "The block has been rewarded"
-        );
+    /// @notice Rewards sidechain blocks for V2 chains
+    /// @param _sidechainBlockNumbers array of sidechain block numbers
+    function reward(uint32[] calldata _sidechainBlockNumbers)
+        external
+        override
+    {
+        for (uint256 i; i < _sidechainBlockNumbers.length; ) {
+            require(
+                !rewarded.getBit(_sidechainBlockNumbers[i]),
+                "The block has been rewarded"
+            );
 
-        (bool isValid, address producer) = historical.isValidBlock(
-            _sidechainBlockNumber,
-            rewardDelay
-        );
+            (bool isValid, address producer) = historical.isValidBlock(
+                _sidechainBlockNumbers[i],
+                rewardDelay
+            );
 
-        require(isValid, "not a valid block");
+            require(isValid, "Invalid block");
 
-        uint256 cReward = currentReward();
+            uint256 cReward = currentReward();
 
-        require(cReward > 0, "RewardManager has no funds");
+            require(cReward > 0, "RewardManager has no funds");
 
-        ctsi.transfer(producer, cReward);
-        setRewarded(_sidechainBlockNumber);
+            ctsi.transfer(producer, cReward);
+            setRewarded(_sidechainBlockNumbers[i]);
 
-        emit Rewarded(_sidechainBlockNumber, cReward);
+            emit Rewarded(_sidechainBlockNumbers[i], cReward);
+
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /// @notice Get RewardManager's balance

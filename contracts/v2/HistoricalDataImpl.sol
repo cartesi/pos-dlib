@@ -49,7 +49,7 @@ contract HistoricalDataImpl is AHistoricalData {
         return historicalCtx.latestCtx.sidechainBlockCount;
     }
 
-    /// @notice Get sidechain block
+    /// @notice Get a V2 sidechain block
     function getSidechainBlock(uint256 _number)
         external
         view
@@ -59,7 +59,7 @@ contract HistoricalDataImpl is AHistoricalData {
         return historicalCtx.blockData[_number];
     }
 
-    /// @notice Validate a sidechain block
+    /// @notice Validate a V2 sidechain block
     /// @param _sidechainBlockNumber the sidechain block number to validate
     /// @param _depthDiff the minimal depth diff to validate sidechain block
     /// @return bool is the sidechain block valid
@@ -72,8 +72,8 @@ contract HistoricalDataImpl is AHistoricalData {
     {
         uint256 blockDepth = historicalCtx.tree.getDepth(_sidechainBlockNumber);
         (uint256 deepestBlock, uint256 deepestDepth) = historicalCtx
-        .tree
-        .getDeepest();
+            .tree
+            .getDeepest();
 
         if (
             historicalCtx.tree.getAncestorAtDepth(deepestBlock, blockDepth) !=
@@ -115,14 +115,15 @@ contract HistoricalDataImpl is AHistoricalData {
     /// @notice Record information about the latest sidechain block
     /// @param _producer the producer of the sidechain block
     /// @param _sidechainBlockCount count of total sidechain blocks
-    function updateLatest(
-        address _producer,
-        uint256 _sidechainBlockCount
-    ) internal virtual override {
+    function updateLatest(address _producer, uint256 _sidechainBlockCount)
+        internal
+        virtual
+        override
+    {
         historicalCtx.latestCtx = LatestCtx(
             _producer,
-            uint32(_sidechainBlockCount),
-            uint32(block.number)
+            uint32(block.number),
+            uint32(_sidechainBlockCount)
         );
     }
 }

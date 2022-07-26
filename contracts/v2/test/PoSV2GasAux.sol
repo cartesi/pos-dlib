@@ -68,7 +68,7 @@ contract PoSV2GasAux is PoSV2Impl {
         return user;
     }
 
-    // intentionally make it a transaction to estimate gas cost in hardhat
+    // intentionally make it a transaction to reflect gas cost in hardhat gas report
     function canProduceBlockGas(
         uint64 d,
         uint32 e,

@@ -21,7 +21,7 @@ interface IHistoricalData {
         bytes32 dataHash;
     }
 
-    /// @notice Validate a sidechain block
+    /// @notice Validate a V2 sidechain block
     /// @param _sidechainBlockNumber the sidechain block number to validate
     /// @param _depthDiff the minimal depth diff to validate sidechain block
     /// @return bool is the sidechain block valid
@@ -40,7 +40,7 @@ interface IHistoricalData {
     /// @notice Get sidechain block count
     function getSidechainBlockCount() external view returns (uint256);
 
-    /// @notice Get sidechain block
+    /// @notice Get a V2 sidechain block
     function getSidechainBlock(uint256)
         external
         view

@@ -32,14 +32,12 @@ contract PoSV2Impl is
     EligibilityCalImpl,
     HistoricalDataImpl
 {
-    uint256 constant currentIndex = 0;
+    uint32 public immutable version;
+    IStaking public immutable staking;
+    RewardManagerV2Impl public immutable rewardManager;
+    IWorkerAuthManager public immutable workerAuth;
 
-    uint32 immutable version;
-    IStaking immutable staking;
-    RewardManagerV2Impl immutable rewardManager;
-    IWorkerAuthManager immutable workerAuth;
-
-    bool active;
+    bool public active;
 
     /// @param _ctsiAddress address of token instance being used
     /// @param _stakingAddress address of StakingInterface
@@ -100,10 +98,7 @@ contract PoSV2Impl is
         emit BlockProduced(user, msg.sender, sidechainBlockNumber, "");
 
         rewardManager.reward(sidechainBlockNumber, msg.sender);
-        HistoricalDataImpl.updateLatest(
-            user,
-            sidechainBlockNumber + 1
-        );
+        HistoricalDataImpl.updateLatest(user, sidechainBlockNumber + 1);
 
         return true;
     }
