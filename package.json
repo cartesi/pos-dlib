@@ -62,8 +62,12 @@
         "prepack": "run-s clean deploy:testnet",
         "prepare": "run-s build copy-dts export",
         "pretest": "run-s prepare",
-        "prettier": "prettier --check src/**/*.ts test/**/*.ts contracts/**/*.sol",
+        "prettier": "prettier --check src/**/*.ts test/**/*.ts test/**/*.sol contracts/**/*.sol",
         "test": "hardhat test",
+        "test:v1": "hardhat test test/v1/*",
+        "test:v1:coverage": "hardhat coverage --testfiles test/v1",
+        "test:v2": "hardhat test test/v2/*",
+        "test:v2:coverage": "hardhat coverage --testfiles test/v2",
         "test:coverage": "hardhat coverage",
         "start": "hardhat node"
     },
@@ -85,6 +89,8 @@
         "info": "Displays information about the scripts.",
         "prettier": "Check code format",
         "test": "Run unit tests",
+        "test:v2": "Run unit tests for v2 contracts",
+        "test:v2:coverage": "Run test coverage using solidity-coverage for v2 contracts",
         "test:coverage": "Run test coverage using solidity-coverage"
     },
     "repository": {
