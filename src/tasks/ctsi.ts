@@ -36,8 +36,7 @@ task(
     "ctsi:drip",
     "Get CTSI from faucet in exchange of 0.3 ETH",
     async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
-        const { CTSIFaucet__factory } =
-            await require("../types/factories/CTSIFaucet__factory");
+        const { CTSIFaucet__factory } = await require("../types");
         const { deployments, ethers, run } = hre;
 
         // run deploy if needed
