@@ -6,7 +6,6 @@ import "contracts/v2/EligibilityCalImpl.sol";
 contract EligibilityTest is Test, EligibilityCalImpl {
     uint256 constant initDiff = 100000000000000000000000000;
     uint256 constant minDiff = 1000000000;
-    uint256 constant smallDiff = 100;
     uint256 constant bigWeight = 10000000000000000000000000000;
     uint256 constant smallWeight = 100;
 
@@ -53,15 +52,15 @@ contract EligibilityTest is Test, EligibilityCalImpl {
         );
 
         vm.roll(ethBlockStamp + 41);
-        assertEq(
-            UINT256_MAX,
-            whenCanProduceBlock(
-                minDiff,
-                ethBlockStamp,
-                address(this),
-                smallWeight
-            ),
-            "return UINT256_MAX when eligibility exceeds 256 block"
+        assertTrue(
+            UINT256_MAX >
+                whenCanProduceBlock(
+                    minDiff,
+                    ethBlockStamp,
+                    address(this),
+                    smallWeight
+                ),
+            "return valid number for next eligibility (small stake)"
         );
 
         vm.roll(ethBlockStamp + 41);
@@ -73,7 +72,7 @@ contract EligibilityTest is Test, EligibilityCalImpl {
                     address(this),
                     bigWeight
                 ),
-            "return valid number for next eligibility"
+            "return valid number for next eligibility (big stake)"
         );
     }
 

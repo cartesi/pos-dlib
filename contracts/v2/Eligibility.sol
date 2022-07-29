@@ -50,11 +50,6 @@ library Eligibility {
 
         uint256 blocksToWait = (_difficulty * multiplier) / (_weight * 1e12);
 
-        // blocks to wait exceeds 255 is meaningless, since the block goal gets reset after 256 blocks
-        if (blocksToWait > 255) {
-            return UINT256_MAX;
-        }
-
         unchecked {
             return blocksToWait + _ethBlockStamp + C_40;
         }

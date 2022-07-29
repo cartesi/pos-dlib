@@ -19,7 +19,7 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import { solidity } from "ethereum-waffle";
 
 import { PoSV2Impl, PoSV2Impl__factory } from "../../src/types";
-import { BigNumber, Signer } from "ethers";
+import { Signer } from "ethers";
 import { advanceMultipleBlocks } from "../utils";
 
 use(solidity);
@@ -52,7 +52,6 @@ describe("PoSV2Impl", async () => {
     const HEX_DATA = "0x426c6f636b44617461"; // hex representation of "BlockData"
     const UINT256_MAX =
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-    const _1e18 = BigNumber.from(10).pow(18);
 
     const deployPoSV2 = async (version: number): Promise<PoSV2Impl> => {
         const { deploy } = deployments;
@@ -120,8 +119,10 @@ describe("PoSV2Impl", async () => {
 
         await advanceMultipleBlocks(provider, 50);
 
-        expect(await posV1.canProduceBlock(signerAddress), "should be eligible(v1)")
-            .to.be.true;
+        expect(
+            await posV1.canProduceBlock(signerAddress),
+            "should be eligible(v1)"
+        ).to.be.true;
 
         await expect(
             posV1["produceBlock(uint256)"](0),
@@ -130,8 +131,10 @@ describe("PoSV2Impl", async () => {
             .to.emit(posV1, "BlockProduced")
             .withArgs(aliceAddress, signerAddress, 0, "0x");
 
-        expect(await posV2.canProduceBlock(signerAddress), "should be eligible(v2)")
-            .to.be.true;
+        expect(
+            await posV2.canProduceBlock(signerAddress),
+            "should be eligible(v2)"
+        ).to.be.true;
 
         await expect(
             posV2["produceBlock(uint32,bytes)"](0, BLOCK_DATA),
@@ -323,8 +326,8 @@ describe("PoSV2Impl", async () => {
 
         expect(
             await posV2.whenCanProduceBlock(aliceAddress),
-            "should return uint256_max when blocks to wait exceeds 256"
-        ).to.equal(UINT256_MAX);
+            "small staker should be able to produce long time after"
+        ).to.not.equal(UINT256_MAX);
 
         expect(
             await posV1.getRewardManagerAddress(0),
