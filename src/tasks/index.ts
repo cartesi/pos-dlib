@@ -12,4 +12,6 @@
 
 import "./ctsi";
 import "./pos";
+import "./posV2";
 import "./worker";
+import "./workerV2";
