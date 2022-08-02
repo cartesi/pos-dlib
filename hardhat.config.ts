@@ -58,14 +58,17 @@ const config: HardhatUserConfig = {
             accounts: mnemonic ? { mnemonic, count: 400 } : undefined,
         },
         mainnet: infuraNetwork("mainnet", 1, 6283185),
-        ropsten: infuraNetwork("ropsten", 3, 6283185),
-        rinkeby: infuraNetwork("rinkeby", 4, 6283185),
-        kovan: infuraNetwork("kovan", 42, 6283185),
         goerli: infuraNetwork("goerli", 5, 6283185),
-        matic_testnet: infuraNetwork("polygon-mumbai", 80001),
+        polygon_mumbai: infuraNetwork("polygon-mumbai", 80001),
+        optimism_goerli: infuraNetwork("optimism-goerli", 420),
         bsc_testnet: {
             url: "https://data-seed-prebsc-1-s1.binance.org:8545",
             chainId: 97,
+            accounts: mnemonic ? { mnemonic } : undefined,
+        },
+        avax_testnet: {
+            url: "https://api.avax-test.network/ext/bc/C/rpc",
+            chainId: 0xa869,
             accounts: mnemonic ? { mnemonic } : undefined,
         },
     },
@@ -112,43 +115,38 @@ const config: HardhatUserConfig = {
         deployments: {
             localhost: [
                 "node_modules/@cartesi/util/deployments/localhost",
-                // "node_modules/@cartesi/tree/deployments/localhost",
+                "node_modules/@cartesi/tree/deployments/localhost",
                 "node_modules/@cartesi/token/deployments/localhost",
             ],
             mainnet: [
                 "node_modules/@cartesi/util/deployments/mainnet",
-                // "node_modules/@cartesi/tree/deployments/mainnet",
+                "node_modules/@cartesi/tree/deployments/mainnet",
                 "node_modules/@cartesi/token/deployments/mainnet",
-            ],
-            ropsten: [
-                "node_modules/@cartesi/util/deployments/ropsten",
-                // "node_modules/@cartesi/tree/deployments/ropsten",
-                "node_modules/@cartesi/token/deployments/ropsten",
-            ],
-            rinkeby: [
-                "node_modules/@cartesi/util/deployments/rinkeby",
-                // "node_modules/@cartesi/tree/deployments/rinkeby",
-                "node_modules/@cartesi/token/deployments/rinkeby",
-            ],
-            kovan: [
-                "node_modules/@cartesi/util/deployments/kovan",
-                // "node_modules/@cartesi/tree/deployments/kovan",
-                "node_modules/@cartesi/token/deployments/kovan",
             ],
             goerli: [
                 "node_modules/@cartesi/util/deployments/goerli",
-                // "node_modules/@cartesi/tree/deployments/goerli",
+                "node_modules/@cartesi/tree/deployments/goerli",
                 "node_modules/@cartesi/token/deployments/goerli",
             ],
-            matic_testnet: [
+            polygon_mumbai: [
                 "node_modules/@cartesi/util/deployments/matic_testnet",
-                // "node_modules/@cartesi/tree/deployments/matic_testnet",
-                "node_modules/@cartesi/token/deployments/matic_testnet",
+                "node_modules/@cartesi/tree/deployments/polygon_mumbai",
+                "node_modules/@cartesi/token/deployments/polygon_mumbai",
             ],
             bsc_testnet: [
                 "node_modules/@cartesi/util/deployments/bsc_testnet",
-                // "node_modules/@cartesi/tree/deployments/bsc_testnet",
+                "node_modules/@cartesi/tree/deployments/bsc_testnet",
                 "node_modules/@cartesi/token/deployments/bsc_testnet",
+            ],
+            optimism_goerli: [
+                "node_modules/@cartesi/util/deployments/optimism_goerli",
+                "node_modules/@cartesi/tree/deployments/optimism_goerli",
+                "node_modules/@cartesi/token/deployments/optimism_goerli",
+            ],
+            avax_testnet: [
+                "node_modules/@cartesi/util/deployments/avax_testnet",
+                "node_modules/@cartesi/tree/deployments/avax_testnet",
+                "node_modules/@cartesi/token/deployments/avax_testnet",
             ],
         },
     },

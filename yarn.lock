@@ -9,8 +9,10 @@
   dependencies:
     "@openzeppelin/contracts" "^2.5.0"
 
-"@cartesi/tree@file:.yalc/@cartesi/tree":
+"@cartesi/tree@0.2.0":
   version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@cartesi/tree/-/tree-0.2.0.tgz#face38f31eac54bbcf51b284f60f18efc5291c8b"
+  integrity sha512-iSA0ZhD6MlKBWASimTi1tCc/fqXvy2z5VClbgJjS4inO3ign4kNPbdjJzIPdhARsZLz1kOR6DMrVaHGdeW844A==
   dependencies:
     "@openzeppelin/contracts" "^4.7.0"
     commander "^9.4.0"
@@ -936,6 +938,13 @@
   dependencies:
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
+
+"@nomicfoundation/hardhat-network-helpers@beta@^1.0.0-beta.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@nomicfoundation/hardhat-network-helpers/-/hardhat-network-helpers-1.0.3.tgz#3303cf7c8f52e1ef33ff4fc98d85af020d64f083"
+  integrity sha512-sBeUCzgrcdS8x7Nnr4t6wNpC7GIMMR3gQs8lVaxff5VWVKf7SjdkJ2rvSJsS2ckD8/8KGxeDTLb7XCOqVAjFjA==
+  dependencies:
+    ethereumjs-util "^7.1.4"
 
 "@nomiclabs/hardhat-ethers@^2.0.6", "@nomiclabs/hardhat-ethers@^2.1.0":
   version "2.1.0"
