@@ -21,21 +21,15 @@ task("workerV2:hire", "Hire and authorize a worker")
         0,
         types.int
     )
-    .addOptionalParam(
+    .addOptionalPositionalParam(
         "address",
         "Worker node address or account index from localhost provider",
         "0",
         types.string
     )
-    .addPositionalParam(
-        "pos",
-        "Address of pos instance to authorize",
-        undefined,
-        types.string
-    )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoS, WorkerManagerAuthManagerImpl } = await deployments.all();
+        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } = await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
         const worker = WorkerManagerAuthManagerImpl__factory.connect(
@@ -58,7 +52,7 @@ task("workerV2:hire", "Hire and authorize a worker")
             `Hiring worker ${workerAddress} using account ${signer.address}`
         );
         // user hires worker
-        const tx = await worker.hireAndAuthorize(workerAddress, args.pos, {
+        const tx = await worker.hireAndAuthorize(workerAddress, PoSV2FactoryImpl.address, {
             value: ethers.utils.parseEther("0.5"),
         });
 
@@ -102,21 +96,15 @@ task("workerV2:authorize", "Authorize a worker")
         0,
         types.int
     )
-    .addOptionalParam(
+    .addOptionalPositionalParam(
         "address",
         "Worker node address",
         undefined,
         types.string
     )
-    .addPositionalParam(
-        "pos",
-        "Address of pos instance to authorize",
-        undefined,
-        types.string
-    )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoS, WorkerManagerAuthManagerImpl } = await deployments.all();
+        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } = await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
         const worker = WorkerManagerAuthManagerImpl__factory.connect(
@@ -135,10 +123,10 @@ task("workerV2:authorize", "Authorize a worker")
         }
 
         console.log(
-            `Authorizing PoS ${args.pos} to accepts calls from worker ${workerAddress} on behalf of ${signer.address}`
+            `Authorizing PoSV2FactoryImpl ${PoSV2FactoryImpl.address} to accepts calls from worker ${workerAddress} on behalf of ${signer.address}`
         );
-        // authorize PoS
-        const tx = await worker.authorize(workerAddress, args.pos);
+        // authorize PoSV2FactoryImpl
+        const tx = await worker.authorize(workerAddress, PoSV2FactoryImpl.address);
 
         console.log(`transaction: ${tx.hash}`);
     });
@@ -150,21 +138,15 @@ task("workerV2:show", "Show a worker information")
         0,
         types.int
     )
-    .addOptionalParam(
+    .addOptionalPositionalParam(
         "address",
         "Worker node address",
         undefined,
         types.string
     )
-    .addPositionalParam(
-        "pos",
-        "Address of pos instance to show",
-        undefined,
-        types.string
-    )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoS, WorkerManagerAuthManagerImpl } = await deployments.all();
+        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } = await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
         const worker = WorkerManagerAuthManagerImpl__factory.connect(
@@ -186,7 +168,7 @@ task("workerV2:show", "Show a worker information")
             worker: workerAddress,
             user: await worker.getUser(workerAddress),
             owner: await worker.getOwner(workerAddress),
-            authorized: await worker.isAuthorized(workerAddress, args.pos),
+            authorized: await worker.isAuthorized(workerAddress, PoSV2FactoryImpl.address),
             available: await worker.isAvailable(workerAddress),
             owned: await worker.isOwned(workerAddress),
             pending: await worker.isPending(workerAddress),

@@ -36,6 +36,7 @@ contract PoSV2Impl is
     IStaking public immutable staking;
     RewardManagerV2Impl public immutable rewardManager;
     IWorkerAuthManager public immutable workerAuth;
+    address public immutable factory;
 
     bool public active;
 
@@ -68,6 +69,7 @@ contract PoSV2Impl is
             _targetInterval
         )
     {
+        factory = msg.sender;
         version = _version;
         staking = IStaking(_stakingAddress);
         workerAuth = IWorkerAuthManager(_workerAuthAddress);
@@ -190,7 +192,7 @@ contract PoSV2Impl is
 
     function _produceBlock() internal returns (address) {
         require(
-            workerAuth.isAuthorized(msg.sender, address(this)),
+            workerAuth.isAuthorized(msg.sender, factory),
             "msg.sender is not authorized"
         );
 
