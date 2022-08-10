@@ -28,7 +28,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
     uint256 immutable rewardValue;
     uint32 immutable rewardDelay;
     IERC20 immutable ctsi;
-    IHistoricalData immutable historical;
+    address public immutable pos;
 
     /// @notice Creates contract
     /// @param _ctsiAddress address of token instance being used
@@ -42,7 +42,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
         uint32 _rewardDelay
     ) {
         ctsi = IERC20(_ctsiAddress);
-        historical = IHistoricalData(_posAddress);
+        pos = _posAddress;
 
         rewardValue = _rewardValue;
         rewardDelay = _rewardDelay;
@@ -53,7 +53,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
     /// @param _address address to be rewarded
     function reward(uint32 _sidechainBlockNumber, address _address) external {
         require(
-            msg.sender == address(historical),
+            msg.sender == pos,
             "Only the pos contract can call"
         );
 
@@ -75,7 +75,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
                 "The block has been rewarded"
             );
 
-            (bool isValid, address producer) = historical.isValidBlock(
+            (bool isValid, address producer) = IHistoricalData(pos).isValidBlock(
                 _sidechainBlockNumbers[i],
                 rewardDelay
             );
