@@ -52,10 +52,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
     /// @param _sidechainBlockNumber sidechain block number
     /// @param _address address to be rewarded
     function reward(uint32 _sidechainBlockNumber, address _address) external {
-        require(
-            msg.sender == pos,
-            "Only the pos contract can call"
-        );
+        require(msg.sender == pos, "Only the pos contract can call");
 
         uint256 cReward = currentReward();
         ctsi.transfer(_address, cReward);
@@ -75,10 +72,8 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
                 "The block has been rewarded"
             );
 
-            (bool isValid, address producer) = IHistoricalData(pos).isValidBlock(
-                _sidechainBlockNumbers[i],
-                rewardDelay
-            );
+            (bool isValid, address producer) = IHistoricalData(pos)
+                .isValidBlock(_sidechainBlockNumbers[i], rewardDelay);
 
             require(isValid, "Invalid block");
 

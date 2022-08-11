@@ -29,7 +29,8 @@ task("workerV2:hire", "Hire and authorize a worker")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } = await deployments.all();
+        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } =
+            await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
         const worker = WorkerManagerAuthManagerImpl__factory.connect(
@@ -52,9 +53,13 @@ task("workerV2:hire", "Hire and authorize a worker")
             `Hiring worker ${workerAddress} using account ${signer.address}`
         );
         // user hires worker
-        const tx = await worker.hireAndAuthorize(workerAddress, PoSV2FactoryImpl.address, {
-            value: ethers.utils.parseEther("0.5"),
-        });
+        const tx = await worker.hireAndAuthorize(
+            workerAddress,
+            PoSV2FactoryImpl.address,
+            {
+                value: ethers.utils.parseEther("0.5"),
+            }
+        );
 
         console.log(`transaction: ${tx.hash}`);
     });
@@ -104,7 +109,8 @@ task("workerV2:authorize", "Authorize a worker")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } = await deployments.all();
+        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } =
+            await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
         const worker = WorkerManagerAuthManagerImpl__factory.connect(
@@ -126,7 +132,10 @@ task("workerV2:authorize", "Authorize a worker")
             `Authorizing PoSV2FactoryImpl ${PoSV2FactoryImpl.address} to accepts calls from worker ${workerAddress} on behalf of ${signer.address}`
         );
         // authorize PoSV2FactoryImpl
-        const tx = await worker.authorize(workerAddress, PoSV2FactoryImpl.address);
+        const tx = await worker.authorize(
+            workerAddress,
+            PoSV2FactoryImpl.address
+        );
 
         console.log(`transaction: ${tx.hash}`);
     });
@@ -146,7 +155,8 @@ task("workerV2:show", "Show a worker information")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } = await deployments.all();
+        const { PoSV2FactoryImpl, WorkerManagerAuthManagerImpl } =
+            await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
         const worker = WorkerManagerAuthManagerImpl__factory.connect(
@@ -168,7 +178,10 @@ task("workerV2:show", "Show a worker information")
             worker: workerAddress,
             user: await worker.getUser(workerAddress),
             owner: await worker.getOwner(workerAddress),
-            authorized: await worker.isAuthorized(workerAddress, PoSV2FactoryImpl.address),
+            authorized: await worker.isAuthorized(
+                workerAddress,
+                PoSV2FactoryImpl.address
+            ),
             available: await worker.isAvailable(workerAddress),
             owned: await worker.isOwned(workerAddress),
             pending: await worker.isPending(workerAddress),
