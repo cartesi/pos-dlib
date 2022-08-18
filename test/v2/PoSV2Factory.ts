@@ -23,7 +23,7 @@ import { Signer } from "ethers";
 
 use(solidity);
 
-describe("PoSV2IFactorympl", async () => {
+describe("PoSV2Factorympl", async () => {
     let posV2Factory: PoSV2FactoryImpl;
 
     let provider: JsonRpcProvider;

@@ -14,4 +14,4 @@ remappings = [
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
 # To run forge tests, install forge cli and run below command
-# forge install foundry-rs/forge-std --no-git --no-commit
+# forge install foundry-rs/forge-std --no-commit --no-git 

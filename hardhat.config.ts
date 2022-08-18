@@ -129,7 +129,7 @@ const config: HardhatUserConfig = {
                 "node_modules/@cartesi/token/deployments/goerli",
             ],
             polygon_mumbai: [
-                "node_modules/@cartesi/util/deployments/matic_testnet",
+                "node_modules/@cartesi/util/deployments/polygon_mumbai",
                 "node_modules/@cartesi/tree/deployments/polygon_mumbai",
                 "node_modules/@cartesi/token/deployments/polygon_mumbai",
             ],
