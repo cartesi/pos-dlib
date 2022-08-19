@@ -14,7 +14,6 @@ import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 import { task, types } from "hardhat/config";
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
-import { PoSV2Impl__factory, PoSV2FactoryImpl__factory } from "../types";
 
 task("posV2:create", "Create the main PoS contract")
     .addOptionalParam(
@@ -67,6 +66,8 @@ task("posV2:create", "Create the main PoS contract")
             WorkerManagerAuthManagerImpl,
             CartesiToken,
         } = await deployments.all();
+        const { PoSV2Impl__factory, PoSV2FactoryImpl__factory } =
+            await require("../types");
 
         const [deployer] = await ethers.getSigners();
 
@@ -119,6 +120,8 @@ task("posV2:terminate", "Deativate a PoS instance")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { ethers } = hre;
+        const { PoSV2Impl__factory, PoSV2FactoryImpl__factory } =
+            await require("../types");
 
         const [deployer] = await ethers.getSigners();
         const pos = PoSV2Impl__factory.connect(args.pos, deployer);
@@ -154,8 +157,12 @@ task("posV2:show", "Show staking information")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { deployments, ethers } = hre;
-        const { StakingImpl__factory, IRewardManagerV2__factory } =
-            await require("../types");
+        const {
+            StakingImpl__factory,
+            IRewardManagerV2__factory,
+            PoSV2Impl__factory,
+            PoSV2FactoryImpl__factory,
+        } = await require("../types");
         const { PoSV2FactoryImpl, StakingImpl } = await deployments.all();
         const signers = await ethers.getSigners();
         const signer = signers[args.accountIndex];
@@ -277,6 +284,7 @@ task("posV2:produceBlock", "Produce a V1 block using local node")
         const localProvider = new ethers.providers.JsonRpcProvider(
             "http://localhost:8545"
         );
+        const { PoSV2Impl__factory } = await require("../types");
         const signer = localProvider.getSigner();
         const address = await signer.getAddress();
         console.log(`Producing a block using node ${address}`);
