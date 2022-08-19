@@ -13,4 +13,5 @@ jobs:
                   node-version: "16"
             - run: yarn install
             - run: yarn prettier
+            - run: yarn build
             - run: yarn test
