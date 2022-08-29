@@ -1,0 +1,36 @@
+name: Slither Analysis
+on: [push]
+jobs:
+    analyze:
+        runs-on: ubuntu-20.04
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+              with:
+                  submodules: recursive
+                  token: ${{ secrets.CI_TOKEN }}
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: "16"
+            - run: yarn install
+
+            - name: Run Slither scan
+              uses: crytic/slither-action@v0.1.1
+              continue-on-error: true
+              id: slither
+              with:
+                  node-version: 16
+                  sarif: results.sarif
+                  slither-args: "--exclude-dependencies"
+
+            - name: Process sarif report
+              if: ${{ always() }}
+              uses: Ayrx/sarif_to_github_annotations@v0.2.2
+              with:
+                sarif_file: ${{ steps.slither.outputs.sarif }}
+
+            - name: Upload scanning result
+              uses: actions/upload-artifact@v2
+              if:  ${{ always() }}
+              with:
+                path: ${{ steps.slither.outputs.sarif }}

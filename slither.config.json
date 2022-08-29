@@ -1,0 +1,4 @@
+
+{
+    "filter_paths": "test|contracts\/[^\/]+sol"
+}
