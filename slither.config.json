@@ -1,4 +1,5 @@
 
 {
-    "filter_paths": "test|contracts\/[^\/]+sol"
+    "filter_paths": "test|contracts\/[^\/]+sol",
+    "detectors_to_exclude": "naming-convention,solc-version"
 }
