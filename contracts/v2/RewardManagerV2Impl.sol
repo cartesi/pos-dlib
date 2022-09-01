@@ -17,12 +17,14 @@ pragma solidity ^0.8.0;
 
 import "@cartesi/util/contracts/Bitmask.sol";
 import "@openzeppelin/contracts-0.8/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-0.8/token/ERC20/utils/SafeERC20.sol";
 
 import "./IHistoricalData.sol";
 import "./IRewardManagerV2.sol";
 
 contract RewardManagerV2Impl is IRewardManagerV2 {
     using Bitmask for mapping(uint256 => uint256);
+    using SafeERC20 for IERC20;
 
     mapping(uint256 => uint256) internal rewarded;
     uint256 immutable rewardValue;
@@ -55,9 +57,10 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
         require(msg.sender == pos, "Only the pos contract can call");
 
         uint256 cReward = currentReward();
-        ctsi.transfer(_address, cReward);
 
         emit Rewarded(_sidechainBlockNumber, cReward);
+
+        ctsi.safeTransfer(_address, cReward);
     }
 
     /// @notice Rewards sidechain blocks for V2 chains
@@ -66,7 +69,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
         external
         override
     {
-        for (uint256 i; i < _sidechainBlockNumbers.length; ) {
+        for (uint256 i = 0; i < _sidechainBlockNumbers.length; ) {
             require(
                 !rewarded.getBit(_sidechainBlockNumbers[i]),
                 "The block has been rewarded"
@@ -81,10 +84,10 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
 
             require(cReward > 0, "RewardManager has no funds");
 
-            ctsi.transfer(producer, cReward);
-            setRewarded(_sidechainBlockNumbers[i]);
-
             emit Rewarded(_sidechainBlockNumbers[i], cReward);
+
+            ctsi.safeTransfer(producer, cReward);
+            setRewarded(_sidechainBlockNumbers[i]);
 
             unchecked {
                 ++i;

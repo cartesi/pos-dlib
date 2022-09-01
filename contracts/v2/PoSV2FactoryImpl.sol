@@ -56,8 +56,6 @@ contract PoSV2FactoryImpl is Ownable, PoSV2Factory {
             _version
         );
 
-        pos.transferOwnership(msg.sender);
-
         emit NewChain(
             address(pos),
             _ctsiAddress,
@@ -71,6 +69,8 @@ contract PoSV2FactoryImpl is Ownable, PoSV2Factory {
             _rewardDelay,
             _version
         );
+
+        pos.transferOwnership(msg.sender);
 
         return address(pos);
     }

@@ -99,8 +99,8 @@ contract PoSV2Impl is
 
         emit BlockProduced(user, msg.sender, sidechainBlockNumber, "");
 
-        rewardManager.reward(sidechainBlockNumber, msg.sender);
         HistoricalDataImpl.updateLatest(user, sidechainBlockNumber + 1);
+        rewardManager.reward(sidechainBlockNumber, msg.sender);
 
         return true;
     }
@@ -181,7 +181,7 @@ contract PoSV2Impl is
         return address(rewardManager);
     }
 
-    function terminate() public override onlyOwner {
+    function terminate() external override onlyOwner {
         require(
             rewardManager.getCurrentReward() == 0,
             "RewardManager still holds funds"

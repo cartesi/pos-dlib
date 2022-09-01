@@ -15,7 +15,7 @@
 pragma solidity ^0.8.0;
 
 library Difficulty {
-    uint32 constant ADJUSTMENT_BASE = 1000000; // 1M
+    uint32 constant ADJUSTMENT_BASE = 1e6; // 1M
 
     /// @notice Calculates new difficulty parameter
     function getNewDifficulty(

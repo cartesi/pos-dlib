@@ -36,6 +36,7 @@ library Eligibility {
         // cannot produce if block selector goal hasnt been decided yet
         // goal is defined the block after selection was reset
         // cannot produce if weight is zero
+        //slither-disable-next-line  incorrect-equality
         if (getSelectionBlocksPassed(_ethBlockStamp) == 0 || _weight == 0) {
             return UINT256_MAX;
         }
@@ -80,6 +81,7 @@ library Eligibility {
 
         // if difference is multiple of 256 (256, 512, 1024)
         // preserve old target
+        //slither-disable-next-line  incorrect-equality
         if (diff % C_256 == 0) {
             return _previousTarget + ((res - 1) * C_256);
         }
@@ -107,6 +109,7 @@ library Eligibility {
 
             // if blocksPassed is multiple of 256, 256 blocks have passed
             // this avoids blocksPassed going to zero right before target change
+            //slither-disable-next-line  incorrect-equality
             if (blocksPassed % C_256 == 0) return C_256;
 
             return blocksPassed % C_256;
