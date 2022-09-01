@@ -16,10 +16,9 @@ jobs:
 
             - name: Run Slither scan
               uses: crytic/slither-action@v0.1.1
-              continue-on-error: true
               id: slither
               with:
-                  node-version: 16
+                  node-version: "16"
                   sarif: results.sarif
                   slither-args: "--exclude-dependencies"
 
