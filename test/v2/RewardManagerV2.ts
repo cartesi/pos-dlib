@@ -39,7 +39,7 @@ describe("RewardManagerV2", async () => {
     const deployRewardManagerV2 = async (
         rewardValue: BigNumberish,
         rewardDelay: BigNumberish,
-        posAddress: String = mockPoS.address
+        posAddress: string = mockPoS.address
     ): Promise<RewardManagerV2Impl> => {
         const [signer] = await ethers.getSigners();
         const { Bitmask } = await deployments.all();

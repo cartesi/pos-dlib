@@ -44,6 +44,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
         uint32 _rewardDelay
     ) {
         ctsi = IERC20(_ctsiAddress);
+        //slither-disable-next-line  missing-zero-check
         pos = _posAddress;
 
         rewardValue = _rewardValue;
