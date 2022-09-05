@@ -76,6 +76,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
                 "The block has been rewarded"
             );
 
+            //slither-disable-next-line  calls-loop
             (bool isValid, address producer) = IHistoricalData(pos)
                 .isValidBlock(_sidechainBlockNumbers[i], rewardDelay);
 
@@ -121,6 +122,7 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
     }
 
     function balance() private view returns (uint256) {
+        //slither-disable-next-line  calls-loop
         return ctsi.balanceOf(address(this));
     }
 
