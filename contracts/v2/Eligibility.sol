@@ -77,6 +77,7 @@ library Eligibility {
 
     function getSeed(uint256 _previousTarget) internal view returns (uint256) {
         uint256 diff = block.number - _previousTarget;
+        //slither-disable-next-line  divide-before-multiply
         uint256 res = diff / C_256;
 
         // if difference is multiple of 256 (256, 512, 1024)
@@ -86,6 +87,7 @@ library Eligibility {
             return _previousTarget + ((res - 1) * C_256);
         }
 
+        //slither-disable-next-line  divide-before-multiply
         return _previousTarget + (res * C_256);
     }
 
