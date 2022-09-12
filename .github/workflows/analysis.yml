@@ -15,7 +15,7 @@ jobs:
             - run: yarn install
 
             - name: Run Slither scan
-              uses: crytic/slither-action@v0.1.1
+              uses: crytic/slither-action@dev
               id: slither
               with:
                   node-version: "16"
