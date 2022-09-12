@@ -19,4 +19,18 @@ jobs:
               id: slither
               with:
                   node-version: "16"
+                  sarif: results.sarif
                   slither-args: "--exclude-dependencies"
+                  slither-version: "master"
+
+            - name: Process sarif report
+              if: ${{ always() }}
+              uses: Ayrx/sarif_to_github_annotations@v0.2.2
+              with:
+                sarif_file: ${{ steps.slither.outputs.sarif }}
+
+            - name: Upload scanning result
+              uses: actions/upload-artifact@v2
+              if:  ${{ always() }}
+              with:
+                path: ${{ steps.slither.outputs.sarif }}
