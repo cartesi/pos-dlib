@@ -29,8 +29,8 @@ contract DifficultyManagerImpl is ADifficultyManager {
     uint256 difficulty;
 
     constructor(
+        uint128 _initialDifficulty,
         uint64 _minDifficulty,
-        uint64 _initialDifficulty,
         uint32 _difficultyAdjustmentParameter,
         uint32 _targetInterval
     ) {

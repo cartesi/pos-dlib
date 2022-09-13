@@ -53,8 +53,8 @@ contract PoSV2Impl is
         address _stakingAddress,
         address _workerAuthAddress,
         // DifficultyManager constructor parameters
+        uint128 _initialDifficulty,
         uint64 _minDifficulty,
-        uint64 _initialDifficulty,
         uint32 _difficultyAdjustmentParameter,
         uint32 _targetInterval,
         // RewardManager constructor parameters
@@ -63,8 +63,8 @@ contract PoSV2Impl is
         uint32 _version
     )
         DifficultyManagerImpl(
-            _minDifficulty,
             _initialDifficulty,
+            _minDifficulty,
             _difficultyAdjustmentParameter,
             _targetInterval
         )
