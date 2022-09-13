@@ -100,7 +100,7 @@ contract PoSV2Impl is
         emit BlockProduced(user, msg.sender, sidechainBlockNumber, "");
 
         HistoricalDataImpl.updateLatest(user, sidechainBlockNumber + 1);
-        rewardManager.reward(sidechainBlockNumber, msg.sender);
+        rewardManager.reward(sidechainBlockNumber, user);
 
         return true;
     }
