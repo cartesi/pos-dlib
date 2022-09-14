@@ -96,11 +96,11 @@ task("posV2:create", "Create the main PoS contract")
             version
         );
 
-        await pos_tx.wait(1);
+        const pos_receipt = await pos_tx.wait(1);
         const pos_address = (
             await posV2Factory.queryFilter(
                 posV2Factory.filters.NewChain(),
-                pos_tx.blockHash
+                pos_receipt.blockHash
             )
         )[0].args.pos;
         console.log(`PoS created at: ${pos_address}`);
