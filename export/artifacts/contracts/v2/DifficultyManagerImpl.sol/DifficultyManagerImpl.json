@@ -1,0 +1,72 @@
+{
+  "contractName": "DifficultyManagerImpl",
+  "sourceName": "contracts/v2/DifficultyManagerImpl.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint128",
+          "name": "_initialDifficulty",
+          "type": "uint128"
+        },
+        {
+          "internalType": "uint64",
+          "name": "_minDifficulty",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_difficultyAdjustmentParameter",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_targetInterval",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "difficulty",
+          "type": "uint256"
+        }
+      ],
+      "name": "DifficultyUpdated",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x60e060405234801561001057600080fd5b5060405161014c38038061014c83398101604081905261002f91610078565b6001600160401b039092166080526001600160801b0390921660005563ffffffff91821660a0521660c0526100e9565b805163ffffffff8116811461007357600080fd5b919050565b6000806000806080858703121561008e57600080fd5b84516001600160801b03811681146100a557600080fd5b60208601519094506001600160401b03811681146100c257600080fd5b92506100d06040860161005f565b91506100de6060860161005f565b905092959194509250565b60805160a05160c051603f61010d600039600050506000505060005050603f6000f3fe6080604052600080fdfea26469706673582212209a24003a7206510c3d00a5104f314ba7922f7810de91f2703a2bd9bd770bc74b64736f6c634300080e0033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212209a24003a7206510c3d00a5104f314ba7922f7810de91f2703a2bd9bd770bc74b64736f6c634300080e0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "evm": {
+    "gasEstimates": {
+      "creation": {
+        "codeDepositCost": "12600",
+        "executionCost": "infinite",
+        "totalCost": "infinite"
+      },
+      "internal": {
+        "adjustDifficulty(uint256)": "infinite"
+      }
+    },
+    "methodIdentifiers": {}
+  }
+}

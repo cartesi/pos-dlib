@@ -1,0 +1,29 @@
+{
+  "contractName": "DecoratedV2",
+  "sourceName": "@cartesi/util/contracts/DecoratedV2.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212203e1f247e6cd5abf4434448b5230e616396e100321636dae2c840327da3e0605c64736f6c634300080e0033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212203e1f247e6cd5abf4434448b5230e616396e100321636dae2c840327da3e0605c64736f6c634300080e0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "evm": {
+    "gasEstimates": {
+      "creation": {
+        "codeDepositCost": "12600",
+        "executionCost": "66",
+        "totalCost": "12666"
+      }
+    },
+    "methodIdentifiers": {}
+  }
+}

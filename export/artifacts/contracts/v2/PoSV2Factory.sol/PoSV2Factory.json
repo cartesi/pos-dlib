@@ -1,0 +1,185 @@
+{
+  "contractName": "PoSV2Factory",
+  "sourceName": "contracts/v2/PoSV2Factory.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "pos",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "ctsiAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "stakingAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "workerAuthAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint128",
+          "name": "initialDifficulty",
+          "type": "uint128"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "minDifficulty",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "difficultyAdjustmentParameter",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "targetInterval",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "rewardValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "rewardDelay",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "version",
+          "type": "uint32"
+        }
+      ],
+      "name": "NewChain",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_ctsiAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_stakingAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_workerAuthAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint128",
+          "name": "_initialDifficulty",
+          "type": "uint128"
+        },
+        {
+          "internalType": "uint64",
+          "name": "_minDifficulty",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_difficultyAdjustmentParameter",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_targetInterval",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_rewardValue",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_rewardDelay",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_version",
+          "type": "uint32"
+        }
+      ],
+      "name": "createNewChain",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "devdoc": {
+    "events": {
+      "NewChain(address,address,address,address,uint128,uint64,uint32,uint32,uint256,uint32,uint32)": {
+        "params": {
+          "pos": "address of the new chain"
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "createNewChain(address,address,address,uint128,uint64,uint32,uint32,uint256,uint32,uint32)": {
+        "returns": {
+          "_0": "new chain address"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "NewChain(address,address,address,address,uint128,uint64,uint32,uint32,uint256,uint32,uint32)": {
+        "notice": "Event emmited when a new chain is created"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "createNewChain(address,address,address,uint128,uint64,uint32,uint32,uint256,uint32,uint32)": {
+        "notice": "Creates a new chain pos contract emits NewChain with the parameters of the new chain"
+      }
+    },
+    "version": 1
+  },
+  "evm": {
+    "gasEstimates": null,
+    "methodIdentifiers": {
+      "createNewChain(address,address,address,uint128,uint64,uint32,uint32,uint256,uint32,uint32)": "6426c79c"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "contractName": "Decorated",
+  "sourceName": "@cartesi/util/contracts/Decorated.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220138fc08ff1adb34c93cc335b11b54bad1ba1900e6c6ef2475d82c9d7d5927dbb64736f6c63430007040033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220138fc08ff1adb34c93cc335b11b54bad1ba1900e6c6ef2475d82c9d7d5927dbb64736f6c63430007040033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "evm": {
+    "gasEstimates": {
+      "creation": {
+        "codeDepositCost": "12600",
+        "executionCost": "66",
+        "totalCost": "12666"
+      }
+    },
+    "methodIdentifiers": {}
+  }
+}

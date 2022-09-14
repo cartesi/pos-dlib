@@ -1,0 +1,34 @@
+{
+  "contractName": "EligibilityCalImpl",
+  "sourceName": "contracts/v2/EligibilityCalImpl.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220530ff7127fd62d918d0afb2ef3708746050fce12395975bd44c4b3cd8c62571264736f6c634300080e0033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220530ff7127fd62d918d0afb2ef3708746050fce12395975bd44c4b3cd8c62571264736f6c634300080e0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "evm": {
+    "gasEstimates": {
+      "creation": {
+        "codeDepositCost": "12600",
+        "executionCost": "66",
+        "totalCost": "12666"
+      },
+      "internal": {
+        "canProduceBlock(uint256,uint256,address,uint256)": "infinite",
+        "getSelectionBlocksPassed(uint256)": "infinite",
+        "whenCanProduceBlock(uint256,uint256,address,uint256)": "infinite"
+      }
+    },
+    "methodIdentifiers": {}
+  }
+}

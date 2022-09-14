@@ -1,0 +1,125 @@
+{
+  "contractName": "IRewardManagerV2",
+  "sourceName": "contracts/v2/IRewardManagerV2.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "sidechainBlockNumber",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "reward",
+          "type": "uint256"
+        }
+      ],
+      "name": "Rewarded",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "getBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCurrentReward",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_sidechainBlockNumber",
+          "type": "uint32"
+        }
+      ],
+      "name": "isRewarded",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32[]",
+          "name": "_sidechainBlockNumbers",
+          "type": "uint32[]"
+        }
+      ],
+      "name": "reward",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "reward(uint32[])": {
+        "params": {
+          "_sidechainBlockNumbers": "array of sidechain block numbers"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "getBalance()": {
+        "notice": "Get RewardManager's balance"
+      },
+      "getCurrentReward()": {
+        "notice": "Get current reward amount"
+      },
+      "isRewarded(uint32)": {
+        "notice": "Check if a sidechain block reward is claimed"
+      },
+      "reward(uint32[])": {
+        "notice": "Rewards sidechain blocks for V2 chains"
+      }
+    },
+    "version": 1
+  },
+  "evm": {
+    "gasEstimates": null,
+    "methodIdentifiers": {
+      "getBalance()": "12065fe0",
+      "getCurrentReward()": "8aec8542",
+      "isRewarded(uint32)": "09b29068",
+      "reward(uint32[])": "85ac2fa9"
+    }
+  }
+}

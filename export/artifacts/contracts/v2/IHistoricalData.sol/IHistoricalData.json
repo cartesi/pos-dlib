@@ -1,0 +1,161 @@
+{
+  "contractName": "IHistoricalData",
+  "sourceName": "contracts/v2/IHistoricalData.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "getEthBlockStamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getLastProducer",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSidechainBlock",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "producer",
+              "type": "address"
+            },
+            {
+              "internalType": "uint32",
+              "name": "mainchainBlockNumber",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "dataHash",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct IHistoricalData.BlockData",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getSidechainBlockCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_sidechainBlockNumber",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_depthDiff",
+          "type": "uint32"
+        }
+      ],
+      "name": "isValidBlock",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "isValidBlock(uint32,uint32)": {
+        "params": {
+          "_depthDiff": "the minimal depth diff to validate sidechain block",
+          "_sidechainBlockNumber": "the sidechain block number to validate"
+        },
+        "returns": {
+          "_0": "bool is the sidechain block valid",
+          "_1": "address the producer of the sidechain block"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "getEthBlockStamp()": {
+        "notice": "Get mainchain block number of last sidechain block"
+      },
+      "getLastProducer()": {
+        "notice": "Get the producer of last sidechain block"
+      },
+      "getSidechainBlock(uint256)": {
+        "notice": "Get a V2 sidechain block"
+      },
+      "getSidechainBlockCount()": {
+        "notice": "Get sidechain block count"
+      },
+      "isValidBlock(uint32,uint32)": {
+        "notice": "Validate a V2 sidechain block"
+      }
+    },
+    "version": 1
+  },
+  "evm": {
+    "gasEstimates": null,
+    "methodIdentifiers": {
+      "getEthBlockStamp()": "67faa2b6",
+      "getLastProducer()": "52e031e5",
+      "getSidechainBlock(uint256)": "01cc7c4d",
+      "getSidechainBlockCount()": "7aad19ff",
+      "isValidBlock(uint32,uint32)": "faab2c90"
+    }
+  }
+}

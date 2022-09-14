@@ -1,0 +1,152 @@
+{
+  "contractName": "IPoSV2",
+  "sourceName": "contracts/v2/IPoSV2.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "worker",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "sidechainBlockNumber",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "BlockProduced",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        }
+      ],
+      "name": "canProduceBlock",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_parent",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "produceBlock",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "terminate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        }
+      ],
+      "name": "whenCanProduceBlock",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "produceBlock(uint32,bytes)": {
+        "details": "this function can only be called by a worker, user never calls it directly",
+        "params": {
+          "_data": "the data to store in the block",
+          "_parent": "the parent block that current block appends to"
+        }
+      },
+      "whenCanProduceBlock(address)": {
+        "returns": {
+          "_0": "uint256 mainchain block number when the user can produce a sidechain block"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "canProduceBlock(address)": {
+        "notice": "Check if address is allowed to produce block"
+      },
+      "produceBlock(uint32,bytes)": {
+        "notice": "Produce a block in V2 chains"
+      },
+      "whenCanProduceBlock(address)": {
+        "notice": "Get when _user is allowed to produce a sidechain block"
+      }
+    },
+    "version": 1
+  },
+  "evm": {
+    "gasEstimates": null,
+    "methodIdentifiers": {
+      "canProduceBlock(address)": "8e6a8129",
+      "produceBlock(uint32,bytes)": "8936b63b",
+      "terminate()": "0c08bf88",
+      "whenCanProduceBlock(address)": "50868956"
+    }
+  }
+}
