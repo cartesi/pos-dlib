@@ -207,6 +207,7 @@ task("posV2:show", "Show staking information")
             posAddress: string;
             version: number;
             isActive: boolean;
+            blockCount: number;
             canProduceBlock: boolean;
             whenCanProduceBlock: string;
             rewardManagerAddress: string;
@@ -215,8 +216,9 @@ task("posV2:show", "Show staking information")
 
         for (var chain of chains) {
             const pos = PoSV2Impl__factory.connect(chain.args.pos, signer);
-            const active = await pos.active();
+            const isActive = await pos.active();
             const version = chain.args.version;
+            const blockCount = (await pos.getSidechainBlockCount()).toNumber();
             const canProduceBlock = await pos.canProduceBlock(address);
             const whenCanProduceBlock = await pos.whenCanProduceBlock(address);
             const rewardManagerAddress = await pos.getRewardManagerAddress(0);
@@ -228,7 +230,8 @@ task("posV2:show", "Show staking information")
             states.push({
                 posAddress: pos.address,
                 version,
-                isActive: active,
+                isActive,
+                blockCount,
                 canProduceBlock,
                 whenCanProduceBlock: formatUnits(whenCanProduceBlock, 0),
                 rewardManagerAddress,
