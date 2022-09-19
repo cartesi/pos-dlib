@@ -120,8 +120,7 @@ task("posV2:terminate", "Deativate a PoS instance")
     )
     .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
         const { ethers } = hre;
-        const { PoSV2Impl__factory, PoSV2FactoryImpl__factory } =
-            await require("../types");
+        const { PoSV2Impl__factory } = await require("../types");
 
         const [deployer] = await ethers.getSigners();
         const pos = PoSV2Impl__factory.connect(args.pos, deployer);
@@ -295,4 +294,48 @@ task("posV2:produceBlock", "Produce a V1 block using local node")
         const pos = PoSV2Impl__factory.connect(args.pos, signer);
         const tx = await pos["produceBlock(uint256)"](0);
         console.log(`tx: ${tx.hash}`);
+    });
+
+task("posV2:verify", "Verify a posV2 on etherscan")
+    .addPositionalParam(
+        "pos",
+        "Address of pos instance to verify",
+        undefined,
+        types.string
+    )
+    .setAction(async (args: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+        const { deployments, ethers } = hre;
+        const { Bitmask, PoSV2FactoryImpl } = await deployments.all();
+        const { PoSV2FactoryImpl__factory } = await require("../types");
+
+        const [deployer] = await ethers.getSigners();
+        const posV2Factory = PoSV2FactoryImpl__factory.connect(
+            PoSV2FactoryImpl.address,
+            deployer
+        );
+
+        const chains = await posV2Factory.queryFilter(
+            posV2Factory.filters.NewChain(args.pos)
+        );
+
+        console.log(`verifying posV2 ${args.pos}`);
+
+        await hre.run("verify:verify", {
+            address: args.pos,
+            constructorArguments: [
+                chains[0].args.ctsiAddress,
+                chains[0].args.stakingAddress,
+                chains[0].args.workerAuthAddress,
+                chains[0].args.initialDifficulty,
+                chains[0].args.minDifficulty,
+                chains[0].args.difficultyAdjustmentParameter,
+                chains[0].args.targetInterval,
+                chains[0].args.rewardValue,
+                chains[0].args.rewardDelay,
+                chains[0].args.version,
+            ],
+            libraries: {
+                Bitmask: Bitmask.address,
+            },
+        });
     });
