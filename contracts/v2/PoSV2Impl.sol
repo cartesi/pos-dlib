@@ -192,7 +192,8 @@ contract PoSV2Impl is
 
     function _produceBlock() internal returns (address) {
         require(
-            workerAuth.isAuthorized(msg.sender, factory),
+            workerAuth.isAuthorized(msg.sender, factory) ||
+                workerAuth.isAuthorized(msg.sender, address(this)),
             "msg.sender is not authorized"
         );
 
