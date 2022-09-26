@@ -1,6 +1,12 @@
-# PoS DLib - Proof of Stake DLib
+# PoS DLib - Proof of Stake DLib Version 2.0
 
-This repository will hold the main components to choose a random participant based on Proof of Stake, meaning that the probability to be chosen at random is proportional to the amount of tokens held by the participant.
+This repository will hold the main components to choose a random participant based on Proof of Stake, meaning that the probability to be chosen at random is proportional to the amount of tokens staked by the participant. It's a upgraded version from [Cartesi PoS 1.0](https://github.com/cartesi/pos-dlib/tree/v1.1.2), introducing new features, better modularized design, more efficient gas cost and 100% backward compatibility to PoS 1.0.
+
+The dlib can be used under two modes: V1 compatible mode and V2 mode. This document covers the usage of V1 compatible mode.
+
+Here is the overview diagram of V1 compatible mode:
+
+<p align="center"><img src="overview.png" alt="overview diagram" title= "overview diagram" width="70%" /></p>
 
 # Selection process
 
@@ -44,7 +50,7 @@ This means that the average time for a block to appear is given by `difficulty/b
 
 # Staking
 
-In order for tokens to increase the chance of a user being selected they have to be staked. That interaction is done through the StakingImpl.sol contract, which offers four main functions:
+In order for tokens to increase the chance of a user being selected they have to be staked. That interaction is done through the `StakingImpl.sol` contract, which offers four main functions:
 
 - `stake(uint256 _amount)`, where a user can deposit CTSI tokens for them to be staked. When new tokens get deposited or `staked` they are subject to the `timeToStake` delay.
 
@@ -55,42 +61,58 @@ In order for tokens to increase the chance of a user being selected they have to
 - `getStakedBalance(address _userAddress)` returns the sum of tokens inside the `staking mapping` plus the tokens inside the `maturing mapping` (if those tokens have been there for more than `timeToStake`seconds).
 
 ## Unintuitive behaviour:
+
 Tokens deposited will count as a staked balance after a maturation time. The function `stake(uint _amount)` checks if there are mature tokens to be staked. Being the case, it transforms them into staked balance and adds the new tokens to the `maturing mappping`, starting by the tokens already stored and available on the `releasing mapping`. If there are not enough tokens on the `releasing mapping` to cover the `_amount` sent as a parameter then `ERC20.transferFrom` will be called, sending the remaining tokens from `msg.sender` account to the `StakingImpl` contract. The tokens `staked` do not count as `stakedBalance` until they mature. The maturation period is defined when the contract is deployed.
 If the last deposit has already matured (and is counted when `getStakedBalance` is called) it gets moved to the "staked bucket". If not, it's maturation gets reset - meaning that the entirety of tokens matured (the old ones plus the new ones) will mature at the same time in `timeToStake` seconds.
 The same is true for the `unstake()` function - any tokens waiting to be released will have their deadlines reset if new tokens are added to the "withdraw bucket".
 When unstaking the priority are tokens that are in the "maturing bucket" and then the ones in the already staked one. This behaviour was chosen because it is the one most helpful to the users, since their staked tokens might be generating revenue.
 
-# Block Selector
+# Eligibility
 
-The Block Selector contract manages the selection of an address every `targetInterval` blocks according to the weighted random selection [described above](#selection-process).
+The Eligibility library contract manages the selection of an address every `targetInterval` blocks according to the weighted random selection [described above](#selection-process).
 
-When the function `produceBlock()` is called, the contract check if the address sent as a parameter fits the current random weighted selection and, if it does, declares a block as produced by returning true. Every time a block is deemed produced, the private function `_blockProduced` is called, storing the address of the producer and starting a new selection process with an updated difficulty.
+The method `whenCanProduceBlock` calculates when the user address is eligible to produce a block.
 
-The new difficulty is defined by the `getNewDifficulty` method, which takes into account the difference between the target interval and the actual interval and adjusts the difficulty based on the `adjustmentParam`, defined on the `instantiate` function.
+The functionality of the library is inherited by PoSV2Impl contract through `EligibilityCalImpl.sol`
 
-# RewardManager
+# Difficulty
 
-Users that get selected by the `BlockSelector.sol` contract, which implements the aforementioned selection process, are rewarded by the RewardManager contract. This contract is responsible for calculating the correct prize in CTSI and also for transferring that to the selected address - which is informed by the PoS main contract.
+The Difficulty library contract manages the difficulty adjustment after every block production.
 
-The contract suggests payments according to this rule:
-reward = (contract_balance * distNumerator) / distDenominator;
+The new difficulty is defined by the `getNewDifficulty` method, which takes into account the difference between the target interval and the actual interval and adjusts the difficulty based on the `adjustmentParam`.
 
-If reward is bigger than `maxReward`, the contract pays `maxReward`.
-If reward is smaller than `minReward`, the contract pays the `minReward`. Finally, If the reward is bigger than the contract's balance, it pays the balance.
+The functionality of the library is inherited by PoSV2Impl contract through `DifficultyManagerImpl.sol`
 
-The function `reward` can only be called by an `operator`, defined during the contract's deployment. The operator is supposed to be a smart contract (the pos contract), not an EOA.
+# RewardManagerV2
 
-## Unintuitive behaviour:
-The `operator` has the right to "order" the `RewardManager` contract to send any amount of tokens to any address, by calling the `reward()` function. However, the operator is expected to always use the `getCurrentReward()` to decide the correct amount and act accordingly.
+Users that get selected by the `Eligibility.sol` contract, which implements the aforementioned selection process, are rewarded by the RewardManager contract. This contract is responsible for transferring the prize in CTSI to the selected address - which is informed by the PoS main contract.
 
-# PoS
-The PoS contract is the main concern when dealing with the Noether architecture, it manages the interactions between the Staking, BlockSelector and RewardManager. It is responsible for making sure permissioned calls are secure, instantiating the BlockSelector and guiding the RewardManager on whom to transfer money to. It is also the main concern and the contract that will interact with the offchain part of this dlib.
+The reward is fixed at 2900.0 CTSI per block production.
 
-The contract instantiates a `BlockSelector` instance in order to control the weigthed random selection of addresses and uses the `RewardManager` contract to manage the transfer of rewards.
+# PoSV2
 
-The worker, representing a user, will constantly check off-chain if the address they are representing has been selected and, if so, they'll call the `produceBlock()` function of PoS on their behalf.
+The PoSV2 contract is the main concern when dealing with the Noether architecture, it manages the interactions between the Staking and RewardManagerV2. It is responsible for making sure permissioned calls are secure, instantiating and guiding the RewardManagerV2 on whom to transfer money to. It is also the main concern and the contract that will interact with the offchain part of this dlib.
+
+The contract instantiates a `RewardManagerV2Impl` contract to manage the transfer of rewards.
+
+The worker, representing a user, will constantly check off-chain if the address they are representing has been selected and, if so, they'll call the `produceBlock()` function of PoSV2 on their behalf.
 The `produceBlock()` checks if the `msg.sender` is an authorized representant of the selected address and, if they are, rewards the owner of that worker according to the `rewardManager` current reward definition.
-A user has the right to add a beneficiary, which often will be the worker representing them, if they're not running that worker themselves. A beneficiary is defined by the function `addBeneficiary`, which receives a `split` variable. The `split` defines the percentage of each reward dedicated to the user that will go to the beneficiary, according to the math: `reward * split / SPLIT_BASE`, where `SPLIT_BASE` is equal to `10000`.
+
+The PoSV2 can work under two modes: V1 compatible mode and V2 mode, which is defined by `version` state when the contract is deployed by the `PoSV2FactoryImpl.sol`.
+
+Some useful functions that PoSV2 has to offer
+
+- `produceBlock(uint256)`, the `uint256` parameter has no real use in the method but only to maintain the same signature as PoS 1.0. This call produces a new block if the user is eligible to and represented by the `msg.sender` who is authorized for the interaction.
+
+- `whenCanProduceBlock(address _user)`, returns a mainchain block number when the `_user` is eligible to produce a block. `UINT256_MAX` is returned when the block selection process is not ready or `_user` has zero stake.
+
+- `canProduceBlock(address _user)`, a convinient method that checks if the current mainchain block number has passed the value returned by `whenCanProduceBlock`. Returns `true` if the `_user` can produce a block immediately.
+
+- `getEthBlockStamp()`, returns the mainchain block number of last block production.
+
+- `getLastProducer()` returns the user address of last block production.
+
+- `getSidechainBlockCount()`, returns the number of total blocks have been produced.
 
 # Contributing
 
@@ -103,6 +125,7 @@ Please note we have a [Code of Conduct](CODE_OF_CONDUCT.md), please follow it in
 
 * *Felipe Argento*
 * *Danilo Tuler*
+* *Stephen Chen*
 
 # License
 
