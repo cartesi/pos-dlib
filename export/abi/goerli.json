@@ -1360,7 +1360,7 @@
       ]
     },
     "PoSV2FactoryImpl": {
-      "address": "0x79b8b740B07208258100216FDfaDa15700981681",
+      "address": "0x4A1404FA066cDb6257A930a6E4694658c2f50b0A",
       "abi": [
         {
           "anonymous": false,
