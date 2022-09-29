@@ -20,7 +20,7 @@ import "@cartesi/util/contracts/DecoratedV2.sol";
 
 contract BlockSelectorV2 is InstantiatorImplV2, DecoratedV2 {
     uint256 constant C_256 = 256; // 256 blocks
-    uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256 * 1e18; //256 M
+    uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256 * 1e18; // 256 with 18 decimal places
     uint256 constant ADJUSTMENT_BASE = 1000000; // 1M
 
     struct BlockSelectorCtx {

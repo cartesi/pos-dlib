@@ -118,7 +118,7 @@ contract EligibilityTest is Test, EligibilityCalImpl {
         ];
         uint256[4] memory counts;
 
-        uint256 mainchainDifficulty = 25798284791319440457930; //extracted from mainnet; 240mi ctsi staked
+        uint256 mainchainDifficulty = 25798284791319440457930; // extracted from mainnet; 240mi ctsi staked
 
         uint256 ethBlockStamp = block.number;
 

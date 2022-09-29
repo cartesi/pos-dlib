@@ -19,7 +19,7 @@ import "@cartesi/util/contracts/UnrolledCordic.sol";
 library Eligibility {
     uint256 constant C_40 = 40; // 40 blocks
     uint256 constant C_256 = 256; // 256 blocks
-    uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256 * 1e18; //256 M
+    uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256 * 1e18; // 256 with 18 decimal places
     uint256 constant UINT256_MAX = 2**256 - 1;
 
     /// @notice Check when address is allowed to produce block
