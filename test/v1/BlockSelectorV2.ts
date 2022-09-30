@@ -81,11 +81,18 @@ describe("BlockSelectorV2", async () => {
     async function setup() {
         await deployments.fixture();
 
+        const { deploy } = deployments;
         [signer, alice] = await ethers.getSigners();
         provider = signer.provider as JsonRpcProvider;
 
-        const bsAddress = (await deployments.get("BlockSelectorV2")).address;
-        blockSelector = BlockSelectorV2__factory.connect(bsAddress, signer);
+        const { UnrolledCordic } = await deployments.all();
+        const { address } = await deploy("BlockSelectorV2", {
+            from: await signer.getAddress(),
+            log: true,
+            libraries: { UnrolledCordic: UnrolledCordic.address },
+        });
+
+        blockSelector = BlockSelectorV2__factory.connect(address, signer);
     }
 
     beforeEach(async () => {
