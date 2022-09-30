@@ -28,7 +28,7 @@ contract EligibilityCalImpl is AEligibilityCal {
         uint256 _weight
     ) internal view override returns (bool) {
         return
-            block.number >=
+            block.number >
             Eligibility.whenCanProduceBlock(
                 _difficulty,
                 _ethBlockStamp,

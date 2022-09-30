@@ -41,7 +41,7 @@ library Eligibility {
             return UINT256_MAX;
         }
 
-        uint256 multiplier = 0;
+        uint256 multiplier;
         // we want overflow and underflow on purpose
         unchecked {
             multiplier =
@@ -50,10 +50,10 @@ library Eligibility {
         }
 
         uint256 blocksToWait = (_difficulty * multiplier) / (_weight * 1e12);
+        uint256 cycleOf256 = C_256 *
+            ((block.number - _ethBlockStamp - C_40 - 1) / C_256);
 
-        unchecked {
-            return blocksToWait + _ethBlockStamp + C_40;
-        }
+        return blocksToWait + _ethBlockStamp + C_40 + cycleOf256;
     }
 
     /// @notice Calculates the log of the random number between the goal and callers address
@@ -66,7 +66,9 @@ library Eligibility {
         returns (uint256)
     {
         // seed for goal takes a block in the future (+40) so it is harder to manipulate
-        bytes32 currentGoal = blockhash(getSeed(_ethBlockStamp + C_40));
+        bytes32 currentGoal = blockhash(
+            getSeed(_ethBlockStamp + C_40, block.number)
+        );
         bytes32 hashedAddress = keccak256(abi.encodePacked(_user));
         uint256 distance = uint256(
             keccak256(abi.encodePacked(hashedAddress, currentGoal))
@@ -75,8 +77,12 @@ library Eligibility {
         return UnrolledCordic.log2Times1e18(distance);
     }
 
-    function getSeed(uint256 _previousTarget) internal view returns (uint256) {
-        uint256 diff = block.number - _previousTarget;
+    function getSeed(uint256 _previousTarget, uint256 _currentBlock)
+        internal
+        pure
+        returns (uint256)
+    {
+        uint256 diff = _currentBlock - _previousTarget;
         //slither-disable-next-line  divide-before-multiply
         uint256 res = diff / C_256;
 
