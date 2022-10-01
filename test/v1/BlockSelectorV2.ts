@@ -9,15 +9,14 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-import { expect, use, util } from "chai";
+import { expect, use } from "chai";
 import { deployments, ethers } from "hardhat";
 import { BigNumberish, BigNumber, Signer, Wallet } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { solidity, MockProvider } from "ethereum-waffle";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
-import { BlockSelectorV2 } from "../../src/types/contracts/BlockSelectorV2";
-import { BlockSelectorV2__factory } from "../../src/types/factories/contracts/BlockSelectorV2__factory";
+import { BlockSelectorV2, BlockSelectorV2__factory } from "../../src/types";
 
 import { advanceBlock, advanceMultipleBlocks } from "../utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";

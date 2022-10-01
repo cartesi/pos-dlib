@@ -10,14 +10,14 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-/// @title PoSV2 gas report auxiliary report
+/// @title PoSV2 auxiliary contract
 /// @author Stephen Chen
 
 pragma solidity ^0.8.0;
 
 import "../PoSV2Impl.sol";
 
-contract PoSV2GasAux is PoSV2Impl {
+contract PoSV2Aux is PoSV2Impl {
     constructor(
         address _ctsiAddress,
         address _stakingAddress,
@@ -70,12 +70,21 @@ contract PoSV2GasAux is PoSV2Impl {
 
     // intentionally make it a transaction to reflect gas cost in hardhat gas report
     function canProduceBlockGas(
-        uint64 d,
+        uint128 d,
         uint32 e,
         address u,
         uint256 b
     ) public returns (bool) {
-        return canProduceBlock(d, e, u, b);
+        return EligibilityCalImpl.canProduceBlock(d, e, u, b);
+    }
+
+    function canProduceBlockView(
+        uint128 d,
+        uint32 e,
+        address u,
+        uint256 b
+    ) public view returns (bool) {
+        return EligibilityCalImpl.canProduceBlock(d, e, u, b);
     }
 
     function adjustDifficultyGas(uint256 b) public {
