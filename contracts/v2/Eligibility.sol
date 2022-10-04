@@ -50,6 +50,8 @@ library Eligibility {
         }
 
         uint256 blocksToWait = (_difficulty * multiplier) / (_weight * 1e12);
+        // restore the multiple 256 based on current block number
+        //slither-disable-next-line  divide-before-multiply
         uint256 cycleOf256 = C_256 *
             ((block.number - _ethBlockStamp - C_40 - 1) / C_256);
 
