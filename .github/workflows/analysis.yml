@@ -15,13 +15,12 @@ jobs:
             - run: yarn install
 
             - name: Run Slither scan
-              uses: crytic/slither-action@dev
+              uses: crytic/slither-action@v0.2.0
               id: slither
               with:
                   node-version: "16"
                   sarif: results.sarif
                   slither-args: "--exclude-dependencies"
-                  slither-version: "master"
 
             - name: Process sarif report
               if: ${{ always() }}
