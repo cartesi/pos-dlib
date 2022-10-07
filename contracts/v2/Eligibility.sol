@@ -23,8 +23,8 @@ library Eligibility {
     uint256 constant UINT256_MAX = 2**256 - 1;
 
     /// @notice Check when address is allowed to produce block
+    /// @param _difficulty difficulty of current selection process
     /// @param _ethBlockStamp ethereum block number when current selection started
-    /// @param _difficulty ethereum block number when current selection started
     /// @param _user the address that is gonna get checked
     /// @param _weight number that will weight the random number, most likely will be the number of staked tokens
     function whenCanProduceBlock(
