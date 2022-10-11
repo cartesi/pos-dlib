@@ -126,10 +126,10 @@ describe("Staking", async () => {
         await mockCTSI.mock.transferFrom.returns(true);
 
         await staking.stake(toBeDeposited);
-        await advanceTime(provider, MATURATION / 2);
+        await advanceTime(provider, Math.round(MATURATION / 2));
         await staking.stake(toBeDeposited);
 
-        await advanceTime(provider, MATURATION / 3);
+        await advanceTime(provider, Math.round(MATURATION / 3));
         await advanceBlock(provider);
 
         expect(
