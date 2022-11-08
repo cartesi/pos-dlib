@@ -20,7 +20,7 @@ library Eligibility {
     uint256 constant C_40 = 40; // 40 blocks
     uint256 constant C_256 = 256; // 256 blocks
     uint256 constant DIFFICULTY_BASE_MULTIPLIER = 256 * 1e18; // 256 with 18 decimal places
-    uint256 constant UINT256_MAX = 2**256 - 1;
+    uint256 constant UINT256_MAX = 2 ** 256 - 1;
 
     /// @notice Check when address is allowed to produce block
     /// @param _difficulty difficulty of current selection process
@@ -62,11 +62,10 @@ library Eligibility {
     /// @param _user address to calculate log of random
     /// @param _ethBlockStamp main chain block number of last sidechain block
     /// @return log of random number between goal and callers address * 1M
-    function getLogOfRandom(address _user, uint256 _ethBlockStamp)
-        internal
-        view
-        returns (uint256)
-    {
+    function getLogOfRandom(
+        address _user,
+        uint256 _ethBlockStamp
+    ) internal view returns (uint256) {
         // seed for goal takes a block in the future (+40) so it is harder to manipulate
         bytes32 currentGoal = blockhash(
             getSeed(_ethBlockStamp + C_40, block.number)
@@ -79,11 +78,10 @@ library Eligibility {
         return UnrolledCordic.log2Times1e18(distance);
     }
 
-    function getSeed(uint256 _previousTarget, uint256 _currentBlock)
-        internal
-        pure
-        returns (uint256)
-    {
+    function getSeed(
+        uint256 _previousTarget,
+        uint256 _currentBlock
+    ) internal pure returns (uint256) {
         uint256 diff = _currentBlock - _previousTarget;
         //slither-disable-next-line  divide-before-multiply
         uint256 res = diff / C_256;
@@ -103,11 +101,9 @@ library Eligibility {
     /// @param _ethBlockStamp ethereum block number of last sidechain block
     /// @return number of ethereum blocks passed since last selection goal was defined
     /// @dev blocks passed resets when target resets
-    function getSelectionBlocksPassed(uint256 _ethBlockStamp)
-        internal
-        view
-        returns (uint256)
-    {
+    function getSelectionBlocksPassed(
+        uint256 _ethBlockStamp
+    ) internal view returns (uint256) {
         unchecked {
             // new goal block is decided 40 blocks after sidechain block is created
             uint256 goalBlock = _ethBlockStamp + C_40;

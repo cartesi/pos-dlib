@@ -66,10 +66,9 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
 
     /// @notice Rewards sidechain blocks for V2 chains
     /// @param _sidechainBlockNumbers array of sidechain block numbers
-    function reward(uint32[] calldata _sidechainBlockNumbers)
-        external
-        override
-    {
+    function reward(
+        uint32[] calldata _sidechainBlockNumbers
+    ) external override {
         for (uint256 i = 0; i < _sidechainBlockNumbers.length; ) {
             require(
                 !rewarded.getBit(_sidechainBlockNumbers[i]),
@@ -108,12 +107,9 @@ contract RewardManagerV2Impl is IRewardManagerV2 {
     }
 
     /// @notice Check if a sidechain block reward is claimed
-    function isRewarded(uint32 _sidechainBlockNumber)
-        external
-        view
-        override
-        returns (bool)
-    {
+    function isRewarded(
+        uint32 _sidechainBlockNumber
+    ) external view override returns (bool) {
         return rewarded.getBit(_sidechainBlockNumber);
     }
 

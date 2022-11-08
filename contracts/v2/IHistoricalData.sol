@@ -26,10 +26,10 @@ interface IHistoricalData {
     /// @param _depthDiff the minimal depth diff to validate sidechain block
     /// @return bool is the sidechain block valid
     /// @return address the producer of the sidechain block
-    function isValidBlock(uint32 _sidechainBlockNumber, uint32 _depthDiff)
-        external
-        view
-        returns (bool, address);
+    function isValidBlock(
+        uint32 _sidechainBlockNumber,
+        uint32 _depthDiff
+    ) external view returns (bool, address);
 
     /// @notice Get mainchain block number of last sidechain block
     function getEthBlockStamp() external view returns (uint256);
@@ -41,8 +41,7 @@ interface IHistoricalData {
     function getSidechainBlockCount() external view returns (uint256);
 
     /// @notice Get a V2 sidechain block
-    function getSidechainBlock(uint256)
-        external
-        view
-        returns (BlockData memory);
+    function getSidechainBlock(
+        uint256
+    ) external view returns (BlockData memory);
 }

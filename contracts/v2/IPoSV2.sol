@@ -26,9 +26,10 @@ interface IPoSV2 {
     /// @param _parent the parent block that current block appends to
     /// @param _data the data to store in the block
     /// @dev this function can only be called by a worker, user never calls it directly
-    function produceBlock(uint32 _parent, bytes calldata _data)
-        external
-        returns (bool);
+    function produceBlock(
+        uint32 _parent,
+        bytes calldata _data
+    ) external returns (bool);
 
     /// @notice Check if address is allowed to produce block
     function canProduceBlock(address _user) external view returns (bool);

@@ -109,11 +109,10 @@ contract PoSV2Impl is
     /// @param _parent the parent block that current block appends to
     /// @param _data the data to store in the block
     /// @dev this function can only be called by a worker, user never calls it directly
-    function produceBlock(uint32 _parent, bytes calldata _data)
-        external
-        override
-        returns (bool)
-    {
+    function produceBlock(
+        uint32 _parent,
+        bytes calldata _data
+    ) external override returns (bool) {
         require(version == 2, "protocol has to be V2");
 
         address user = _produceBlock();
@@ -135,12 +134,9 @@ contract PoSV2Impl is
     }
 
     /// @notice Check if address is allowed to produce block
-    function canProduceBlock(address _user)
-        external
-        view
-        override
-        returns (bool)
-    {
+    function canProduceBlock(
+        address _user
+    ) external view override returns (bool) {
         return
             EligibilityCalImpl.canProduceBlock(
                 difficulty,
@@ -152,12 +148,9 @@ contract PoSV2Impl is
 
     /// @notice Get when _user is allowed to produce a sidechain block
     /// @return uint256 mainchain block number when the user can produce a sidechain block
-    function whenCanProduceBlock(address _user)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function whenCanProduceBlock(
+        address _user
+    ) external view override returns (uint256) {
         return
             EligibilityCalImpl.whenCanProduceBlock(
                 difficulty,

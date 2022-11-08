@@ -22,10 +22,9 @@ interface IRewardManagerV2 {
     function reward(uint32[] calldata _sidechainBlockNumbers) external;
 
     /// @notice Check if a sidechain block reward is claimed
-    function isRewarded(uint32 _sidechainBlockNumber)
-        external
-        view
-        returns (bool);
+    function isRewarded(
+        uint32 _sidechainBlockNumber
+    ) external view returns (bool);
 
     /// @notice Get RewardManager's balance
     function getBalance() external view returns (uint256);

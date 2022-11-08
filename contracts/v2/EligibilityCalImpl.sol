@@ -59,12 +59,9 @@ contract EligibilityCalImpl is AEligibilityCal {
             );
     }
 
-    function getSelectionBlocksPassed(uint256 _ethBlockStamp)
-        internal
-        view
-        override
-        returns (uint256)
-    {
+    function getSelectionBlocksPassed(
+        uint256 _ethBlockStamp
+    ) internal view override returns (uint256) {
         return Eligibility.getSelectionBlocksPassed(_ethBlockStamp);
     }
 }

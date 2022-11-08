@@ -50,12 +50,9 @@ contract HistoricalDataImpl is AHistoricalData {
     }
 
     /// @notice Get a V2 sidechain block
-    function getSidechainBlock(uint256 _number)
-        external
-        view
-        override
-        returns (BlockData memory)
-    {
+    function getSidechainBlock(
+        uint256 _number
+    ) external view override returns (BlockData memory) {
         return historicalCtx.blockData[_number];
     }
 
@@ -64,12 +61,10 @@ contract HistoricalDataImpl is AHistoricalData {
     /// @param _depthDiff the minimal depth diff to validate sidechain block
     /// @return bool is the sidechain block valid
     /// @return address the producer of the sidechain block
-    function isValidBlock(uint32 _sidechainBlockNumber, uint32 _depthDiff)
-        external
-        view
-        override
-        returns (bool, address)
-    {
+    function isValidBlock(
+        uint32 _sidechainBlockNumber,
+        uint32 _depthDiff
+    ) external view override returns (bool, address) {
         uint256 blockDepth = historicalCtx.tree.getDepth(_sidechainBlockNumber);
         (uint256 deepestBlock, uint256 deepestDepth) = historicalCtx
             .tree
@@ -115,11 +110,10 @@ contract HistoricalDataImpl is AHistoricalData {
     /// @notice Record information about the latest sidechain block
     /// @param _producer the producer of the sidechain block
     /// @param _sidechainBlockCount count of total sidechain blocks
-    function updateLatest(address _producer, uint256 _sidechainBlockCount)
-        internal
-        virtual
-        override
-    {
+    function updateLatest(
+        address _producer,
+        uint256 _sidechainBlockCount
+    ) internal virtual override {
         historicalCtx.latestCtx = LatestCtx(
             _producer,
             uint32(block.number),
