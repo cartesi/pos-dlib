@@ -447,7 +447,7 @@
       ]
     },
     "Eligibility": {
-      "address": "0xa2cD33Be2847f8a64566c8FF548249b3bFE943fF",
+      "address": "0x3ac507FA769b73e9A7eB9abB13e4f43D1482EA72",
       "abi": [
         {
           "inputs": [
@@ -979,7 +979,7 @@
       ]
     },
     "PoSV2FactoryImpl": {
-      "address": "0x6520c0A0b5f7467bf2571ec742e36ebA6F23e73D",
+      "address": "0x97D1A0fe34A2B55FEeF898eA02021a8af566a8fC",
       "abi": [
         {
           "anonymous": false,
