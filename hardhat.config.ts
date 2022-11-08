@@ -25,7 +25,6 @@ import { HttpNetworkUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
-import "@tenderly/hardhat-tenderly";
 import "@typechain/hardhat";
 import "solidity-coverage";
 import "hardhat-deploy";
@@ -173,10 +172,6 @@ const config: HardhatUserConfig = {
     },
     mocha: {
         timeout: 120000,
-    },
-    tenderly: {
-        username: "cartesi",
-        project: "pos",
     },
 };
 
