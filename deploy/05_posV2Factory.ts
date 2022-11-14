@@ -30,5 +30,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
 };
 
+func.tags = ["PoSV2Factory"];
+func.dependencies = ["LibsV2", "LibrariesV2", "Tree"];
 export default func;
-export const tags = ["PoSV2Factory"];

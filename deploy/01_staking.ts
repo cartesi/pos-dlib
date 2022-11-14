@@ -38,5 +38,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
 };
 
+func.tags = ["Staking"];
+func.dependencies = ["Token"];
 export default func;
-export const tags = ["Staking"];

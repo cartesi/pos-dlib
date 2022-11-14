@@ -23,5 +23,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
 };
 
+func.tags = ["BlockSelector"];
 export default func;
-export const tags = ["BlockSelector"];

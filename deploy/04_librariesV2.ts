@@ -32,5 +32,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
 };
 
+func.tags = ["LibrariesV2"];
+func.dependencies = ["Logarithms"];
 export default func;
-export const tags = ["LibrariesV2"];
