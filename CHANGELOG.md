@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2022-11-15
+
+### Changed
+
+- PoSV2 smart contracts
+
 ## [1.1.2] - 2021-06-29
 
 ### Changed
@@ -33,7 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First release
 
-[unreleased]: https://github.com/cartesi/pos-dlib/compare/v1.1.2...HEAD
+[unreleased]: https://github.com/cartesi/pos-dlib/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/cartesi/pos-dlib/compare/v1.1.2...v2.0.0
 [1.1.2]: https://github.com/cartesi/pos-dlib/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/cartesi/pos-dlib/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/cartesi/pos-dlib/compare/v1.0.0...v1.1.0
