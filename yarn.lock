@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@cartesi/token@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@cartesi/token/-/token-1.7.0.tgz#ed7ca1ca6fcfe1685370433e2cad4fbc3fa66f09"
-  integrity sha512-CkzVizL1xyYEDkXil19Dv4JDvY7aJIcNCJP+oLbetWxaYXvs2bRDEqRzIrLz1/bedTQasTPqee9hwgVQJtpjOw==
+"@cartesi/token@^1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@cartesi/token/-/token-1.7.1.tgz#9ffdd8479ea2688fc7de44fa42fe913806f94a52"
+  integrity sha512-y9LQFtJLs67aGQkNF5jrvAV+gkOXzBav01rONN2wLN0DOdYRwq+3YYSL3Z0iZWqEZ8fOg0H2gTEshVTPTDS0QA==
   dependencies:
     "@openzeppelin/contracts" "^2.5.0"
 
@@ -17,10 +17,10 @@
     "@openzeppelin/contracts" "^4.7.0"
     commander "^9.4.1"
 
-"@cartesi/util@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@cartesi/util/-/util-5.0.0.tgz#98b1d85aa9949fab3e0b6f1e630026375c31cc6b"
-  integrity sha512-JUZqvlPQgAA6SpHU0svnK3us2k112CN2o1QI4C4BHnqc0QdSDHyw6qlfVGic1DlUq1rVq8c68I4XvsgChn3ZgQ==
+"@cartesi/util@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@cartesi/util/-/util-5.0.1.tgz#953916125122595488c366df0895e5bb79897b55"
+  integrity sha512-KCUHKvjCiZMWo4FojBrZ/2/RHbSiE948IndG8nqEcpYh4CHlumHoKSZKdfoxWBArs12MhupT3v50Pt9e4c5/Hw==
   dependencies:
     "@openzeppelin/contracts" "3.2.1-solc-0.7"
 
