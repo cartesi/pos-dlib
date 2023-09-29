@@ -23,11 +23,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { CartesiToken } = await deployments.all();
 
     const timeToStake =
-        network.name == "mainnet" || network.name == "ropsten"
+        network.name == "mainnet" || network.name == "sepolia"
             ? 6 * HOUR
             : 2 * MINUTE;
     const timeToRelease =
-        network.name == "mainnet" || network.name == "ropsten"
+        network.name == "mainnet" || network.name == "sepolia"
             ? 2 * DAY
             : 2 * MINUTE;
 
