@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add sepolia network
+
 ### Removed
 
 - Removed deployments of avax_testnet, bsc_testnet, optimism_goerli, polygon_mumbai, rinkeby and ropsten

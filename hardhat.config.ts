@@ -58,6 +58,7 @@ const config: HardhatUserConfig = {
         },
         mainnet: infuraNetwork("mainnet", 1, 6283185),
         goerli: infuraNetwork("goerli", 5, 6283185),
+        sepolia: infuraNetwork("sepolia", 11155111, 6283185),
     },
     solidity: {
         compilers: [
@@ -114,6 +115,11 @@ const config: HardhatUserConfig = {
                 "node_modules/@cartesi/util/deployments/goerli",
                 "node_modules/@cartesi/tree/deployments/goerli",
                 "node_modules/@cartesi/token/deployments/goerli",
+            ],
+            sepolia: [
+                "node_modules/@cartesi/util/deployments/sepolia",
+                "node_modules/@cartesi/tree/deployments/sepolia",
+                "node_modules/@cartesi/token/deployments/sepolia",
             ],
         },
     },
