@@ -58,18 +58,6 @@ const config: HardhatUserConfig = {
         },
         mainnet: infuraNetwork("mainnet", 1, 6283185),
         goerli: infuraNetwork("goerli", 5, 6283185),
-        polygon_mumbai: infuraNetwork("polygon-mumbai", 80001),
-        optimism_goerli: infuraNetwork("optimism-goerli", 420),
-        bsc_testnet: {
-            url: "https://data-seed-prebsc-1-s1.binance.org:8545",
-            chainId: 97,
-            accounts: mnemonic ? { mnemonic } : undefined,
-        },
-        avax_testnet: {
-            url: "https://api.avax-test.network/ext/bc/C/rpc",
-            chainId: 0xa869,
-            accounts: mnemonic ? { mnemonic } : undefined,
-        },
     },
     solidity: {
         compilers: [
@@ -126,26 +114,6 @@ const config: HardhatUserConfig = {
                 "node_modules/@cartesi/util/deployments/goerli",
                 "node_modules/@cartesi/tree/deployments/goerli",
                 "node_modules/@cartesi/token/deployments/goerli",
-            ],
-            polygon_mumbai: [
-                "node_modules/@cartesi/util/deployments/polygon_mumbai",
-                "node_modules/@cartesi/tree/deployments/polygon_mumbai",
-                "node_modules/@cartesi/token/deployments/polygon_mumbai",
-            ],
-            bsc_testnet: [
-                "node_modules/@cartesi/util/deployments/bsc_testnet",
-                "node_modules/@cartesi/tree/deployments/bsc_testnet",
-                "node_modules/@cartesi/token/deployments/bsc_testnet",
-            ],
-            optimism_goerli: [
-                "node_modules/@cartesi/util/deployments/optimism_goerli",
-                "node_modules/@cartesi/tree/deployments/optimism_goerli",
-                "node_modules/@cartesi/token/deployments/optimism_goerli",
-            ],
-            avax_testnet: [
-                "node_modules/@cartesi/util/deployments/avax_testnet",
-                "node_modules/@cartesi/tree/deployments/avax_testnet",
-                "node_modules/@cartesi/token/deployments/avax_testnet",
             ],
         },
     },

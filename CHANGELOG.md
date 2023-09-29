@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Removed deployments of avax_testnet, bsc_testnet, optimism_goerli, polygon_mumbai, rinkeby and ropsten
+
 ## [2.0.0] - 2022-11-15
 
 ### Changed
