@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@cartesi/token@^1.7.1":
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/@cartesi/token/-/token-1.7.1.tgz#9ffdd8479ea2688fc7de44fa42fe913806f94a52"
-  integrity sha512-y9LQFtJLs67aGQkNF5jrvAV+gkOXzBav01rONN2wLN0DOdYRwq+3YYSL3Z0iZWqEZ8fOg0H2gTEshVTPTDS0QA==
+"@cartesi/token@1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@cartesi/token/-/token-1.9.0.tgz#fb1f7c5c3ac03392e4a560830ca4c7cc3a561987"
+  integrity sha512-BcGJXHh80kWtSV3ASSo2J8FOF3aqqVpLnCU4sh/RA+UHRDTNtA83aw+awf0w7kQNB4nYfqiZmwnrpi6o4RL+RQ==
   dependencies:
     "@openzeppelin/contracts" "^2.5.0"
 
