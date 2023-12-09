@@ -17,36 +17,43 @@ This has a disadvantage by allowing a miner of the main chain to influence the r
 Also the retossing has a minor effect in the system, unlike cassino-style contracts.
 
 The random selection process will be based on the following algorithm.
-After the hash `H` of the block is available for random number generation, each participant in the Proof of Stake algorithm will be able to calculate (off-chain) a random time after which it will be able to claim to be the chosen one.
+After the hash $H$ of the block is available for random number generation, each participant in the Proof of Stake algorithm will be able to calculate (off-chain) a random time after which it will be able to claim to be the chosen one.
 The first user to call such claim function is the one officially selected.
 These random times being different for each user mitigates the problem of race conditions.
 
-- We denote by `T_i` the time interval (counting from the last selection) after which the user `i` can claim to be the winner.
-- We write `a_i` and `b_i` for the address and balance of user `i` respectively
-- Let `H` denote the hash which will be used as source of randomness
-- Let `Y_i = hash(a_i, H)`, which will be a random number specific to user `i`
-- Finally we have a variable `difficulty` (which changes addaptively) and regulates the time between selections.
+- $a_i$ : address of user $i$
+- $b_i$ : balance of user $i$
+- $d$ : difficulty variable (regulates the time between selections and changes adaptively)
+- $H$ : the hash used as source of randomness
+- $T_i$ : number of blocks (counting from the last selection) after which user $i$ can claim to be the winner
+- $Y_i$ : the random number specific to user $i$ defined as $Y_i := hash(a_i, H)$
 
-The main formula we use for regulating the system is the one determining `T_i`:
+The main formula we use for regulating the system is the one determining $T_i$:
 
-![equation](https://latex.codecogs.com/svg.latex?T_i%20%3A%3D%20%5Cfrac%7B%5Ctext%7Bdifficulty%7D%7D%7Bb_i%7D%20%5Cbig%28%20256%20-%20%5Clog%28Y_i%29%20%5Cbig%29)
+$$
+T_i := \frac{d}{b_i} (256 - log(Y_i))
+$$
 
-Therefore, before allowing a user to claim to be the selected one, we should run:
+Therefore, before allowing a user to claim to be the selected one, we should require that $t_i > T_i$, where $t_i$ is the number of blocks since the last person was selected.
+Or, in other words...
 
-```
-require(b_i * blockDuration > difficulty * (256 - log(Y_i))
-```
-where `blockDuration` is the number of blocks since the last person was selected
+$$
+b_i \cdot t_i > d \cdot (256 - log(Y_i))
+$$
 
-Note that we should multiply both sides of the above inequality by a large number (say one million) in order to avoid rounding errors (effectively simulating fixed point arithmetics).
+Note that we should multiply both sides of the above inequality by a large number (say $10^9$) in order to avoid rounding errors (effectively simulating fixed point arithmetics).
 
-It is not hard to see that `T_i` defined above has an exponential distribution with parameter `b_i/difficulty`.
-More precisely
+It is not hard to see that $T_i$ defined above has an exponential distribution with parameter $b_i/d$.
+More precisely:
 
-![equation](https://latex.codecogs.com/svg.latex?P%5BT_i%20%5Cgeq%20x%5D%20%3D%20P%20%5CBig%5B%20%5Cfrac%7BY_i%7D%7B2%5E%7B256%7D%7D%20%5Cleq%20%5Cexp%20%5CBig%5C%7B%20-%20%5Cfrac%7Bb_i%7D%7B%5Ctext%7Bdifficulty%7D%7D%20x%20%5CBig%5C%7D%20%5CBig%5D%20%3D%20%5Cexp%20%5CBig%5C%7B%20-%20%5Cfrac%7Bb_i%7D%7B%5Ctext%7Bdifficulty%7D%7D%20x%20%5CBig%5C%7D)
+$$
+P[T_i \ge x] =
+P \left[ \frac{Y_i}{2^{256}} \le exp \left( - \frac{b_i}{d} x \right) \right] =
+exp \left( - \frac{b_i}{d} x \right)
+$$
 
-Observing that the `T_i`'s are independent of one another, their minimum `T = min{T_i}` is also an exponential random variable with parameter given by `b/difficulty`, where `b` is the total balance of all active stakers `b = sum(b_1, b_2...)`.
-This means that the average time for a block to appear is given by `difficulty/b`, so in other words, everytime the actively staked balance of all users change by a factor, the difficulty has to adapt by the same amount in order to regulate the expected interval between selections.
+Observing that $\\{T_i\\}$ are independent of one another, their minimum $T = min\\{T_i\\}$ is also an exponential random variable with parameter given by $b/d$, where $b$ is the total balance of all active stakers $b = sum\\{b_i\\}$.
+This means that the average time for a block to appear is given by $d/b$, so in other words, everytime the actively staked balance of all users change by a factor, the difficulty has to adapt by the same amount in order to regulate the expected interval between selections.
 
 # Staking
 
