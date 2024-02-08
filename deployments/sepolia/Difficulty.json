@@ -1,0 +1,84 @@
+{
+  "address": "0x7D4B014eEd39b5f4253b46B9f7Cc145A903E66e2",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_minDifficulty",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_difficulty",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_difficultyAdjustmentParameter",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_targetInterval",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_blocksPassed",
+          "type": "uint256"
+        }
+      ],
+      "name": "getNewDifficulty",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xf484cd930b54c66d4682ff403165b9c5d73bf3a25e2a4957da9c3fedcaaba921",
+  "receipt": {
+    "to": null,
+    "from": "0x18930e8a66a1DbE21D00581216789AAB7460Afd0",
+    "contractAddress": "0x7D4B014eEd39b5f4253b46B9f7Cc145A903E66e2",
+    "transactionIndex": 110,
+    "gasUsed": "150582",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xb2c9d4b389935e441ff62e250cc1d4ec212fd969a280327fe2a9f94159833417",
+    "transactionHash": "0xf484cd930b54c66d4682ff403165b9c5d73bf3a25e2a4957da9c3fedcaaba921",
+    "logs": [],
+    "blockNumber": 5242005,
+    "cumulativeGasUsed": "12593977",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "7f54a0599f8b57d1a09cfb9413861c86",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.14+commit.80d49f37\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_minDifficulty\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_difficulty\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_difficultyAdjustmentParameter\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_targetInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_blocksPassed\",\"type\":\"uint256\"}],\"name\":\"getNewDifficulty\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getNewDifficulty(uint256,uint256,uint256,uint256,uint256)\":{\"notice\":\"Calculates new difficulty parameter\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/v2/Difficulty.sol\":\"Difficulty\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/v2/Difficulty.sol\":{\"content\":\"// Copyright 2022 Cartesi Pte. Ltd.\\n\\n// SPDX-License-Identifier: Apache-2.0\\n// Licensed under the Apache License, Version 2.0 (the \\\"License\\\"); you may not use\\n// this file except in compliance with the License. You may obtain a copy of the\\n// License at http://www.apache.org/licenses/LICENSE-2.0\\n\\n// Unless required by applicable law or agreed to in writing, software distributed\\n// under the License is distributed on an \\\"AS IS\\\" BASIS, WITHOUT WARRANTIES OR\\n// CONDITIONS OF ANY KIND, either express or implied. See the License for the\\n// specific language governing permissions and limitations under the License.\\n\\n/// @title Difficulty Library\\n\\npragma solidity ^0.8.0;\\n\\nlibrary Difficulty {\\n    uint32 constant ADJUSTMENT_BASE = 1e6; // 1M\\n\\n    /// @notice Calculates new difficulty parameter\\n    function getNewDifficulty(\\n        uint256 _minDifficulty,\\n        uint256 _difficulty,\\n        uint256 _difficultyAdjustmentParameter,\\n        uint256 _targetInterval,\\n        uint256 _blocksPassed\\n    ) external pure returns (uint256) {\\n        uint256 adjustment = (_difficulty * _difficultyAdjustmentParameter) /\\n            ADJUSTMENT_BASE +\\n            1;\\n\\n        // @dev to save gas on evaluation, instead of returning the _oldDiff when the target\\n        // was exactly matched - we increase the difficulty.\\n        if (_blocksPassed <= _targetInterval) {\\n            return _difficulty + adjustment;\\n        }\\n\\n        uint256 newDiff = _difficulty - adjustment;\\n\\n        return newDiff > _minDifficulty ? newDiff : _minDifficulty;\\n    }\\n}\\n\",\"keccak256\":\"0xa0ccc3eb68a4618eef6f3150c81651c1d4885cddd32146aea82d8070d18fc808\",\"license\":\"Apache-2.0\"}},\"version\":1}",
+  "bytecode": "0x6101c261003a600b82828239805160001a60731461002d57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600436106100355760003560e01c8063b602c0be1461003a575b600080fd5b61004d6100483660046100cb565b61005f565b60405190815260200160405180910390f35b600080620f4240610070868861011c565b61007a919061013b565b61008590600161015d565b90508383116100a057610098818761015d565b9150506100c2565b60006100ac8288610175565b90508781116100bb57876100bd565b805b925050505b95945050505050565b600080600080600060a086880312156100e357600080fd5b505083359560208501359550604085013594606081013594506080013592509050565b634e487b7160e01b600052601160045260246000fd5b600081600019048311821515161561013657610136610106565b500290565b60008261015857634e487b7160e01b600052601260045260246000fd5b500490565b6000821982111561017057610170610106565b500190565b60008282101561018757610187610106565b50039056fea2646970667358221220922b29d0f96472e4628b800aa99e637d7c730e3365ee8434f5407edbc3ab588464736f6c634300080e0033",
+  "deployedBytecode": "0x73000000000000000000000000000000000000000030146080604052600436106100355760003560e01c8063b602c0be1461003a575b600080fd5b61004d6100483660046100cb565b61005f565b60405190815260200160405180910390f35b600080620f4240610070868861011c565b61007a919061013b565b61008590600161015d565b90508383116100a057610098818761015d565b9150506100c2565b60006100ac8288610175565b90508781116100bb57876100bd565b805b925050505b95945050505050565b600080600080600060a086880312156100e357600080fd5b505083359560208501359550604085013594606081013594506080013592509050565b634e487b7160e01b600052601160045260246000fd5b600081600019048311821515161561013657610136610106565b500290565b60008261015857634e487b7160e01b600052601260045260246000fd5b500490565b6000821982111561017057610170610106565b500190565b60008282101561018757610187610106565b50039056fea2646970667358221220922b29d0f96472e4628b800aa99e637d7c730e3365ee8434f5407edbc3ab588464736f6c634300080e0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "getNewDifficulty(uint256,uint256,uint256,uint256,uint256)": {
+        "notice": "Calculates new difficulty parameter"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
