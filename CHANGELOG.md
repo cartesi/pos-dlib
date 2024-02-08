@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2024-02-08
+
 ### Added
 
 - Add sepolia network
@@ -47,7 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First release
 
-[unreleased]: https://github.com/cartesi/pos-dlib/compare/v2.0.0...HEAD
+[unreleased]: https://github.com/cartesi/pos-dlib/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/cartesi/pos-dlib/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/cartesi/pos-dlib/compare/v1.1.2...v2.0.0
 [1.1.2]: https://github.com/cartesi/pos-dlib/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/cartesi/pos-dlib/compare/v1.1.0...v1.1.1
